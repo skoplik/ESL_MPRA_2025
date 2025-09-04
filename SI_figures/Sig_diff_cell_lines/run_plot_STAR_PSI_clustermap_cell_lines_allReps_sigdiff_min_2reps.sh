@@ -1,0 +1,36 @@
+
+GitHub_path=/ESL/GitHub/ESL
+
+STAR_PSI_dir=/ESL/Analysis/STAR_alignment/separate_concat_2023_09_19_d1c_ms75_from_s3_2023_11_27/recount_SJs/
+HEK293_Rep1_PSI=$STAR_PSI_dir/HEK293_Rep2_separate_splicing_profiles/HEK293_Rep2_separate_recalc_PSIs_mincov10.txt
+HEK293_Rep2_PSI=$STAR_PSI_dir/HEK293_Rep3_separate_splicing_profiles/HEK293_Rep3_separate_recalc_PSIs_mincov10.txt
+
+HEK293_WT_Rep1=/ESL/Analysis/WT_Library/separate/recount_SJs/HEK_WT_Rep1_20231101_separate_splicing_profiles/HEK_WT_Rep1_20231101_separate_recalc_PSIs_mincov10.txt
+HEK293_WT_Rep2=/ESL/Analysis/WT_Library/separate/recount_SJs/HEK_WT_Rep2_20231101_separate_splicing_profiles/HEK_WT_Rep2_20231101_separate_recalc_PSIs_mincov10.txt
+
+HeLa_Rep1_PSI=$STAR_PSI_dir/HeLa_Rep1_separate_splicing_profiles/HeLa_Rep1_separate_recalc_PSIs_mincov10.txt
+HeLa_Rep2_PSI=$STAR_PSI_dir/HeLa_Rep3_20231031_separate_splicing_profiles/HeLa_Rep3_20231031_separate_recalc_PSIs_mincov10.txt
+
+K562_Rep1_PSI=$STAR_PSI_dir/K562_Rep1_separate_splicing_profiles/K562_Rep1_separate_recalc_PSIs_mincov10.txt
+K562_Rep2_PSI=$STAR_PSI_dir/K562_Rep3_20231031_separate_splicing_profiles/K562_Rep3_20231031_separate_recalc_PSIs_mincov10.txt
+
+PSI_dir_2024_07_26=/ESL/Analysis/STAR_alignment/separate_concat_2023_09_19_d1c_ms75_from_s3_2023_11_27/recount_SJs/2024_07_26
+MCF7_Rep1_PSI=$PSI_dir_2024_07_26/MCF7_Rep1_separate_splicing_profiles/MCF7_Rep1_recalc_PSIs_mincov10.txt
+MCF7_Rep2_PSI=$PSI_dir_2024_07_26/MCF7_Rep2_separate_splicing_profiles/MCF7_Rep2_recalc_PSIs_mincov10.txt
+HMC3_Rep1_PSI=$PSI_dir_2024_07_26/HMC3_Rep1_separate_splicing_profiles/HMC3_Rep1_recalc_PSIs_mincov10.txt
+HMC3_Rep2_PSI=$PSI_dir_2024_07_26/HMC3_Rep2_separate_splicing_profiles/HMC3_Rep2_recalc_PSIs_mincov10.txt
+
+output_dir=/ESL/Figures/Cell_type_analyses/heatmap_plots_sigdiff_min_2reps/
+#output_dir=/ESL/Figures/Cell_type_analyses/heatmap_plots_sigdiff_testing/
+
+
+# Cell types
+
+python3 $GitHub_path/plot_STAR_PSI_clustermap_4cell_lines_allReps_sigdiff_07_26_2024_min_2reps.py \
+--HEK293_PSI_files $HEK293_Rep1_PSI,$HEK293_Rep2_PSI,$HEK293_WT_Rep1,$HEK293_WT_Rep2 \
+--HeLa_PSI_files $HeLa_Rep1_PSI,$HeLa_Rep2_PSI \
+--K562_PSI_files $K562_Rep1_PSI,$K562_Rep2_PSI \
+--MCF7_PSI_files $MCF7_Rep1_PSI,$MCF7_Rep2_PSI \
+--HMC3_PSI_files $HMC3_Rep1_PSI,$HMC3_Rep2_PSI \
+--output_dir $output_dir --output_prefix "HEK293_HeLa_K562_MCF7_HMC3_compare_any_reps" \
+--found_in_all_samples "False" 
