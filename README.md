@@ -9,7 +9,9 @@ Samantha E. Koplik*, Angela M. Yu*, Madelyn R. Shelby, Gabriel Fonseca, Charles 
 ![Graphical Abstract](SI_figures/2025_09_04_graph_abstract.png)
 
 
-Raw and processed data are available on GEO under accession **GSE307247**.  
+RRaw and processed data are available on GEO under accession 
+[**GSE307247**](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307247).
+
 
 The bioinformatic pipeline is demonstrated with **MCF7 Rep2**, but the same workflow applies to all cell lines and replicates.  
 Update file paths in the scripts (`GitHub_path`, `supertable_file`, `gtf_file`, `data_dir`, etc.) to match your environment.
