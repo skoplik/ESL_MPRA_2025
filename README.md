@@ -9,7 +9,7 @@ Samantha E. Koplik*, Angela M. Yu*, Madelyn R. Shelby, Gabriel Fonseca, Charles 
 ![Graphical Abstract](SI_figures/2025_09_04_graph_abstract.png)
 
 
-RRaw and processed data are available on GEO under accession 
+Raw and processed data are available on GEO under accession 
 [**GSE307247**](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307247).
 
 
