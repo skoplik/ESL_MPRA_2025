@@ -5,13 +5,9 @@ This repository contains all scripts and resources used for the analysis of the 
 **Deciphering the cis-regulatory code of alternative splicing in human cell lines**  
 Samantha E. Koplik*, Angela M. Yu*, Madelyn R. Shelby, Gabriel Fonseca, Charles M. Roco, Yue Zhang, Nicholas Bogard, Alex K. Sabo, Alexander B. Rosenberg, Johannes Linder, Georg Seelig  
 \*These authors contributed equally to this work  
-
 ![Graphical Abstract](SI_figures/2025_09_04_graph_abstract_github.png)
-
-
 Raw and processed data are available on GEO under accession 
 [**GSE307247**](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE307247).
-
 
 The bioinformatic pipeline is demonstrated with **MCF7 Rep2**, but the same workflow applies to all cell lines and replicates.  
 Update file paths in the scripts (`GitHub_path`, `supertable_file`, `gtf_file`, `data_dir`, etc.) to match your environment.
