@@ -3,7 +3,7 @@
 This repository contains all scripts and resources used for the analysis of the splicing MPRA described in:  
 
 **Deciphering the cis-regulatory code of alternative splicing in human cell lines**  
-Samantha E. Koplik*, Angela M. Yu*, Madelyn R. Shelby, Gabriel Fonseca, Charles M. Roco, Yue Zhang, Nicholas Bogard, Alex K. Sabo, Alexander B. Rosenberg, Johannes Linder, Georg Seelig  
+Samantha E. Koplik*, Angela M Yu*, Madelyn R. Shelby, Gabriel C. Fonseca, Charles M. Roco, Yue Zhang, Nicholas Bogard, Alex K. Sabo, Alexander B. Rosenberg, Johannes Linder, Georg Seelig  
 \*These authors contributed equally to this work  
 ![Graphical Abstract](SI_figures/2025_09_04_graph_abstract_github.png)
 Raw and processed data are available on GEO under accession 
