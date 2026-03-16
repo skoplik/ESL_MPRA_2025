@@ -13,12 +13,12 @@ MCF7_Rep2_PSI=$PSI_dir_2024_07_26/MCF7_Rep2_separate_splicing_profiles/MCF7_Rep2
 HMC3_Rep1_PSI=$PSI_dir_2024_07_26/HMC3_Rep1_separate_splicing_profiles/HMC3_Rep1_recalc_PSIs_mincov10.txt
 HMC3_Rep2_PSI=$PSI_dir_2024_07_26/HMC3_Rep2_separate_splicing_profiles/HMC3_Rep2_recalc_PSIs_mincov10.txt
 
-output_dir=/ESL/Figures_SK/General_preprocessing/output_7_13_2025
+output_dir=/ESL/Figures_SK/General_preprocessing/output_03_16_2026 \
 supertable_file=/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv
 
-python3 /ESL/Figures_SK/General_preprocessing/scripts/merge_psi_07_18_2025_clipping_no_psuedo.py \
+python3 /ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/merge_psi_07_18_2025_clipping_no_psuedo.py \
 --output_dir $output_dir \
---output_prefix 07_18_2025_1e-2 \
+--output_prefix 03_16_2026_1e-2 \
 --supertable_file $supertable_file \
 --HeLa_Rep1_PSI $HeLa_Rep1_PSI \
 --HeLa_Rep2_PSI $HeLa_Rep2_PSI \
