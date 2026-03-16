@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import os
 import sys, getopt
+import traceback
 from scipy.special import logit
 from functools import reduce
 
@@ -74,6 +75,118 @@ def attach_replicate_info(pooled_df, replicate_dfs, label):
         pooled_df = pd.merge(pooled_df, df, on='Reference', how='left')
     return pooled_df
 
+def compute_replicate_sds(pooled_df, label, var_rep_indices=None, wt_rep_indices=None, clip=1e-3):
+    """
+    Compute SD across replicates for PSI, logit(PSI), dPSI, and delta logit PSI.
+
+    For standard cell lines (HeLa, K562, MCF7, HMC3): all reps share the same
+    rows; WT rows are identified by snp=='none'. Leave var_rep_indices and
+    wt_rep_indices as None.
+
+    For HEK: variant reps (1,2) and WT reps (3,4) are separate rep columns.
+    Pass var_rep_indices=[1,2], wt_rep_indices=[3,4]. The WT PSI for dPSI is
+    computed as the mean across wt_rep_indices columns on snp=='none' rows,
+    then mapped per event_id onto variant rows.
+    """
+    all_rep_psi_cols = [col for col in pooled_df.columns
+                        if col.startswith(f'{label}_rep') and col.endswith('_psi_raw')]
+    all_rep_indices = [int(col.replace(f'{label}_rep', '').replace('_psi_raw', ''))
+                       for col in all_rep_psi_cols]
+
+    # Which reps to use for PSI/logit SD (variant reps only for HEK)
+    sd_rep_indices = var_rep_indices if var_rep_indices is not None else all_rep_indices
+    sd_psi_cols = [f'{label}_rep{i}_psi_raw' for i in sd_rep_indices
+                   if f'{label}_rep{i}_psi_raw' in pooled_df.columns]
+    sd_logit_cols = [f'{label}_rep{i}_logit' for i in sd_rep_indices
+                     if f'{label}_rep{i}_logit' in pooled_df.columns]
+
+    if len(sd_psi_cols) >= 2:
+        pooled_df[f'{label}_sd_psi'] = pooled_df[sd_psi_cols].std(axis=1, ddof=1)
+    else:
+        pooled_df[f'{label}_sd_psi'] = np.nan
+
+    if len(sd_logit_cols) >= 2:
+        pooled_df[f'{label}_sd_logit'] = pooled_df[sd_logit_cols].std(axis=1, ddof=1)
+    else:
+        pooled_df[f'{label}_sd_logit'] = np.nan
+
+    rep_dpsi_cols = []
+    rep_dlogit_cols = []
+
+    if var_rep_indices is not None and wt_rep_indices is not None:
+        # HEK: WT values come from wt_rep_indices columns on snp=='none' rows,
+        # averaged across WT reps per event_id, then mapped onto all rows.
+        wt_psi_cols = [f'{label}_rep{i}_psi_raw' for i in wt_rep_indices
+                       if f'{label}_rep{i}_psi_raw' in pooled_df.columns]
+        wt_logit_cols = [f'{label}_rep{i}_logit' for i in wt_rep_indices
+                         if f'{label}_rep{i}_logit' in pooled_df.columns]
+
+        wt_rows = pooled_df[pooled_df['snp'] == 'none'][['event_id'] + wt_psi_cols + wt_logit_cols].copy()
+
+        wt_psi_map = None
+        wt_logit_map = None
+        if wt_psi_cols:
+            wt_rows['wt_mean_psi'] = wt_rows[wt_psi_cols].mean(axis=1)
+            wt_psi_map = wt_rows.groupby('event_id')['wt_mean_psi'].mean()
+        if wt_logit_cols:
+            wt_rows['wt_mean_logit'] = wt_rows[wt_logit_cols].mean(axis=1)
+            wt_logit_map = wt_rows.groupby('event_id')['wt_mean_logit'].mean()
+
+        for i in var_rep_indices:
+            psi_col = f'{label}_rep{i}_psi_raw'
+            logit_col = f'{label}_rep{i}_logit'
+            dpsi_col = f'{label}_rep{i}_dpsi'
+            dlogit_col = f'{label}_rep{i}_delta_logit'
+            if psi_col not in pooled_df.columns:
+                continue
+            if wt_psi_map is not None:
+                pooled_df[dpsi_col] = pooled_df[psi_col] - pooled_df['event_id'].map(wt_psi_map)
+            if wt_logit_map is not None:
+                pooled_df[dlogit_col] = pooled_df[logit_col] - pooled_df['event_id'].map(wt_logit_map)
+            pooled_df.loc[pooled_df['snp'] == 'none', [dpsi_col, dlogit_col]] = np.nan
+            rep_dpsi_cols.append(dpsi_col)
+            rep_dlogit_cols.append(dlogit_col)
+
+    else:
+        # Standard: WT rows identified by snp=='none', same rep columns for all rows
+        wt_rows = pooled_df[pooled_df['snp'] == 'none'][['event_id'] + sd_psi_cols + sd_logit_cols].copy()
+
+        wt_psi_lookup = {}
+        wt_logit_lookup = {}
+        for i, psi_col in zip(sd_rep_indices, sd_psi_cols):
+            wt_psi_lookup[i] = wt_rows.set_index('event_id')[psi_col]
+        for i, logit_col in zip(sd_rep_indices, sd_logit_cols):
+            wt_logit_lookup[i] = wt_rows.set_index('event_id')[logit_col]
+
+        for i in sd_rep_indices:
+            psi_col = f'{label}_rep{i}_psi_raw'
+            logit_col = f'{label}_rep{i}_logit'
+            dpsi_col = f'{label}_rep{i}_dpsi'
+            dlogit_col = f'{label}_rep{i}_delta_logit'
+            if psi_col not in pooled_df.columns:
+                continue
+            wt_psi_for_rep = pooled_df['event_id'].map(wt_psi_lookup.get(i, pd.Series(dtype=float)))
+            wt_logit_for_rep = pooled_df['event_id'].map(wt_logit_lookup.get(i, pd.Series(dtype=float)))
+            pooled_df[dpsi_col] = pooled_df[psi_col] - wt_psi_for_rep
+            pooled_df[dlogit_col] = pooled_df[logit_col] - wt_logit_for_rep
+            pooled_df.loc[pooled_df['snp'] == 'none', [dpsi_col, dlogit_col]] = np.nan
+            rep_dpsi_cols.append(dpsi_col)
+            rep_dlogit_cols.append(dlogit_col)
+
+    if len(rep_dpsi_cols) >= 2:
+        pooled_df[f'{label}_sd_dpsi'] = pooled_df[rep_dpsi_cols].std(axis=1, ddof=1)
+    else:
+        pooled_df[f'{label}_sd_dpsi'] = np.nan
+
+    if len(rep_dlogit_cols) >= 2:
+        pooled_df[f'{label}_sd_delta_logit'] = pooled_df[rep_dlogit_cols].std(axis=1, ddof=1)
+    else:
+        pooled_df[f'{label}_sd_delta_logit'] = np.nan
+
+    pooled_df = pooled_df.drop(columns=rep_dpsi_cols + rep_dlogit_cols)
+
+    return pooled_df
+
 def write_outputs_with_and_without_wt(pooled_df, output_prefix, label):
     wt_refs = pooled_df[pooled_df['snp'] == 'none']
     var_refs = pooled_df[pooled_df['snp'] != 'none']
@@ -90,7 +203,6 @@ def write_outputs_with_and_without_wt(pooled_df, output_prefix, label):
     var_out = var_out.drop(columns=delta_cols)
     var_out.to_csv(f"{output_prefix}_{label}_VARIANTS_ONLY.csv", index=False)
 
-    # Corrected: write pooled_df as-is, keeping all delta columns (NaNs allowed)
     pooled_df.to_csv(f"{output_prefix}_{label}_WTS_VARS_NO_DELTAS.csv", index=False)
 
 
@@ -102,14 +214,15 @@ def main():
         "supertable_file=", "output_dir=", "output_prefix=", "clip="])
     opts = dict(opts)
     clip_val = float(opts.get("--clip", 1e-3))
-    output_prefix = os.path.join(opts["--output_dir"], opts["--output_prefix"])
-    os.makedirs(os.path.dirname(output_prefix), exist_ok=True)
+    output_dir = opts["--output_dir"]
+    output_prefix = os.path.join(output_dir, opts["--output_prefix"])
+    os.makedirs(output_dir, exist_ok=True)
     supertable = pd.read_csv(opts["--supertable_file"], sep=',')
     supertable.iloc[:, 0] = supertable.iloc[:, 0].astype(int) + 1
     full_seqs = build_fullseqs_df(supertable)
 
     def read(path, label):
-        df = pd.read_csv(opts[path], sep='\\t')
+        df = pd.read_csv(opts[path], sep='\t', engine='python')
         df = pd.merge(df, full_seqs[['Reference']], on='Reference', how='inner')
         df = offset_psis(df, clip=clip_val)
         df['cell_line'] = label
@@ -123,39 +236,29 @@ def main():
         'HEK': [read("--HEK293_Rep1_PSI", "HEK"), read("--HEK293_Rep2_PSI", "HEK"),
                 read("--HEK293_WT_Rep1_PSI", "HEK"), read("--HEK293_WT_Rep2_PSI", "HEK")]
     }
-    '''
-    all_pooled = []
-    for label, reps in data.items():
-        pooled_df = compute_pooled_stats(reps, full_seqs, label, clip=clip_val)
-        pooled_df = attach_replicate_info(pooled_df, reps, label)
-        write_outputs_with_and_without_wt(pooled_df, output_prefix, label)
-        df = pd.read_csv(f"{output_prefix}_{label}_WITH_WT.csv")
-        all_pooled.append(df)
 
-    if all_pooled:
-        merged_df = reduce(lambda left, right: pd.merge(
-            left, right, on=['Reference', 'event_id', 'gene_exon','intron1','exon','intron2','full_seq','snp','source','seq_type'], how='outer'
-        ), all_pooled)
+    # HEK: reps 1+2 are variant libraries, reps 3+4 are WT libraries
+    hek_sd_kwargs = dict(var_rep_indices=[1, 2], wt_rep_indices=[3, 4])
 
-        seq_cols = ['Reference', 'event_id', 'gene_exon', 'snp', 'source', 'seq_type', 'intron1', 'exon', 'intron2', 'full_seq']
-        other_cols = [col for col in merged_df.columns if col not in seq_cols]
-        cell_lines = ['HeLa', 'K562', 'MCF7', 'HMC3', 'HEK']
-        col_order = seq_cols.copy()
-        for cl in cell_lines:
-            cl_pooled = [col for col in other_cols if col.startswith(f'{cl}_pooled_')]
-            cl_wt = [col for col in other_cols if col.startswith(f'{cl}_wt_')]
-            cl_deltas = [col for col in other_cols if f'{cl}_dpsi' in col or f'{cl}_delta_logit' in col]
-            cl_reps = [col for col in other_cols if col.startswith(f'{cl}_rep')]
-            col_order.extend(cl_pooled + cl_wt + cl_deltas + cl_reps)
-
-        merged_df = merged_df[col_order]
-        merged_df.to_csv(f"{output_prefix}_ALL_WITH_WT.csv", index=False)
-        variants_only = merged_df[merged_df['snp'] != 'none'].copy()
-        variants_only.to_csv(f"{output_prefix}_ALL_VARIANTS_ONLY.csv", index=False)'''
-        
-    # === Merge all WTS_VARS_NO_DELTAS.csv files ===
     all_no_deltas = []
     cell_lines = ['HeLa', 'K562', 'MCF7', 'HMC3', 'HEK']
+
+    for label, reps in data.items():
+        try:
+            print(f"\n=== Processing {label} ===")
+            pooled_df = compute_pooled_stats(reps, full_seqs, label, clip=clip_val)
+            print(f"  compute_pooled_stats done: {pooled_df.shape}")
+            pooled_df = attach_replicate_info(pooled_df, reps, label)
+            print(f"  attach_replicate_info done: {pooled_df.shape}")
+            sd_kwargs = hek_sd_kwargs if label == 'HEK' else {}
+            pooled_df = compute_replicate_sds(pooled_df, label, clip=clip_val, **sd_kwargs)
+            print(f"  compute_replicate_sds done: {pooled_df.shape}")
+            write_outputs_with_and_without_wt(pooled_df, output_prefix, label)
+            print(f"  Files written for {label}")
+        except Exception as e:
+            print(f"ERROR processing {label}: {e}")
+            traceback.print_exc()
+
     for cl in cell_lines:
         path = f"{output_prefix}_{cl}_WTS_VARS_NO_DELTAS.csv"
         if os.path.exists(path):
@@ -180,6 +283,7 @@ def main():
         merged_no_deltas = merged_no_deltas[col_order]
 
         merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv", index=False)
+        print(f"\nWrote merged file: {output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv")
 
 if __name__ == "__main__":
     main()
