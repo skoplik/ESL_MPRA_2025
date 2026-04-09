@@ -1,7 +1,9 @@
 #!/bin/bash
 
-input_file="/ESL/Figures_SK/Cluster_motifs/output_cleaned_pwms/filtered_motifs_final.meme"
-output_dir="/ESL/Figures_SK/effect_sizes_debug/fimo_not_on_clusters_no_rc/FIMO_idv_memes_04_30_2025_no_rc"
+BASE_DIR=/ESL  # change to your base directory
+
+input_file="$BASE_DIR/Figures_SK/Cluster_motifs/output_cleaned_pwms/filtered_motifs_final.meme"
+output_dir="$BASE_DIR/Figures_SK/effect_sizes_debug/fimo_not_on_clusters_no_rc/FIMO_idv_memes_04_30_2025_no_rc"
 
 mkdir -p "$output_dir"
 
@@ -31,7 +33,7 @@ writing {
 echo "Split completed: individual .meme files written to $output_dir"
 
 # Paths for FIMO run
-fimopath="/ESL/Figures_SK/effect_sizes_debug/fimo_not_on_clusters_no_rc"
+fimopath="$BASE_DIR/Figures_SK/effect_sizes_debug/fimo_not_on_clusters_no_rc"
 outpath="$fimopath/out_04_30_2025_no_rc"
 memepath="$output_dir"
 input_dna_fasta="$fimopath/input_fimo.fasta"

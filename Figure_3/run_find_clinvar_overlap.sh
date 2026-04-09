@@ -1,17 +1,24 @@
-GitHub_path=/ESL/GitHub/ESL
-PSI_output_dir=/ESL/Analysis/PSI_from_STAR/output_to_ESL_concat_2022_06_02_subsampleparams_d1c_ms75_bowtie_mincov5_close_match_1MM
-supertable_file=/ESL/Data/Sequences/supertable.tsv
+#!/bin/bash
 
-BLAT_exe_path=/ESL/src_download/UCSC_utilities/blat
-BLAT_reference=/ESL/Data/Sequences/GRCh38_hg38/hg38.2bit
+BASE_DIR=/ESL  # change to your base directory
 
+GitHub_path=$BASE_DIR/GitHub/ESL
+supertable_file=$BASE_DIR/Data/Sequences/supertable.tsv
 
-STAR_PSI_dir=/ESL/Analysis/STAR_alignment/separate_concat_2023_09_19_d1c_ms75_from_s3_2023_11_27/recount_SJs/
+BLAT_exe_path=$BASE_DIR/src_download/UCSC_utilities/blat
+BLAT_reference=$BASE_DIR/Data/Sequences/GRCh38_hg38/hg38.2bit
+
+# ClinVar VCF — set path before running
+ClinVar_VCF=  # e.g. $BASE_DIR/Data/ClinVar/clinvar.vcf.gz
+
+PSI_output_dir=$BASE_DIR/Analysis/PSI_from_STAR/output_to_ESL_concat_2022_06_02_subsampleparams_d1c_ms75_bowtie_mincov5_close_match_1MM
+
+STAR_PSI_dir=$BASE_DIR/Analysis/STAR_alignment/separate_concat_2023_09_19_d1c_ms75_from_s3_2023_11_27/recount_SJs
 HEK293_Rep1_PSI=$STAR_PSI_dir/HEK293_Rep2_separate_splicing_profiles/HEK293_Rep2_separate_recalc_PSIs_mincov10.txt
 HEK293_Rep2_PSI=$STAR_PSI_dir/HEK293_Rep3_separate_splicing_profiles/HEK293_Rep3_separate_recalc_PSIs_mincov10.txt
 
-HEK293_WT_Rep1=/ESL/Analysis/WT_Library/separate/recount_SJs/HEK_WT_Rep1_20231101_separate_splicing_profiles/HEK_WT_Rep1_20231101_separate_recalc_PSIs_mincov10.txt
-HEK293_WT_Rep2=/ESL/Analysis/WT_Library/separate/recount_SJs/HEK_WT_Rep2_20231101_separate_splicing_profiles/HEK_WT_Rep2_20231101_separate_recalc_PSIs_mincov10.txt
+HEK293_WT_Rep1=$BASE_DIR/Analysis/WT_Library/separate/recount_SJs/HEK_WT_Rep1_20231101_separate_splicing_profiles/HEK_WT_Rep1_20231101_separate_recalc_PSIs_mincov10.txt
+HEK293_WT_Rep2=$BASE_DIR/Analysis/WT_Library/separate/recount_SJs/HEK_WT_Rep2_20231101_separate_splicing_profiles/HEK_WT_Rep2_20231101_separate_recalc_PSIs_mincov10.txt
 
 HeLa_Rep1_PSI=$STAR_PSI_dir/HeLa_Rep1_separate_splicing_profiles/HeLa_Rep1_separate_recalc_PSIs_mincov10.txt
 HeLa_Rep2_PSI=$STAR_PSI_dir/HeLa_Rep3_20231031_separate_splicing_profiles/HeLa_Rep3_20231031_separate_recalc_PSIs_mincov10.txt
@@ -19,13 +26,11 @@ HeLa_Rep2_PSI=$STAR_PSI_dir/HeLa_Rep3_20231031_separate_splicing_profiles/HeLa_R
 K562_Rep1_PSI=$STAR_PSI_dir/K562_Rep1_separate_splicing_profiles/K562_Rep1_separate_recalc_PSIs_mincov10.txt
 K562_Rep2_PSI=$STAR_PSI_dir/K562_Rep3_20231031_separate_splicing_profiles/K562_Rep3_20231031_separate_recalc_PSIs_mincov10.txt
 
-PSI_dir_2024_07_26=/ESL/Analysis/STAR_alignment/separate_concat_2023_09_19_d1c_ms75_from_s3_2023_11_27/recount_SJs/2024_07_26
+PSI_dir_2024_07_26=$STAR_PSI_dir/2024_07_26
 MCF7_Rep1_PSI=$PSI_dir_2024_07_26/MCF7_Rep1_separate_splicing_profiles/MCF7_Rep1_recalc_PSIs_mincov10.txt
 MCF7_Rep2_PSI=$PSI_dir_2024_07_26/MCF7_Rep2_separate_splicing_profiles/MCF7_Rep2_recalc_PSIs_mincov10.txt
 HMC3_Rep1_PSI=$PSI_dir_2024_07_26/HMC3_Rep1_separate_splicing_profiles/HMC3_Rep1_recalc_PSIs_mincov10.txt
 HMC3_Rep2_PSI=$PSI_dir_2024_07_26/HMC3_Rep2_separate_splicing_profiles/HMC3_Rep2_recalc_PSIs_mincov10.txt
-
-
 
 python3 $GitHub_path/associate_supertable_ClinVar.py \
 --supertable_file $supertable_file \
@@ -35,6 +40,4 @@ python3 $GitHub_path/associate_supertable_ClinVar.py \
 --BLAT_reference $BLAT_reference \
 --ClinVar_VCF $ClinVar_VCF
 
-
-
-ClinVar_matched_file=/ESL/Figures/Variant_analyses/heatmap_plots/supertable_ClinVar_matched_in_supertable.txt
+ClinVar_matched_file=$BASE_DIR/Figures/Variant_analyses/heatmap_plots/supertable_ClinVar_matched_in_supertable.txt
