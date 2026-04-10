@@ -48,22 +48,22 @@ TRUE_COL = "avg_delta_logit_pooled"
 # Colors: Plasma colormap shades; Retrained MMSplice stays blue
 # plasma positions: Baseline=0.05, SpliceAI=0.25, AlphaGenome=0.45, Pangolin=0.65, HAL=0.85
 COLOR = {
-    "Baseline MMSplice":  "#2a0593",  # plasma 0.05 — deep purple
+    "Baseline MMSplice":  "#7d51f9",  # bright purple (lum≈0.45)
     "Retrained MMSplice": "#377EB8",  # blue (fixed)
-    "SpliceAI":           "#7e03a8",  # plasma 0.25 — purple
-    "AlphaGenome":        "#bf3984",  # plasma 0.45 — magenta-pink
-    "Pangolin":           "#ea7457",  # plasma 0.65 — orange-red
-    "HAL":                "#feba2c",  # plasma 0.85 — amber
+    "SpliceAI":           "#a219d1",  # mid magenta (lum≈0.34)
+    "AlphaGenome":        "#ed7a52",  # plasma 0.67 — orange-red
+    "Pangolin":           "#fa9c3c",  # plasma 0.77 — amber-orange
+    "HAL":                "#fdc627",  # plasma 0.88 — yellow-amber
 }
 
-# Model definitions: (pred_col, label, color)
+# 5 models for general benchmarking (no retrained MMSplice — that has its own script)
+# Each model uses its own full coverage (n varies)
 MODELS = [
-    ("spliceai_delta_logit",            "SpliceAI",            COLOR["SpliceAI"]),
-    ("alphagenome_delta_logit",         "AlphaGenome",         COLOR["AlphaGenome"]),
-    ("pangolin_delta_logit",            "Pangolin",            COLOR["Pangolin"]),
-    ("hal_delta_logit",                 "HAL",                 COLOR["HAL"]),
-    ("baseline_mmsplice_delta_logit",   "Baseline MMSplice",   COLOR["Baseline MMSplice"]),
-    ("retrained_mmsplice_delta_logit",  "Retrained MMSplice",  COLOR["Retrained MMSplice"]),
+    ("baseline_mmsplice_delta_logit",  "Baseline MMSplice",  COLOR["Baseline MMSplice"]),
+    ("hal_delta_logit",                "HAL",                COLOR["HAL"]),
+    ("pangolin_delta_logit",           "Pangolin",           COLOR["Pangolin"]),
+    ("spliceai_delta_logit",           "SpliceAI",           COLOR["SpliceAI"]),
+    ("alphagenome_delta_logit",        "AlphaGenome",        COLOR["AlphaGenome"]),
 ]
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -92,14 +92,20 @@ def scatter_ax(ax, x, y, color, label, alpha=0.10, s=8):
             transform=ax.transAxes, va="top", ha="left", fontsize=8)
 
 
+def save_fig(fig, dirpath, stem):
+    for ext in ("pdf", "png"):
+        path = os.path.join(dirpath, f"{stem}.{ext}")
+        fig.savefig(path, bbox_inches="tight")
+        print(f"  Saved: {path}")
+
+
 def save_single(x, y, color, title, fname, label):
     fig, ax = plt.subplots(figsize=(4.2, 4.2), dpi=300)
     scatter_ax(ax, x, y, color, title)
     plt.tight_layout()
-    path = os.path.join(MODEL_OUTDIR[label], fname)
-    fig.savefig(path, bbox_inches="tight")
+    stem = fname.replace(".pdf", "")
+    save_fig(fig, MODEL_OUTDIR[label], stem)
     plt.close(fig)
-    print(f"  Saved: {path}")
 
 
 def r_n(x, y):
@@ -127,20 +133,17 @@ for pred_col, label, color in MODELS:
     stats[(label,)] = (r, n)
     print(f"  {label:25s}  r={r:.4f}  n={n:,}")
     safe_name = label.lower().replace(" ", "_")
-    save_single(x, y, color, f"{label} — Aggregate", f"all_models_{safe_name}_vs_true.pdf", label)
+    save_single(x, y, color, f"{label} — Aggregate", f"general_bench_{safe_name}.pdf", label)
 
-# ── 6-panel scatter (2 rows × 3 cols) ─────────────────────────────────────────
-print("\n── 6-panel scatter ──")
-fig, axes = plt.subplots(2, 3, figsize=(12.6, 8.4), dpi=300)
-axes_flat = axes.flatten()
-for ax, (pred_col, label, color) in zip(axes_flat, MODELS):
+# ── 5-panel scatter (1 row × 5) ───────────────────────────────────────────────
+print("\n── 5-panel scatter ──")
+fig, axes = plt.subplots(1, 5, figsize=(21, 4.2), dpi=300)
+for ax, (pred_col, label, color) in zip(axes, MODELS):
     sub = mega[[pred_col, TRUE_COL]].dropna()
     scatter_ax(ax, sub[pred_col].values, sub[TRUE_COL].values, color, label)
 plt.tight_layout()
-path = os.path.join(OUTDIR["merged_output"], "all_models_6panel_scatter.pdf")
-fig.savefig(path, bbox_inches="tight")
+save_fig(fig, OUTDIR["merged_output"], "general_bench_5panel_scatter")
 plt.close(fig)
-print(f"  Saved: {path}")
 
 # ── Bar plot 1: Full model comparison (no retrained MMSplice), sorted low→high ──
 print("\n── Bar plot: full model comparison ──")
@@ -176,12 +179,10 @@ ax.set_ylim(0, 1)
 ax.set_ylabel("Pearson r", fontsize=12)
 ax.set_title("Splicing Model Performance\n(Aggregate, avg Δlogit across cell lines)", fontsize=11)
 ax.set_xticks(x)
-ax.set_xticklabels(bar1_labels, fontsize=10)
+ax.set_xticklabels(bar1_labels, fontsize=10, rotation=45, ha="right")
 ax.axhline(0, color="black", linewidth=0.5)
 plt.tight_layout()
-path = os.path.join(OUTDIR["merged_output"], "bar_full_model_comparison.pdf")
-fig.savefig(path, bbox_inches="tight")
+save_fig(fig, OUTDIR["merged_output"], "bar_full_model_comparison")
 plt.close(fig)
-print(f"  Saved: {path}")
 
 print("\nDone.")
