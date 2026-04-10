@@ -1,3 +1,15 @@
 CLAUDE.md
 __pycache__/
 *.pyc
+
+# Plots and figures
+*.pdf
+*.png
+*.svg
+
+# Data and output files
+*.csv
+*.tsv
+*.txt
+*.xlsx
+*.ipynb

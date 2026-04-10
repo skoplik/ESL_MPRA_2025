@@ -15,13 +15,13 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['svg.fonttype'] = 'none'
 
 # === User paths (kept exactly as provided) ===
-RETRAINED_TEST = "/ESL/ESL_MPRA/Figure_2/model_output_csv/retrained_mmsplice_model_predictions_test_dataset7_model10.csv"
-RETRAINED_FULL = "/ESL/ESL_MPRA/Figure_2/model_output_csv/retrained_mmsplice_model_predictions_dataset7_model10.csv"
+RETRAINED_TEST = "/ESL/ESL_MPRA/Figure_2/MMSplice/model_output_csv/retrained_mmsplice_model_predictions_test_dataset7_model10_04_09_26_updated.csv"
+RETRAINED_FULL = "/ESL/ESL_MPRA/Figure_2/MMSplice/model_output_csv/retrained_mmsplice_model_predictions_dataset7_model10_04_09_26_updated.csv"
 
-BASELINE_TEST = "/ESL/ESL_MPRA/Figure_2/model_output_csv/retrained_mmsplice_baseline_test_dataset7_model10.csv"
-BASELINE_FULL = "/ESL/ESL_MPRA/Figure_2/model_output_csv/retrained_mmsplice_baseline_aggregate_dataset7_model10.csv"
+BASELINE_TEST = "/ESL/ESL_MPRA/Figure_2/MMSplice/model_output_csv/retrained_mmsplice_baseline_test_dataset7_model10_04_09_26_updated.csv"
+BASELINE_FULL = "/ESL/ESL_MPRA/Figure_2/MMSplice/model_output_csv/retrained_mmsplice_baseline_aggregate_dataset7_model10_04_09_26_updated.csv"
 
-OUTDIR = "/ESL/ESL_MPRA/Figure_2/mmsplice_retrain_plots"
+OUTDIR = "/ESL/ESL_MPRA/Figure_2/plots/MMSplice"
 os.makedirs(OUTDIR, exist_ok=True)
 
 RETRAINED_OUT = os.path.join(OUTDIR, "retrained_overlay_pred_vs_true_delta_logit.pdf")
