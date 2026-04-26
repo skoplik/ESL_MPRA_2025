@@ -103,23 +103,37 @@ Then recalculate splicing profiles:
 
 ---
 
-## Step 3 — Merge PSI Across Cell Lines
+## Step 3 — Merge PSI Across Cell Lines (with ambiguous-SJ correction)
 
 **Input:** Per-replicate `*_recalc_PSIs_mincov10.txt` files from Step 2 for all five
 cell lines (HeLa, K562, MCF7, HMC3, HEK293) and all replicates (2 per cell line for
-HeLa/K562/MCF7/HMC3; 4 for HEK293, split into variant reps 1–2 and WT reps 3–4).
+HeLa/K562/MCF7/HMC3; 4 for HEK293, split into variant reps 1–2 and WT reps 3–4),
+plus the source supertable and Gencode v48 GTF.
 
-**Script:** `Post-process_STAR_PSIs/run_merge_psi_clipping_no_psuedo.sh`
+**Scripts:** `Post-process_STAR_PSIs/` — run in order
 
-What it does:
-- Clips PSI to [0.01, 0.99], computes logit(PSI)
-- Computes delta logit(PSI) = logit(PSI_variant) − logit(PSI_WT) per event
-- Pools replicates; computes per-replicate standard deviations
-- Merges all cell lines into a single master table
+| Stage | Script | What it does |
+|------:|--------|--------------|
+| 1 | `01_fix_sj_supertable.py` | Some MPRA exons map to multiple Gencode transcripts with different intron1/exon lengths, producing different splice-junction coordinates. For each such ambiguous event, this script picks one canonical Gencode-annotated junction (MANE Select preferred; variant-pool fallback when the primary reference is a synthesis dropout), rewrites every row in the event to use that junction (re-deriving `intron1`/`exon`/`intron2` from `full_seq`), and patches the per-replicate PSI text files at the chosen junction. Without this step, e.g. KCTD10 exon 4 ref 99222 reports PSI = 0 because reads land at the MANE junction rather than the originally-annotated one. |
+| 2 | `02_run_merge_psi.sh` → `02_merge_psi.py` | Clips PSI to [0.01, 0.99], computes logit(PSI), pools replicates, computes per-replicate SDs, computes `dpsi_pooled` and `delta_logit_pooled` per event, and merges all five cell lines into the master table. Carries `transcript_id`, `exon_start_hg38`, `exon_end_hg38`, `variant_hg38` through from the corrected supertable; emits both `ALL_WTS_VARS_NO_DELTAS.csv` and a merged `ALL_WITH_WT.csv`. |
+| 3 | `03_alt_transcript_si_table.py` | For each ambiguous event, computes PSI at every non-chosen Gencode transcript's junction for all rows; emits an SI table with `_alt`-suffixed columns. |
 
-**Key output:**
-- `/ESL/Figures_SK/General_preprocessing/output_03_16_2026/03_16_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv`
-  — primary data file used for all downstream analyses
+**Key outputs** (under `/ESL/Figures_SK/General_preprocessing/output_04_26_2026/`):
+
+| File | Description |
+|------|-------------|
+| `04_26_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv` | Full COMPASS dataset, all cell lines, every WT and variant — primary data file used for all downstream analyses |
+| `04_26_2026_1e-2_ALL_WITH_WT.csv` | Subset filtered to events containing both a WT and at least one variant |
+| `04_26_2026_1e-2_<CELL>_{WITH_WT,VARIANTS_ONLY,WTS_VARS_NO_DELTAS}.csv` | Per-cell-line trios (HeLa, K562, MCF7, HMC3, HEK) |
+| `st_04_26_2026.csv` | Corrected supertable: one transcript / intron1_len / exon_start_hg38 / exon_end_hg38 per ambiguous event |
+| `/ESL/Figures_SK/ambiguous_sjs/SI_alt_transcript_psi_04_26_2026.csv` | PSI at every non-chosen alt transcript's junction for ambiguous events |
+
+The legacy single-stage merge script (`merge_psi_07_18_2025_clipping_no_psuedo.py`)
+and its predecessor outputs are archived under `Post-process_STAR_PSIs/old/` for
+reproducibility of older outputs and are not run in the current pipeline.
+
+See `Post-process_STAR_PSIs/README_04_26_2026.md` for full per-stage detail
+(junction-selection logic, fallback rules, schema, construct geometry).
 
 ---
 
@@ -128,6 +142,8 @@ What it does:
 | File | Path |
 |------|------|
 | Supertable (sequence metadata) | `/ESL/Data/Sequences/supertable.tsv` |
-| Final supertable with coordinates | `/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv` |
+| Corrected supertable (current canonical) | `/ESL/Figures_SK/General_preprocessing/output_04_26_2026/st_04_26_2026.csv` |
+| Supertable source (gz, never modified) | `/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv.gz` |
+| Gencode v48 GTF | `/ESL/Figures_SK/General_preprocessing/fix_supertable_2/gencode.v48.annotation.gtf` |
 | Barcode FASTA reference | `/ESL/Analysis/clustering_barcodes_DNA/concat_2023_09_19_d1c_ms75/shorter3p/*_reference_with_close_matches.fasta` |
-| GTF annotation | `/ESL/Analysis/clustering_barcodes_DNA/concat_2023_09_19_d1c_ms75/shorter3p/assembled_GTF_supertable_*.gtf` |
+| Construct GTF annotation | `/ESL/Analysis/clustering_barcodes_DNA/concat_2023_09_19_d1c_ms75/shorter3p/assembled_GTF_supertable_*.gtf` |
