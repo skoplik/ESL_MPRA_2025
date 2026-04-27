@@ -257,6 +257,10 @@ def main():
             print(f"\n=== Processing {label} ===")
             pooled_df = compute_pooled_stats(reps, full_seqs, label, clip=clip_val)
             print(f"  compute_pooled_stats done: {pooled_df.shape}")
+            # Expand to all refs so single-rep references still get individual
+            # rep columns populated (pooled stats remain NaN for those refs).
+            pooled_df = pd.merge(full_seqs, pooled_df, on=full_seqs.columns.tolist(), how='left')
+            print(f"  expanded to full_seqs: {pooled_df.shape}")
             pooled_df = attach_replicate_info(pooled_df, reps, label)
             print(f"  attach_replicate_info done: {pooled_df.shape}")
             sd_kwargs = hek_sd_kwargs if label == 'HEK' else {}
@@ -294,7 +298,8 @@ def main():
         merged_no_deltas = merged_no_deltas[col_order]
 
         merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv", index=False)
-        print(f"\nWrote merged file: {output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv")
+        merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv.gz", index=False, compression='gzip')
+        print(f"\nWrote merged file: {output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv(.gz)")
 
         # Also write merged ALL_WITH_WT.csv: keep only event_ids that contain
         # at least one WT row (snp == 'none') AND at least one variant row
@@ -304,7 +309,8 @@ def main():
         both_eids = wt_eids & var_eids
         all_with_wt = merged_no_deltas[merged_no_deltas['event_id'].isin(both_eids)].copy()
         all_with_wt.to_csv(f"{output_prefix}_ALL_WITH_WT.csv", index=False)
-        print(f"Wrote merged file: {output_prefix}_ALL_WITH_WT.csv "
+        all_with_wt.to_csv(f"{output_prefix}_ALL_WITH_WT.csv.gz", index=False, compression='gzip')
+        print(f"Wrote merged file: {output_prefix}_ALL_WITH_WT.csv(.gz) "
               f"({len(all_with_wt):,} rows; "
               f"WT={int((all_with_wt['snp']=='none').sum()):,} "
               f"Var={int((all_with_wt['snp']!='none').sum()):,})")
