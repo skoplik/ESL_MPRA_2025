@@ -196,6 +196,53 @@ def compute_replicate_sds(pooled_df, label, var_rep_indices=None, wt_rep_indices
 
     return pooled_df
 
+def fill_single_rep_columns(merged_df, rep_dfs_by_label, clip=1e-3):
+    """For refs present in merged_df but with NaN pooled PSI for a cell line,
+    fill individual rep columns from the raw per-rep dataframes."""
+    cell_lines = list(rep_dfs_by_label.keys())
+    hek_var_reps = {1, 2}  # only variant reps for HEK
+
+    for label, reps in rep_dfs_by_label.items():
+        pool_col = f'{label}_pooled_psi_raw'
+        if pool_col not in merged_df.columns:
+            continue
+        missing_mask = merged_df[pool_col].isna()
+        if not missing_mask.any():
+            continue
+
+        rep_indices = range(1, len(reps) + 1)
+        if label == 'HEK':
+            rep_indices = hek_var_reps
+
+        for i, df in zip(range(1, len(reps) + 1), reps):
+            if label == 'HEK' and i not in hek_var_reps:
+                continue
+            tag = f'{label}_rep{i}'
+            inc_col  = f'{tag}_included'
+            exc_col  = f'{tag}_excluded'
+            psi_col  = f'{tag}_psi_raw'
+            clip_col = f'{tag}_psi_clipped'
+            log_col  = f'{tag}_logit'
+            if psi_col not in merged_df.columns:
+                continue
+
+            rep_sub = df[['Reference', 'Coverage', 'PSI', 'PSI_clipped', 'logit_PSI']].copy()
+            rep_sub = rep_sub.rename(columns={
+                'PSI': psi_col, 'PSI_clipped': clip_col, 'logit_PSI': log_col
+            })
+            rep_sub[inc_col] = rep_sub['Coverage'] * rep_sub[psi_col]
+            rep_sub[exc_col] = rep_sub['Coverage'] * (1 - rep_sub[psi_col])
+            rep_sub = rep_sub.drop(columns=['Coverage'])
+            rep_sub = rep_sub.set_index('Reference')
+
+            fill_refs = merged_df.loc[missing_mask, 'Reference']
+            for col in [inc_col, exc_col, psi_col, clip_col, log_col]:
+                if col in merged_df.columns and col in rep_sub.columns:
+                    merged_df.loc[missing_mask, col] = fill_refs.map(rep_sub[col]).values
+
+    return merged_df
+
+
 def write_outputs_with_and_without_wt(pooled_df, output_prefix, label):
     wt_refs = pooled_df[pooled_df['snp'] == 'none']
     var_refs = pooled_df[pooled_df['snp'] != 'none']
@@ -251,16 +298,14 @@ def main():
 
     all_no_deltas = []
     cell_lines = ['HeLa', 'K562', 'MCF7', 'HMC3', 'HEK']
+    rep_dfs_by_label = {}  # saved for single-rep fill-in pass
 
     for label, reps in data.items():
+        rep_dfs_by_label[label] = reps
         try:
             print(f"\n=== Processing {label} ===")
             pooled_df = compute_pooled_stats(reps, full_seqs, label, clip=clip_val)
             print(f"  compute_pooled_stats done: {pooled_df.shape}")
-            # Expand to all refs so single-rep references still get individual
-            # rep columns populated (pooled stats remain NaN for those refs).
-            pooled_df = pd.merge(full_seqs, pooled_df, on=full_seqs.columns.tolist(), how='left')
-            print(f"  expanded to full_seqs: {pooled_df.shape}")
             pooled_df = attach_replicate_info(pooled_df, reps, label)
             print(f"  attach_replicate_info done: {pooled_df.shape}")
             sd_kwargs = hek_sd_kwargs if label == 'HEK' else {}
@@ -296,6 +341,12 @@ def main():
         other_cols = [col for col in merged_no_deltas.columns if col not in seq_cols]
         col_order = seq_cols + other_cols
         merged_no_deltas = merged_no_deltas[col_order]
+
+        # Fill individual rep columns for refs that passed >=2 reps in at least
+        # one cell line but have only single-rep coverage in another cell line.
+        print("\nFilling single-rep columns for refs with NaN pooled stats...")
+        merged_no_deltas = fill_single_rep_columns(merged_no_deltas, rep_dfs_by_label, clip=clip_val)
+        print("  Done.")
 
         merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv", index=False)
         merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv.gz", index=False, compression='gzip')
