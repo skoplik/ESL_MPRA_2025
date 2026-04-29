@@ -1,5 +1,9 @@
+import argparse
 import pandas as pd
 import numpy as np
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
@@ -7,13 +11,16 @@ from matplotlib.patches import Rectangle
 from scipy.stats import pearsonr
 from matplotlib.ticker import FormatStrFormatter
 
-# === Inputs ===
-file_path = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
-output_dir = "/ESL/Figures_SK/fig1_corrs/out_7_18_25"
+parser = argparse.ArgumentParser()
+parser.add_argument("--input_csv", required=True)
+parser.add_argument("--output_dir", required=True)
+args = parser.parse_args()
+
+output_dir = args.output_dir
 os.makedirs(output_dir, exist_ok=True)
 
 # === Load ===
-df = pd.read_csv(file_path)
+df = pd.read_csv(args.input_csv)
 
 # === Settings ===
 cell_order = ["HeLa", "MCF7", "HMC3", "K562", "HEK"]
@@ -121,11 +128,11 @@ def plot_corr(df, cols, title, outname, vmin=0.75):
 
     ax.set_xticklabels(ax.get_xticklabels(), rotation=90)
     ax.set_yticklabels(ax.get_yticklabels(), rotation=0)
-    
+
     # === Remove x-axis tick labels
     ax.set_xticks([])
     ax.set_yticks([])
-    
+
     # === Draw colored bars under x-axis (bottom)
     for i, col in enumerate(ordered_cols):
         for cl in custom_rgb_colors:
@@ -163,29 +170,19 @@ def plot_corr(df, cols, title, outname, vmin=0.75):
         zorder=2
     )
     ax.add_patch(border)
-    
+
     # === Format colorbar ticks to 1 decimal place
     cbar = ax.collections[0].colorbar
     cbar.ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f'))
-    # Access the colorbar's Axes
-    cbar_ax =cbar.ax
-    
+    cbar_ax = cbar.ax
+
     # Add a border to the colorbar
     for spine in cbar_ax.spines.values():
         spine.set(visible=True, lw=1.5, edgecolor="black")
 
-  
     # Title on top of colorbar
     cbar.ax.set_title("R² (Pearson)", fontsize=12, pad=8)
-    
-    # Make colorbar shorter
-    # cbar.ax.set_position([
-    #     cbar.ax.get_position().x0,
-    #     cbar.ax.get_position().y0 , 
-    #     cbar.ax.get_position().width,
-    #     cbar.ax.get_position().height * 0.8 # shrink height
-    # ])
-    
+
     # === Draw colored boxes for same-cell-type replicate pairs
     for cl in cell_order:
         reps = [1, 2]

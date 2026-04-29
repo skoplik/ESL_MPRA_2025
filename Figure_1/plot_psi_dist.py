@@ -1,12 +1,20 @@
+import argparse
 import pandas as pd
 import seaborn as sns
+import matplotlib
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
 import matplotlib.pyplot as plt
 import os
 
-# === Paths ===
-input_file = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
-output_file = "/ESL/Figures_SK/fig1_psi_dist/violin_cell_line_PSI_distributions_redo.pdf"
-os.makedirs(os.path.dirname(output_file), exist_ok=True)
+parser = argparse.ArgumentParser()
+parser.add_argument("--input_csv", required=True)
+parser.add_argument("--output_dir", required=True)
+args = parser.parse_args()
+
+input_file = args.input_csv
+output_file = os.path.join(args.output_dir, "violin_cell_line_PSI_distributions.pdf")
+os.makedirs(args.output_dir, exist_ok=True)
 
 # === Replicate columns
 replicate_cols = {
@@ -65,12 +73,11 @@ plt.draw()
 for violin in ax.collections:
     violin.set_edgecolor("black")
 
-
 # Add sample size (n=) just above y=1
 group_counts = plot_df.groupby("cell_line")["psi"].apply(lambda x: x.notna().sum())
 for i, cell in enumerate(cell_order):
     n = group_counts[cell]
-    ax.text(i, 1.05, f"n={n}", ha="center", va="bottom", fontsize=14)
+    ax.text(i, 1.05, f"n={n:,}", ha="center", va="bottom", fontsize=14)
 
 # Set fixed y-limits and axis styling
 ax.set_ylim(0, 1)
