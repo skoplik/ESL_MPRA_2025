@@ -107,11 +107,11 @@ def plot_effect_size_summary_across_cell_lines(df, output_prefix):
 
 
 # === Load data ===
-effects_file = "/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/out_05_19_2025_boots_0_exon.csv"
+effects_file = "/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/out_05_19_2025_boots_0_exon.csv"
 df_effects = pd.read_csv(effects_file)
 
 # === Output prefix for the plots ===
-output_prefix = "/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/plots/effects_colored_by_cluster/exon"
+output_prefix = "/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/plots/effects_colored_by_cluster/exon"
 
 # === Generate all plots ===
 plot_effect_size_per_cell_line(df_effects, output_prefix)
@@ -119,11 +119,11 @@ plot_effect_size_summary_across_cell_lines(df_effects, output_prefix)
 
 
 # === Load data ===
-effects_file = "/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/out_05_19_2025_boots_0_intron1.csv"
+effects_file = "/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/out_05_19_2025_boots_0_intron1.csv"
 df_effects = pd.read_csv(effects_file)
 
 # === Output prefix for the plots ===
-output_prefix = "/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/plots/effects_colored_by_cluster/intron1"
+output_prefix = "/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/plots/effects_colored_by_cluster/intron1"
 
 # === Generate all plots ===
 plot_effect_size_per_cell_line(df_effects, output_prefix)

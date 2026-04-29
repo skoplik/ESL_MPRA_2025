@@ -33,7 +33,7 @@ N_BASELINE       = 200   # bottom-mingap variants for negative control figure
 # === Paths
 psi_table_path  = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 meta_table_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
-output_dir      = "/ESL/ESL_MPRA/Figure_6/outputs/mingap"
+output_dir      = "/ESL/ESL_MPRA/Figure_7/outputs/mingap"
 os.makedirs(output_dir, exist_ok=True)
 
 # === Load

@@ -25,8 +25,8 @@ mpl.rcParams['svg.fonttype'] = 'none'
 
 # === Config ===================================================================
 supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
-mingap_file     = "/ESL/ESL_MPRA/Figure_6/outputs/mingap/mingap_variants_all_filtered.tsv"
-output_dir      = "/ESL/ESL_MPRA/Figure_6/outputs/family_specificity_all"
+mingap_file     = "/ESL/ESL_MPRA/Figure_7/outputs/mingap/mingap_variants_all_filtered.tsv"
+output_dir      = "/ESL/ESL_MPRA/Figure_7/outputs/family_specificity_all"
 os.makedirs(output_dir, exist_ok=True)
 
 # Gene-exon families to plot (case-insensitive match against gene_exon column)

@@ -7,7 +7,7 @@ import numpy as np
 import re
 
 # === Load CSVs ===
-df = pd.read_csv("/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/subsample.csv")
+df = pd.read_csv("/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/subsample.csv")
 st = pd.read_csv("/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz", dtype=str)
 
 # === Map event_id to gene_exon ===
@@ -124,7 +124,7 @@ for cluster in ["cluster_023", "cluster_050", "cluster_021", "cluster_079"]:
     )
 
     plt.tight_layout()
-    plt.savefig(f"/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/plots/example_concordance/example_{cluster}.pdf", bbox_inches='tight')
+    plt.savefig(f"/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/plots/example_concordance/example_{cluster}.pdf", bbox_inches='tight')
     plt.close()
 
 # === Plot each cluster (HEK only) ===
@@ -187,7 +187,7 @@ for cluster in ["cluster_023", "cluster_050", "cluster_021", "cluster_079"]:
 
     plt.tight_layout()
     plt.savefig(
-        f"/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/plots/example_concordance/example_{cluster}_HEK.pdf",
+        f"/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/plots/example_concordance/example_{cluster}_HEK.pdf",
         bbox_inches='tight'
     )
     plt.close()

@@ -207,27 +207,27 @@ def save_motif_annotations(annotations_map, output_path):
 # === Run ===
 
 cleaned = clean_meme_file(
-    meme_file_path="/ESL/ESL_MPRA/Figure_5/Cluster_motifs/merged_output_11_09_24.meme",
-    ban_list_csv_path="/ESL/ESL_MPRA/Figure_5/Effect_size/banned_motifs_non_human_ornament_11_21_2024.csv",
-    output_file_path="/ESL/ESL_MPRA/Figure_5/Cluster_motifs/output_cleaned_pwms/filtered_motifs_no_banned.meme"
+    meme_file_path="/ESL/ESL_MPRA/Figure_6/Cluster_motifs/merged_output_11_09_24.meme",
+    ban_list_csv_path="/ESL/ESL_MPRA/Figure_6/Effect_size/banned_motifs_non_human_ornament_11_21_2024.csv",
+    output_file_path="/ESL/ESL_MPRA/Figure_6/Cluster_motifs/output_cleaned_pwms/filtered_motifs_no_banned.meme"
 )
 
 deduplicate_meme_headers(
-    input_file_path="/ESL/ESL_MPRA/Figure_5/Cluster_motifs/output_cleaned_pwms/filtered_motifs_no_banned.meme",
-    output_file_path="/ESL/ESL_MPRA/Figure_5/Cluster_motifs/output_cleaned_pwms/filtered_motifs_no_banned_deduped.meme"
+    input_file_path="/ESL/ESL_MPRA/Figure_6/Cluster_motifs/output_cleaned_pwms/filtered_motifs_no_banned.meme",
+    output_file_path="/ESL/ESL_MPRA/Figure_6/Cluster_motifs/output_cleaned_pwms/filtered_motifs_no_banned_deduped.meme"
 )
 
 motif_map, annotations_map = convert_meme_to_transfac(
-    meme_file="/ESL/ESL_MPRA/Figure_5/Cluster_motifs/output_cleaned_pwms/filtered_motifs_no_banned_deduped.meme",
-    transfac_file="/ESL/ESL_MPRA/Figure_5/Cluster_motifs/output_cleaned_pwms/filtered_motifs_final.transfac"
+    meme_file="/ESL/ESL_MPRA/Figure_6/Cluster_motifs/output_cleaned_pwms/filtered_motifs_no_banned_deduped.meme",
+    transfac_file="/ESL/ESL_MPRA/Figure_6/Cluster_motifs/output_cleaned_pwms/filtered_motifs_final.transfac"
 )
 
 save_motif_mapping(
     motif_map,
-    output_path="/ESL/ESL_MPRA/Figure_5/Cluster_motifs/output_cleaned_pwms/filtered_motif_name_map.tsv"
+    output_path="/ESL/ESL_MPRA/Figure_6/Cluster_motifs/output_cleaned_pwms/filtered_motif_name_map.tsv"
 )
 
 save_motif_annotations(
     annotations_map,
-    output_path="/ESL/ESL_MPRA/Figure_5/Cluster_motifs/output_cleaned_pwms/filtered_motif_annotations.tsv"
+    output_path="/ESL/ESL_MPRA/Figure_6/Cluster_motifs/output_cleaned_pwms/filtered_motif_annotations.tsv"
 )

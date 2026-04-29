@@ -45,4 +45,4 @@ def write_transfac(motif_id, pwm, outfile):
     outfile.write("XX\n//\n\n")
 
 # Example usage:
-meme_to_transfac("/ESL/ESL_MPRA/Figure_5/Cluster_motifs/filtered_motifs_final_shortnames_altname.meme", "/ESL/ESL_MPRA/Figure_5/Cluster_motifs/filtered_motifs_final_shortnames_altname.transfac")
+meme_to_transfac("/ESL/ESL_MPRA/Figure_6/Cluster_motifs/filtered_motifs_final_shortnames_altname.meme", "/ESL/ESL_MPRA/Figure_6/Cluster_motifs/filtered_motifs_final_shortnames_altname.transfac")
