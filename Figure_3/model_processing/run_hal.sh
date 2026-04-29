@@ -2,7 +2,7 @@
 set -e
 
 DATA=/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz
-OUTDIR=/ESL/ESL_MPRA/Figure_4/model_processing/outputs/hal
+OUTDIR=/ESL/ESL_MPRA/Figure_3/model_processing/outputs/hal
 SCRIPTS=/ESL/ESL_MPRA/Figure_4/model_processing
 
 mkdir -p $OUTDIR

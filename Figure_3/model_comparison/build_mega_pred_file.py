@@ -44,7 +44,7 @@ BASELINE_FULL  = f"{MODEL_DIR}/retrained_mmsplice_baseline_aggregate_dataset7_mo
 SPLICEAI_FILE   = "/ESL/ESL_MPRA/Figure_3/SpliceAI/output/spliceai_merged_predictions.csv"
 ALPHAGENOME_FILE = "/ESL/ESL_MPRA/Figure_3/AlphaGenome/alphagenome_16k_all_variants.tsv"
 PANGOLIN_FILE   = "/ESL/ESL_MPRA/SI_figures/Pangolin/pangolin_variant_deltas_all_exons.tsv"
-HAL_PRED_FILE   = "/ESL/ESL_MPRA/Figure_4/model_processing/outputs/hal/hal_predictions.tsv"
+HAL_PRED_FILE   = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/hal/hal_predictions.tsv"
 
 OUTDIR           = "/ESL/ESL_MPRA/Figure_3/model_comparison"
 OUTFILE          = os.path.join(OUTDIR, "mega_pred_file.csv")
