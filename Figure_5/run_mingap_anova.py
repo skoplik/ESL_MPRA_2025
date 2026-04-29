@@ -31,9 +31,9 @@ SWEEP_STEP       = 0.05  # step size for sensitivity sweep
 N_BASELINE       = 200   # bottom-mingap variants for negative control figure
 
 # === Paths
-psi_table_path  = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-meta_table_path = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv"
-output_dir      = "/ESL/Figures_SK/sig_cell_types/redo_with_anova/out/exclusive_heatmaps/mingap"
+psi_table_path  = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+meta_table_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
+output_dir      = "/ESL/ESL_MPRA/Figure_5/outputs/mingap"
 os.makedirs(output_dir, exist_ok=True)
 
 # === Load

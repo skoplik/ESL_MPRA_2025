@@ -12,9 +12,9 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['svg.fonttype'] = 'none'
 
 # === Input files
-mfass_file = "/ESL/Figures_SK/supplement/mfass/merged_mfass_supertable_overlap_summary.tsv"
-supertable_file = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
-output_dir = "/ESL/Figures_SK/supplement/mfass/corrs_out_r2"
+mfass_file = "/ESL/ESL_MPRA/SI_figures/MFASS_overlap/outputs/merged_mfass_supertable_overlap_summary.tsv"
+supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
+output_dir = "/ESL/ESL_MPRA/SI_figures/MFASS_overlap/outputs/corrs_out_r2"
 os.makedirs(output_dir, exist_ok=True)
 
 # === Load MFASS and Supertable

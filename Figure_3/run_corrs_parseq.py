@@ -10,11 +10,11 @@ import matplotlib.colors as mcolors
 
 
 # === File paths ===
-parse_seq_path = "/ESL/Figures_SK/parseq_scn5a_corrs/41467_2024_52474_MOESM7_ESM.csv"
-supertable_path = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-variant_info_path = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv"
+parse_seq_path = "/ESL/ESL_MPRA/Figure_3/41467_2024_52474_MOESM7_ESM.csv"
+supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+variant_info_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
 clinvar_path = "/ESL/Figures/Variant_analyses/heatmap_plots/supertable_ClinVar_matched_in_supertable.txt"
-output_dir = "/ESL/Figures_SK/parseq_scn5a_corrs/fig_parse_seq"
+output_dir = "/ESL/ESL_MPRA/Figure_3/outputs/fig_parse_seq"
 os.makedirs(output_dir, exist_ok=True)
 output_path = os.path.join(output_dir, "parse_seq_corr_output.tsv")
 

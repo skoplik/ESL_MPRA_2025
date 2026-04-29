@@ -3,8 +3,8 @@ import shutil
 import os
 
 # === Input/output paths ===
-vcf_in_path = "/ESL/Figures_SK/mmsplice2/input_files_doubles/synthetic_variants.vcf"
-vcf_out_path = "/ESL/Figures_SK/mmsplice2/input_files_doubles/synthetic_all_variants.vcf"
+vcf_in_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files/synthetic_variants.vcf"
+vcf_out_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files/synthetic_all_variants.vcf"
 vcf_bgz_path = vcf_out_path + ".gz"
 
 # === Read full VCF

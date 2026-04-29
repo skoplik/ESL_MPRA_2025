@@ -7,9 +7,9 @@
 import pandas as pd
 
 # === File paths ===
-annotation_file = "/ESL/Figures_SK/effect_size_final/Expression_analysis/Human.GRCh38.p13.annot.tsv"
-expression_file = "/ESL/Figures_SK/effect_size_final/Expression_analysis/GSE200354_norm_counts_TPM_GRCh38.p13_NCBI.tsv"
-output_file = "/ESL/Figures_SK/effect_size_final/Expression_analysis/processed_nTPMs/HMC3_merged_with_ensg.tsv"
+annotation_file = "/ESL/ESL_MPRA/SI_figures/RBP_expression_data/Human.GRCh38.p13.annot.tsv"
+expression_file = "/ESL/ESL_MPRA/SI_figures/RBP_expression_data/GSE200354_norm_counts_TPM_GRCh38.p13_NCBI.tsv"
+output_file = "/ESL/ESL_MPRA/SI_figures/RBP_expression_data/processed_nTPMs/HMC3_merged_with_ensg.tsv"
 
 
 # === Load data ===

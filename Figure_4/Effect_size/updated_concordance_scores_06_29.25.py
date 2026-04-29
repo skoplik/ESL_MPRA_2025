@@ -5,7 +5,7 @@ import seaborn as sns
 import numpy as np
 
 # Base directory and settings
-base_path = "/ESL/Figures_SK/effect_size_final/out_08_10_2025"
+base_path = "/ESL/ESL_MPRA/Figure_4/Effect_size/outputs"
 regions = ["exon", "intron1", "intron2"]
 cell_lines = ["HEK", "HeLa", "K562", "HMC3", "MCF7"]
 

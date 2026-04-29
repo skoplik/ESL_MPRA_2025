@@ -6,9 +6,9 @@ from scipy.special import expit
 import os
 
 # === Paths ===
-mmsplice_pred_path = "/ESL/Figures_SK/mmsplice2/output_all_preds_with_doubles/mmsplice_predictions_with_ref_idx.csv"
-supertable_path = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-output_dir = "/ESL/Figures_SK/mmsplice2/output_all_preds_with_doubles/toss_0_1_refs/plots"
+mmsplice_pred_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/mmsplice_predictions_with_ref_idx.csv"
+supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+output_dir = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/plots/"
 output_csv = os.path.join(output_dir, "mmsplice_vs_supertable_vcfid_filtered.csv")
 os.makedirs(output_dir, exist_ok=True)
 

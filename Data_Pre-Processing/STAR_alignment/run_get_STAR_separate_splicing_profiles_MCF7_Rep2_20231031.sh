@@ -1,6 +1,7 @@
 #!/bin/bash
 # Recalculates splicing profiles from STAR pass-1 output (produced by STAR_alignment_example_MCF7_Rep2.sh).
 # Run once per cell line / replicate.
+# ALl input files are on GEO (see README.md)
 #
 # Dependencies (Python packages): biopython, multiprocess
 # Install Python packages: pip install biopython multiprocess

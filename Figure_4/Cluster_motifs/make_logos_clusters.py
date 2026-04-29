@@ -33,8 +33,8 @@ def parse_transfac(filepath):
     return motifs
 
 # === Load and parse TRANSFAC motif file ===
-transfac_file = "/ESL/Figures_SK/Cluster_motifs/rsat_out_05_05_2025/motifs_05_05_2025_motifs/root_motifs/Root_motifs.tf"
-output_dir = "/ESL/Figures_SK/Cluster_motifs/Logos_Clusters_05_05"
+transfac_file = "/ESL/ESL_MPRA/Figure_4/Cluster_motifs/Root_motifs.tf"
+output_dir = "/ESL/ESL_MPRA/Figure_4/Cluster_motifs/Logos_Clusters"
 os.makedirs(output_dir, exist_ok=True)
 
 motifs = parse_transfac(transfac_file)

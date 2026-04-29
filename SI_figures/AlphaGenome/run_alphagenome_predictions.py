@@ -27,7 +27,7 @@ from tqdm import tqdm
 from alphagenome_research.model import dna_model
 
 # === CONFIG ===
-DATA_PATH  = "/ESL/Figures_SK/General_preprocessing/output_03_16_2026/03_16_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
+DATA_PATH  = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
 OUT_DIR    = "/ESL/ESL_MPRA/SI_figures/AlphaGenome/Out"
 OUTPUT_TSV = os.path.join(OUT_DIR, "alphagenome_test_sj_variants.tsv")
 os.makedirs(OUT_DIR, exist_ok=True)

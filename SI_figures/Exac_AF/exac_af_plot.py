@@ -6,7 +6,7 @@ variant_df = pd.read_csv(
     "/ESL/Figures/Resources/supertable_dbSNP155_Gencode_v26/supertable_dbSNP155_Gencode_v26_overlap_dbSNP155_matches_ExAC.txt",
     sep="\t", dtype=str)
 psi_df = pd.read_csv(
-    "/ESL/Figures_SK/General_preprocessing/output_6_09_2025/06_09_2025_1e-2_ALL_WITH_WT.csv",
+    "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv",
     dtype=str)
 
 # Merge on Reference
@@ -37,7 +37,7 @@ plt.xlabel("Mean Δlogit(PSI)")
 plt.ylabel("Exac Allele Frequency")
 plt.title("Mean Δlogit(PSI) vs Allele Frequency")
 plt.tight_layout()
-plt.savefig("/ESL/Figures_SK/redo_pop_variants/exac_af/06_10_25_exac_af_logit.pdf")
+plt.savefig("/ESL/ESL_MPRA/SI_figures/Exac_AF/outputs/06_10_25_exac_af_logit.pdf")
 
 # === Plot Δlogit with AF capped at 0.010 ===
 plt.figure(figsize=(6, 5))
@@ -48,7 +48,7 @@ plt.xlabel("Mean Δlogit(PSI)")
 plt.ylabel("Exac Allele Frequency")
 plt.title("Mean Δlogit(PSI) vs AF ≤ 0.010")
 plt.tight_layout()
-plt.savefig("/ESL/Figures_SK/redo_pop_variants/exac_af/06_10_25_exac_af_logit_ycap.pdf")
+plt.savefig("/ESL/ESL_MPRA/SI_figures/Exac_AF/outputs/06_10_25_exac_af_logit_ycap.pdf")
 
 # === Plot ΔPSI full ===
 plt.figure(figsize=(6, 5))
@@ -57,7 +57,7 @@ plt.xlabel("Mean ΔPSI")
 plt.ylabel("Exac Allele Frequency")
 plt.title("Mean ΔPSI vs Allele Frequency")
 plt.tight_layout()
-plt.savefig("/ESL/Figures_SK/redo_pop_variants/exac_af/06_10_25_exac_af_dpsi.pdf")
+plt.savefig("/ESL/ESL_MPRA/SI_figures/Exac_AF/outputs/06_10_25_exac_af_dpsi.pdf")
 
 # === Plot ΔPSI with AF capped at 0.010 ===
 plt.figure(figsize=(6, 5))
@@ -67,4 +67,4 @@ plt.xlabel("Mean ΔPSI")
 plt.ylabel("Exac Allele Frequency")
 plt.title("Mean ΔPSI vs AF ≤ 0.010")
 plt.tight_layout()
-plt.savefig("/ESL/Figures_SK/redo_pop_variants/exac_af/06_10_25_exac_af_dpsi_ycap.pdf")
+plt.savefig("/ESL/ESL_MPRA/SI_figures/Exac_AF/outputs/06_10_25_exac_af_dpsi_ycap.pdf")

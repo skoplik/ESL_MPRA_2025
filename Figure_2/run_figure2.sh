@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DATA=/ESL/Figures_SK/General_preprocessing/output_04_26_2026/04_26_2026_1e-2_ALL_WITH_WT.csv
+DATA=/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv
 OUTDIR=/ESL/ESL_MPRA/Figure_2/outputs/plots
 SCRIPTS=/ESL/ESL_MPRA/Figure_2/other_analyses
 

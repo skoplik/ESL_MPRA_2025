@@ -3,15 +3,15 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # === Paths ===
-input_path = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-supertable_meta = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv"
-cytokine_file = "/ESL/Figures_SK/Disease_relevant_genes/Immport_cytokine/CytokineRegistry.November_2015.csv"
-clinvar_path = "/ESL/Figures_SK/redo_pop_variants/clinvar_updated_7_15_25/swarm_delta_logit.csv"
+input_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+supertable_meta = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
+cytokine_file = "/ESL/ESL_MPRA/SI_figures/Immune_cytokine_overlap/CytokineRegistry.November_2015.csv"
+clinvar_path = "/ESL/ESL_MPRA/Figure_3/outputs/clinvar/swarm_delta_logit.csv"
 
-cyto_alias_file = "/ESL/Figures_SK/Disease_relevant_genes/Immport_cytokine/cytokine_aliases_expanded.txt"
-receptor_alias_file = "/ESL/Figures_SK/Disease_relevant_genes/Immport_cytokine/receptor_aliases_expanded.txt"
+cyto_alias_file = "/ESL/ESL_MPRA/SI_figures/Immune_cytokine_overlap/cytokine_aliases_expanded.txt"
+receptor_alias_file = "/ESL/ESL_MPRA/SI_figures/Immune_cytokine_overlap/receptor_aliases_expanded.txt"
 
-output_plot = "/ESL/Figures_SK/Disease_relevant_genes/Immport_cytokine/cytokine_receptor_overlap_clinvar_stripplot.pdf"
+output_plot = "/ESL/ESL_MPRA/SI_figures/Immune_cytokine_overlap/outputs/cytokine_receptor_overlap_clinvar_stripplot.pdf"
 
 # === ClinVar colors ===
 CLINVAR_COLORS = {

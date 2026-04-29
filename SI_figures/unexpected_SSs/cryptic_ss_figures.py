@@ -38,13 +38,13 @@ SCRIPT_DIR = Path(__file__).parent
 SEQ_CSV   = SCRIPT_DIR / "old" / "cryptic_junctions_per_sequence.csv"
 VAR_CSV   = SCRIPT_DIR / "old" / "variant_vs_wt_cryptic_comparison.csv"
 PSI_CSV   = Path(
-    "/ESL/Figures_SK/General_preprocessing/output_03_16_2026/"
+    "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/"
     "03_16_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
 )
 POS_CACHE = SCRIPT_DIR / "cryptic_pos_cache.csv"
 
 CELL_LINES = ["HEK", "HeLa", "K562", "MCF7", "HMC3"]
-AMB_SJS    = Path("/ESL/Figures_SK/ambiguous_sjs/SI_alt_transcript_psi.csv")
+AMB_SJS    = Path("/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ambiguous_sjs/SI_alt_transcript_psi.csv")
 SS_WINDOW  = 4   # nt either side of intron/exon boundary for splice-site class
 
 # Variable-region canonical boundaries (relative to upstream constitutive 5'SS)

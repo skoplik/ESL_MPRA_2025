@@ -17,8 +17,8 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['font.size'] = 9
 
 # === Inputs ===
-input_file = "/ESL/Figures_SK/General_preprocessing/output_03_16_2026/03_16_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
-output_dir = "/ESL/Figures_SK/supplement/fig1_fig2_replicate_corrs/intermediate_psi"
+input_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
+output_dir = "/ESL/ESL_MPRA/SI_figures/Correlations_all_cell_lines/outputs/intermediate_psi"
 os.makedirs(output_dir, exist_ok=True)
 
 # === Cell line definitions: (rep1, rep2, pooled_psi_filter, rep1_metric, rep2_metric, axis_label) per metric

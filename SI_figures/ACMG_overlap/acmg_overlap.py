@@ -4,14 +4,14 @@ import numpy as np
 import os
 
 # === Paths ===
-acmg_file = "/ESL/Figures_SK/Disease_relevant_genes/ACMG/1-s2.0-S1098360023008791-mmc1.csv"
-variant_counts_path = "/ESL/Figures_SK/Disease_relevant_genes/all_gene_exon_variant_counts.tsv"
-allseq_file = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-clinvar_path = "/ESL/Figures_SK/redo_pop_variants/clinvar_updated_7_15_25/swarm_delta_logit.csv"
+acmg_file = "/ESL/ESL_MPRA/SI_figures/ACMG_overlap/1-s2.0-S1098360023008791-mmc1.csv"
+variant_counts_path = "/ESL/ESL_MPRA/SI_figures/highly_saturated_exons/outputs/all_gene_exon_variant_counts.tsv"
+allseq_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+clinvar_path = "/ESL/ESL_MPRA/Figure_3/outputs/clinvar/swarm_delta_logit.csv"
 
-output_overlap_path = "/ESL/Figures_SK/Disease_relevant_genes/ACMG/acmg_overlap_variant_counts.tsv"
-output_aliases_path = "/ESL/Figures_SK/Disease_relevant_genes/ACMG/acmg_aliases_expanded.txt"
-output_plot = "/ESL/Figures_SK/Disease_relevant_genes/ACMG/acmg_overlap_clinvar_stripplot.pdf"
+output_overlap_path = "/ESL/ESL_MPRA/SI_figures/ACMG_overlap/outputs/acmg_overlap_variant_counts.tsv"
+output_aliases_path = "/ESL/ESL_MPRA/SI_figures/ACMG_overlap/acmg_aliases_expanded.txt"
+output_plot = "/ESL/ESL_MPRA/SI_figures/ACMG_overlap/outputs/acmg_overlap_clinvar_stripplot.pdf"
 
 # === ClinVar colors ===
 CLINVAR_COLORS = {

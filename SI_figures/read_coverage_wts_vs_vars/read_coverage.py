@@ -4,11 +4,11 @@ import numpy as np
 import os
 
 # Load your file
-df = pd.read_csv("/ESL/Figures_SK/General_preprocessing/output_6_04_2025/06_04_2025_1e-3__ALL_WITH_WT.csv")
+df = pd.read_csv("/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv")
 print(len(df))
 df = df.drop_duplicates(subset="full_seq", keep="first").copy()
 print(len(df))
-output_dir = "/ESL/Figures_SK/Start_2_end_psi_fig3/read_counts"
+output_dir = "/ESL/ESL_MPRA/SI_figures/read_coverage_wts_vs_vars/outputs"
 os.makedirs(output_dir, exist_ok=True)
 
 cell_lines = ["HEK", "HeLa", "K562", "HMC3", "MCF7"]

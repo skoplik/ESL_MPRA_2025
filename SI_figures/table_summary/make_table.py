@@ -2,9 +2,9 @@ import pandas as pd
 import numpy as np
 
 # === Paths ===
-input_file = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-supertable_file = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv"
-output_file = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/table_gene_exon_coords_psi_dlogits.tsv"
+input_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
+output_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/table_gene_exon_coords_psi_dlogits.tsv"
 
 # === Load ===
 df = pd.read_csv(input_file)

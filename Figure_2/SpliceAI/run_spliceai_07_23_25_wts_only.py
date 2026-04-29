@@ -12,9 +12,9 @@ SMN2_INTRON7 = ("AAAGTGAATCTTACTTTTGTAAAACTTTATGGTTTGTGGAAAACAAATGTTTTTGAACATTTA
 
 # === Parameters ===
 context = 10000
-input_csv = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-summary_output = "/ESL/Figures_SK/Spliceai/redo_07_23_25/spliceai_wt_splice_probs.csv"
-raw_output = "/ESL/Figures_SK/Spliceai/redo_07_23_25/spliceai_raw_wt_preds.tsv"
+input_csv = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+summary_output = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_wt_splice_probs.csv"
+raw_output = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_raw_wt_preds.tsv"
 model_paths = [f"/ESL/src_download/SpliceAI/spliceai/models/spliceai{i}.h5" for i in range(1, 6)]
 
 # === Load models

@@ -5,8 +5,8 @@ from scipy.stats import pearsonr
 import os
 
 # === Inputs ===
-input_file = "/ESL/Figures_SK/General_preprocessing/output_6_09_2025/06_09_2025_1e-2_ALL_WITH_WT.csv"
-output_dir = "/ESL/Figures_SK/supplement/fig1_fig2_replicate_corrs"
+input_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+output_dir = "/ESL/ESL_MPRA/SI_figures/Correlations_all_cell_lines/outputs/"
 os.makedirs(output_dir, exist_ok=True)
 
 # === Replicates to include

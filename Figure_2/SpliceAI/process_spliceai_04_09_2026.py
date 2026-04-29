@@ -21,11 +21,11 @@ LEN_CITRINE1 = len(CITRINE_EXON1)
 LEN_SMN2_5 = len(SMN2_INTRON6)
 
 # === Paths ===
-main_data_path = "/ESL/Figures_SK/General_preprocessing/output_03_16_2026/03_16_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
-wt_path = "/ESL/Figures_SK/Spliceai/redo_07_23_25/spliceai_raw_wt_preds.tsv"
-snv_path = "/ESL/Figures_SK/Spliceai/redo_07_23_25/spliceai_raw_preds.tsv"
-doubles_path = "/ESL/Figures_SK/Spliceai/redo_07_23_25/spliceai_raw_preds_doubles.tsv"
-output_dir = "/ESL/Figures_SK/Spliceai/output_04_09_2026"
+main_data_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
+wt_path = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_raw_wt_preds.tsv"
+snv_path = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_raw_preds.tsv"
+doubles_path = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_raw_preds_doubles.tsv"
+output_dir = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output"
 plot_dir = os.path.join(output_dir, "plots")
 os.makedirs(output_dir, exist_ok=True)
 os.makedirs(plot_dir, exist_ok=True)

@@ -5,10 +5,10 @@ import umap
 import os
 
 # === Input files ===
-hpa_file = "/ESL/Figures_SK/effect_size_final/Expression_analysis/hpa_rna_celline.tsv"
-hmc3_file = "/ESL/Figures_SK/effect_size_final/Expression_analysis/processed_nTPMs/HMC3_merged_with_ensg.tsv"
-output_merged = "/ESL/Figures_SK/effect_size_final/Expression_analysis/processed_nTPMs/nTPM_merged_HMC3_HEK_HeLa_MCF7_K562.tsv"
-output_dir = "/ESL/Figures_SK/effect_size_final/Expression_analysis/processed_nTPMs"
+hpa_file = "/ESL/ESL_MPRA/SI_figures/RBP_expression_data/hpa_rna_celline.tsv"
+hmc3_file = "/ESL/ESL_MPRA/SI_figures/RBP_expression_data/processed_nTPMs/HMC3_merged_with_ensg.tsv"
+output_merged = "/ESL/ESL_MPRA/SI_figures/RBP_expression_data/processed_nTPMs/nTPM_merged_HMC3_HEK_HeLa_MCF7_K562.tsv"
+output_dir = "/ESL/ESL_MPRA/SI_figures/RBP_expression_data/processed_nTPMs"
 
 os.makedirs(output_dir, exist_ok=True)
 

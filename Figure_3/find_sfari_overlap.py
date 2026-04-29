@@ -9,13 +9,13 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['svg.fonttype'] = 'none'  # Keep text editable if you also save SVGs
 
 # === Paths ===
-sfari_file = "/ESL/Figures_SK/Disease_relevant_genes/SFARI/SFARI-Gene_genes_07-08-2025release_08-20-2025export.csv"
+sfari_file = "/ESL/ESL_MPRA/Figure_3/SFARI-Gene_genes_07-08-2025release_08-20-2025export.csv"
 hgnc_file = "/ESL/Figures_SK/Disease_relevant_genes/hgnc_complete_set.txt"
-supertable_file = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv"
-allseq_file = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-clinvar_path = "/ESL/Figures_SK/redo_pop_variants/clinvar_updated_7_15_25/swarm_delta_logit.csv"
+supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
+allseq_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+clinvar_path = "/ESL/ESL_MPRA/Figure_3/outputs/clinvar/swarm_delta_logit.csv"
 
-output_plot = "/ESL/Figures_SK/Disease_relevant_genes/SFARI/sfari_overlap_clinvar_stripplot.pdf"
+output_plot = "/ESL/ESL_MPRA/SI_figures/ACMG_overlap/outputs/sfari_overlap_clinvar_stripplot.pdf"
 
 # === ClinVar colors ===
 CLINVAR_COLORS = {

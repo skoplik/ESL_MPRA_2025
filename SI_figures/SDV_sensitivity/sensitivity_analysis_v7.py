@@ -17,7 +17,7 @@ Produces three supplementary figures:
          Negatives: intronic >=50 bp from SS, WT PSI ∈ [0,0.1]∪[0.9,1] all cells
          Thresholds marked at 0.5, 1.0, 1.5, 2.0
 
-Output: /ESL/Analysis/sensitivity_analysis_SDVs/output_04_01_2026/
+Output: /ESL/ESL_MPRA/SI_figures/SDV_sensitivity/outputs/
 """
 
 import os
@@ -35,10 +35,10 @@ from statsmodels.stats.multitest import multipletests
 # Paths & constants
 # ---------------------------------------------------------------------------
 DATA_PATH = (
-    "/ESL/Figures_SK/General_preprocessing/output_03_16_2026/"
+    "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/"
     "03_16_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
 )
-OUT_DIR    = "/ESL/Analysis/sensitivity_analysis_SDVs/output_04_01_2026"
+OUT_DIR    = "/ESL/ESL_MPRA/SI_figures/SDV_sensitivity/outputs"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 CELL_LINES  = ["HeLa", "K562", "MCF7", "HMC3", "HEK"]

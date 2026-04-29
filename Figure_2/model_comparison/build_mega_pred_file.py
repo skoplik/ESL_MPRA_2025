@@ -34,17 +34,17 @@ WT_PSI_COLS  = [f'{c}_wt_pooled_psi_raw'  for c in CELL_LINES]
 DELTA_COLS   = [f'{c}_delta_logit_pooled' for c in CELL_LINES]
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-MAIN_DATA   = "/ESL/Figures_SK/General_preprocessing/output_03_16_2026/03_16_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
+MAIN_DATA   = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
 
 MODEL_DIR   = "/ESL/ESL_MPRA/Figure_2/MMSplice/model_output_csv"
 RETRAINED_FULL = f"{MODEL_DIR}/retrained_mmsplice_model_predictions_dataset7_model10_04_09_26_updated.csv"
 RETRAINED_TEST = f"{MODEL_DIR}/retrained_mmsplice_model_predictions_test_dataset7_model10_04_09_26_updated.csv"
 BASELINE_FULL  = f"{MODEL_DIR}/retrained_mmsplice_baseline_aggregate_dataset7_model10_04_09_26_updated.csv"
 
-SPLICEAI_FILE   = "/ESL/Figures_SK/Spliceai/output_04_09_2026/spliceai_merged_predictions_04_09_2026.csv"
+SPLICEAI_FILE   = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_merged_predictions.csv"
 ALPHAGENOME_FILE = "/ESL/ESL_MPRA/Figure_2/AlphaGenome/alphagenome_16k_all_variants.tsv"
-PANGOLIN_FILE   = "/ESL/Figures_SK/Pangolin/pangolin_variant_deltas_all_exons.tsv"
-HAL_PRED_FILE   = "/ESL/Figures_SK/HAL/hal_input_variants_only_avgwtpsi_exon6nt_Predictions.tsv"
+PANGOLIN_FILE   = "/ESL/ESL_MPRA/SI_figures/Pangolin/pangolin_variant_deltas_all_exons.tsv"
+HAL_PRED_FILE   = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/hal/hal_predictions.tsv"
 
 OUTDIR           = "/ESL/ESL_MPRA/Figure_2/model_comparison"
 OUTFILE          = os.path.join(OUTDIR, "mega_pred_file.csv")

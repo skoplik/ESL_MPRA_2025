@@ -3,10 +3,10 @@ from collections import defaultdict
 import re
 
 # === File paths
-cluster_tab = "/ESL/Figures_SK/Cluster_motifs/rsat_out_05_05_2025/motifs_05_05_2025_tables/clusters.tab"
-rbp_mapping_file = "/ESL/Figures_SK/effect_size_final/out_06_09_2025/plots/rncmpt_to_rbpname_full_mapping.csv"
-cluster_output_csv = "/ESL/Figures_SK/effect_size_final/out_06_09_2025/plots/cluster_to_rbps_parsed.csv"
-motif_output_csv = "/ESL/Figures_SK/effect_size_final/out_06_09_2025/plots/motif_to_rbps_parsed.csv"
+cluster_tab = "/ESL/ESL_MPRA/Figure_4/Cluster_motifs/clusters.tab"
+rbp_mapping_file = "/ESL/ESL_MPRA/Figure_4/Effect_size/outputs/plots/rncmpt_to_rbpname_full_mapping.csv"
+cluster_output_csv = "/ESL/ESL_MPRA/Figure_4/Effect_size/outputs/plots/cluster_to_rbps_parsed.csv"
+motif_output_csv = "/ESL/ESL_MPRA/Figure_4/Effect_size/outputs/plots/motif_to_rbps_parsed.csv"
 
 # === Load RNCMPT mapping
 motif_map_df = pd.read_csv(rbp_mapping_file)
@@ -84,7 +84,7 @@ input_csv = cluster_output_csv
 # input_csv = motif_output_csv
 
 # === Output file for unique RBPs
-output_txt = "/ESL/Figures_SK/effect_size_final/out_06_09_2025/plots/unique_rbp_names.txt"
+output_txt = "/ESL/ESL_MPRA/Figure_4/Effect_size/outputs/plots/unique_rbp_names.txt"
 
 # === Load and parse
 df = pd.read_csv(input_csv)

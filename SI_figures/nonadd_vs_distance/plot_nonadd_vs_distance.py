@@ -18,8 +18,8 @@ mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype'] = 42
 
 # === Paths ===
-input_tsv  = "/ESL/Figures_SK/compare_snv_dnv_additive/7_13_2025/7_13_2025_full_results.tsv"
-output_dir = "/ESL/Figures_SK/compare_snv_dnv_additive/distance_analysis"
+input_tsv  = "/ESL/ESL_MPRA/Figure_2/outputs/compare_snv_dnv_additive_full_results.tsv"
+output_dir = "/ESL/ESL_MPRA/Figure_2/outputs/distance_analysis"
 os.makedirs(output_dir, exist_ok=True)
 
 THRESHOLD = 1.0   # |deviation| > threshold → non-additive
