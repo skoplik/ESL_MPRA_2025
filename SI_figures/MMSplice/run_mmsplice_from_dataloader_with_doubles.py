@@ -10,10 +10,10 @@ import pysam
 
 
 # === Input files ===
-vcf_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files/synthetic_all_variants.vcf.gz"
-gtf_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files/synthetic_reference.gtf"
-fasta_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files/synthetic_reference.fa"
-output_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/mmsplice_predictions.csv"
+vcf_path = "/ESL/ESL_MPRA/Figure_4/model_processing/outputs/mmsplice/input_files/synthetic_all_variants.vcf.gz"
+gtf_path = "/ESL/ESL_MPRA/Figure_4/model_processing/outputs/mmsplice/input_files/synthetic_reference.gtf"
+fasta_path = "/ESL/ESL_MPRA/Figure_4/model_processing/outputs/mmsplice/input_files/synthetic_reference.fa"
+output_path = "/ESL/ESL_MPRA/Figure_4/model_processing/outputs/mmsplice/mmsplice_predictions.csv"
 
 
 assert os.path.exists(vcf_path), f"VCF not found: {vcf_path}"

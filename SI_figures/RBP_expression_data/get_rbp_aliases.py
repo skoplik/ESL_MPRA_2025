@@ -2,8 +2,8 @@ import pandas as pd
 import mygene
 
 # === File path
-input_file = "/ESL/ESL_MPRA/Figure_4/Effect_size/outputs/plots/unique_rbp_names.txt"
-output_file = "/ESL/ESL_MPRA/Figure_4/Effect_size/outputs/plots/unique_rbp_names_with_aliases.csv"
+input_file = "/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/plots/unique_rbp_names.txt"
+output_file = "/ESL/ESL_MPRA/Figure_5/Effect_size/outputs/plots/unique_rbp_names_with_aliases.csv"
 
 # === Load gene names
 genes = pd.read_csv(input_file, header=None)[0].astype(str).str.strip().tolist()

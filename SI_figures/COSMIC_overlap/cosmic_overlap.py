@@ -6,7 +6,7 @@ import numpy as np
 input_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 variant_count_path = "/ESL/ESL_MPRA/SI_figures/highly_saturated_exons/outputs/all_gene_exon_variant_counts.tsv"
 cosmic_path = "/ESL/ESL_MPRA/SI_figures/COSMIC_overlap/Cosmic_CancerGeneCensus_v102_GRCh37.tsv"
-clinvar_path = "/ESL/ESL_MPRA/Figure_3/outputs/clinvar/swarm_delta_logit.csv"
+clinvar_path = "/ESL/ESL_MPRA/Figure_4/outputs/clinvar/swarm_delta_logit.csv"
 output_plot = "/ESL/ESL_MPRA/SI_figures/COSMIC_overlap/outputs/cosmic_overlap_clinvar_stripplot.pdf"
 
 # === ClinVar colors ===

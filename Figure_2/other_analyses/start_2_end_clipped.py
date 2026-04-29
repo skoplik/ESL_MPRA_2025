@@ -62,22 +62,6 @@ def plot_swarm_start2end_general(df, out_plot_name, y_col, title):
     print("done")
 
 
-def plot_swarm_start2end_fixedbins(df, out_plot_name, y_col, title):
-    fig, ax = plt.subplots(figsize=(4, 3))
-    df = df.copy()
-    df = df[np.isfinite(df[y_col])].reset_index(drop=True)
-    bins = np.arange(0.0, 1.05, 0.05)
-    labels = [(bins[i] + bins[i+1]) / 2 for i in range(len(bins) - 1)]
-    df['bins'] = pd.cut(df['start psi'], bins=bins, labels=labels, include_lowest=True)
-    df['bin_mean'] = df['bins'].astype(float)
-    df['bin_code'] = df['bins'].cat.codes
-    df = df[df['bin_code'] >= 0].reset_index(drop=True)
-
-    _plot_swarm_shared(df, ax, y_col, title, 'Start PSI (Fixed Bins)')
-    plt.savefig(out_plot_name, dpi=300)
-    plt.close()
-    print("done")
-
 
 def _plot_swarm_shared(df, ax, y_col, title, xlabel):
     all_x, all_y, all_c = [], [], []
@@ -194,15 +178,3 @@ if __name__ == "__main__":
         start2end_df, output_path_prefix + "_deltalogit_300dpi_clipped_e-2.pdf", "delta logit psi", "ΔLogit PSI"
     )
 
-    plot_swarm_start2end_fixedbins(
-        start2end_df, output_path_prefix + "_endpsi_fixedbins.pdf", "end psi", "End PSI (clipped) — Fixed Bins"
-    )
-    plot_swarm_start2end_fixedbins(
-        start2end_df, output_path_prefix + "_deltapsi_fixedbins.pdf", "delta psi", "ΔPSI — Fixed Bins"
-    )
-    plot_swarm_start2end_fixedbins(
-        start2end_df, output_path_prefix + "_endlogit_fixedbins.pdf", "end logit psi", "End Logit PSI — Fixed Bins"
-    )
-    plot_swarm_start2end_fixedbins(
-        start2end_df, output_path_prefix + "_deltalogit_fixedbins.pdf", "delta logit psi", "ΔLogit PSI — Fixed Bins"
-    )

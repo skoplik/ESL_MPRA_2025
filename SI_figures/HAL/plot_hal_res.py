@@ -5,9 +5,9 @@ from scipy.special import logit
 import os
 
 # === Input paths ===
-hal_pred_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/hal/hal_predictions.tsv"
+hal_pred_path = "/ESL/ESL_MPRA/Figure_4/model_processing/outputs/hal/hal_predictions.tsv"
 supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
-output_base = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/hal/plots/"
+output_base = "/ESL/ESL_MPRA/Figure_4/model_processing/outputs/hal/plots/"
 
 # === Load HAL predictions ===
 pred_df = pd.read_csv(hal_pred_path, sep="\t", header=0)

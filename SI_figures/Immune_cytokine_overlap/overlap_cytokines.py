@@ -6,7 +6,7 @@ import numpy as np
 input_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 supertable_meta = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
 cytokine_file = "/ESL/ESL_MPRA/SI_figures/Immune_cytokine_overlap/CytokineRegistry.November_2015.csv"
-clinvar_path = "/ESL/ESL_MPRA/Figure_3/outputs/clinvar/swarm_delta_logit.csv"
+clinvar_path = "/ESL/ESL_MPRA/Figure_4/outputs/clinvar/swarm_delta_logit.csv"
 
 cyto_alias_file = "/ESL/ESL_MPRA/SI_figures/Immune_cytokine_overlap/cytokine_aliases_expanded.txt"
 receptor_alias_file = "/ESL/ESL_MPRA/SI_figures/Immune_cytokine_overlap/receptor_aliases_expanded.txt"

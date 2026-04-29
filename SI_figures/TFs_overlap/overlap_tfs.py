@@ -6,7 +6,7 @@ import numpy as np
 tf_list_path = "/ESL/ESL_MPRA/SI_figures/TFs_overlap/TF_names_v_1.01.txt"
 variant_counts_path = "/ESL/ESL_MPRA/SI_figures/highly_saturated_exons/outputs/all_gene_exon_variant_counts.tsv"
 allseq_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
-clinvar_path = "/ESL/ESL_MPRA/Figure_3/outputs/clinvar/swarm_delta_logit.csv"
+clinvar_path = "/ESL/ESL_MPRA/Figure_4/outputs/clinvar/swarm_delta_logit.csv"
 
 output_overlap_path = "/ESL/ESL_MPRA/SI_figures/TFs_overlap/outputs/tf_overlap_variant_counts.tsv"
 output_plot = "/ESL/ESL_MPRA/SI_figures/TFs_overlap/outputs/tf_overlap_clinvar_stripplot.pdf"

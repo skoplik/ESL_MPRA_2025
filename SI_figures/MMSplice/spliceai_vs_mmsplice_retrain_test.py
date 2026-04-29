@@ -7,11 +7,11 @@ import seaborn as sns
 from scipy.stats import pearsonr
 
 # === Paths ===
-spliceai_file = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_psi_logit.tsv"
-mmsplice_test_file = "/ESL/ESL_MPRA/Figure_2/model_output_csv/retrained_mmsplice_model_predictions_test_dataset7_model10.csv"
+spliceai_file = "/ESL/ESL_MPRA/Figure_3/SpliceAI/output/spliceai_psi_logit.tsv"
+mmsplice_test_file = "/ESL/ESL_MPRA/Figure_3/MMSplice/model_output_csv/retrained_mmsplice_model_predictions_test_dataset7_model10.csv"
 supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 
-outdir = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_vs_exp_refs"
+outdir = "/ESL/ESL_MPRA/Figure_3/SpliceAI/output/spliceai_vs_exp_refs"
 os.makedirs(outdir, exist_ok=True)
 
 # === Load files ===
