@@ -24,7 +24,7 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['svg.fonttype'] = 'none'
 
 # === Config ===================================================================
-supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 mingap_file     = "/ESL/ESL_MPRA/Figure_5/outputs/mingap/mingap_variants_all_filtered.tsv"
 output_dir      = "/ESL/ESL_MPRA/Figure_5/outputs/family_specificity_all"
 os.makedirs(output_dir, exist_ok=True)

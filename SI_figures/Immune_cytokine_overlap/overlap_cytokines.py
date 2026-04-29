@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # === Paths ===
-input_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+input_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 supertable_meta = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
 cytokine_file = "/ESL/ESL_MPRA/SI_figures/Immune_cytokine_overlap/CytokineRegistry.November_2015.csv"
 clinvar_path = "/ESL/ESL_MPRA/Figure_3/outputs/clinvar/swarm_delta_logit.csv"

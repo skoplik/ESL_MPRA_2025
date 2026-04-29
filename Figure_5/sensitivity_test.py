@@ -27,7 +27,7 @@ HIGHLIGHT_THRESHOLD  = 0.25  # original threshold, shown on sweep for reference
 
 # === Paths
 anova_path      = "/ESL/ESL_MPRA/Figure_5/outputs/mingap/anova_stats_all_variants.tsv"
-psi_table_path  = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+psi_table_path  = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 meta_table_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
 output_dir      = "/ESL/ESL_MPRA/Figure_5/outputs/mingap_redo"
 os.makedirs(output_dir, exist_ok=True)

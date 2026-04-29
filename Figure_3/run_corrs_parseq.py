@@ -11,7 +11,7 @@ import matplotlib.colors as mcolors
 
 # === File paths ===
 parse_seq_path = "/ESL/ESL_MPRA/Figure_3/41467_2024_52474_MOESM7_ESM.csv"
-supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 variant_info_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
 clinvar_path = "/ESL/Figures/Variant_analyses/heatmap_plots/supertable_ClinVar_matched_in_supertable.txt"
 output_dir = "/ESL/ESL_MPRA/Figure_3/outputs/fig_parse_seq"

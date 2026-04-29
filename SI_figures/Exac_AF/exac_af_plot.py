@@ -6,7 +6,7 @@ variant_df = pd.read_csv(
     "/ESL/Figures/Resources/supertable_dbSNP155_Gencode_v26/supertable_dbSNP155_Gencode_v26_overlap_dbSNP155_matches_ExAC.txt",
     sep="\t", dtype=str)
 psi_df = pd.read_csv(
-    "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv",
+    "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz",
     dtype=str)
 
 # Merge on Reference

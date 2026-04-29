@@ -34,7 +34,7 @@ WT_PSI_COLS  = [f'{c}_wt_pooled_psi_raw'  for c in CELL_LINES]
 DELTA_COLS   = [f'{c}_delta_logit_pooled' for c in CELL_LINES]
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-MAIN_DATA   = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
+MAIN_DATA   = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 
 MODEL_DIR   = "/ESL/ESL_MPRA/Figure_2/MMSplice/model_output_csv"
 RETRAINED_FULL = f"{MODEL_DIR}/retrained_mmsplice_model_predictions_dataset7_model10_04_09_26_updated.csv"

@@ -7,7 +7,7 @@ import os
 
 # === Paths ===
 mmsplice_pred_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/mmsplice_predictions_with_ref_idx.csv"
-supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 output_dir = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/plots/"
 output_csv = os.path.join(output_dir, "mmsplice_vs_supertable_vcfid_filtered.csv")
 os.makedirs(output_dir, exist_ok=True)

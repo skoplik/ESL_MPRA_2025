@@ -13,7 +13,7 @@ mpl.rcParams['svg.fonttype'] = 'none'
 
 # === Input files
 mfass_file = "/ESL/ESL_MPRA/SI_figures/MFASS_overlap/outputs/merged_mfass_supertable_overlap_summary.tsv"
-supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
+supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 output_dir = "/ESL/ESL_MPRA/SI_figures/MFASS_overlap/outputs/corrs_out_r2"
 os.makedirs(output_dir, exist_ok=True)
 

@@ -7,7 +7,7 @@ import matplotlib as mpl
 
 # === Paths ===
 acmg_file = "/ESL/ESL_MPRA/SI_figures/ACMG_overlap/1-s2.0-S1098360023008791-mmc1.csv"
-allseq_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+allseq_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 clinvar_path = "/ESL/ESL_MPRA/Figure_3/outputs/clinvar/swarm_delta_logit.csv"
 
 output_aliases_path = "/ESL/ESL_MPRA/SI_figures/ACMG_overlap/acmg_aliases_expanded.txt"

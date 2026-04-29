@@ -5,7 +5,7 @@ import os
 from sklearn.metrics import r2_score
 
 # === Inputs ===
-input_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+input_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 output_prefix = "/ESL/ESL_MPRA/SI_figures/Correlations_all_cell_lines/outputs/allcell_avg_repl_vs_pooled_dlogit_grid"
 os.makedirs(os.path.dirname(output_prefix), exist_ok=True)
 

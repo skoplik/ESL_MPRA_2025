@@ -31,7 +31,7 @@ SWEEP_STEP       = 0.05  # step size for sensitivity sweep
 N_BASELINE       = 200   # bottom-mingap variants for negative control figure
 
 # === Paths
-psi_table_path  = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+psi_table_path  = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 meta_table_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
 output_dir      = "/ESL/ESL_MPRA/Figure_5/outputs/mingap"
 os.makedirs(output_dir, exist_ok=True)

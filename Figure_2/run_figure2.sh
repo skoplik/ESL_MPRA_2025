@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-DATA=/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv
+DATA=/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz
 OUTDIR=/ESL/ESL_MPRA/Figure_2/outputs/plots
 SCRIPTS=/ESL/ESL_MPRA/Figure_2/other_analyses
 

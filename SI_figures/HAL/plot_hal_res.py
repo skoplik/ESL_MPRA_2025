@@ -6,7 +6,7 @@ import os
 
 # === Input paths ===
 hal_pred_path = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/hal/hal_predictions.tsv"
-supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv"
+supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 output_base = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/hal/plots/"
 
 # === Load HAL predictions ===

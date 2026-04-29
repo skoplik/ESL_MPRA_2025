@@ -4,7 +4,7 @@ import numpy as np
 import os
 
 # Load your file
-df = pd.read_csv("/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WITH_WT.csv")
+df = pd.read_csv("/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz")
 print(len(df))
 df = df.drop_duplicates(subset="full_seq", keep="first").copy()
 print(len(df))

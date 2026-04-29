@@ -29,7 +29,7 @@ from scipy.special import logit as scipy_logit
 # ── Paths ──────────────────────────────────────────────────────────────────
 SOURCE_GZ          = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
 CORRECTED_ST       = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/st_corrected.csv"
-MAIN_CSV           = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
+MAIN_CSV           = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 GTF                = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/gencode.v48.annotation.gtf"
 OUTPUT_DIR         = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ambiguous_sjs"
 OUTPUT_BASENAME    = "SI_alt_transcript_psi.csv"

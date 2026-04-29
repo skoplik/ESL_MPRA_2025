@@ -21,7 +21,7 @@ LEN_CITRINE1 = len(CITRINE_EXON1)
 LEN_SMN2_5 = len(SMN2_INTRON6)
 
 # === Paths ===
-main_data_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ALL_WTS_VARS_NO_DELTAS.csv"
+main_data_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 wt_path = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_raw_wt_preds.tsv"
 snv_path = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_raw_preds.tsv"
 doubles_path = "/ESL/ESL_MPRA/Figure_2/SpliceAI/output/spliceai_raw_preds_doubles.tsv"
