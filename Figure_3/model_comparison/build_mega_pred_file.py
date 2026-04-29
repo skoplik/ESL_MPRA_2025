@@ -42,7 +42,7 @@ RETRAINED_TEST = f"{MODEL_DIR}/retrained_mmsplice_model_predictions_test_dataset
 BASELINE_FULL  = f"{MODEL_DIR}/retrained_mmsplice_baseline_aggregate_dataset7_model10_04_09_26_updated.csv"
 
 SPLICEAI_FILE   = "/ESL/ESL_MPRA/Figure_3/SpliceAI/output/spliceai_merged_predictions.csv"
-ALPHAGENOME_FILE = "/ESL/ESL_MPRA/Figure_2/AlphaGenome/alphagenome_16k_all_variants.tsv"
+ALPHAGENOME_FILE = "/ESL/ESL_MPRA/Figure_3/AlphaGenome/alphagenome_16k_all_variants.tsv"
 PANGOLIN_FILE   = "/ESL/ESL_MPRA/SI_figures/Pangolin/pangolin_variant_deltas_all_exons.tsv"
 HAL_PRED_FILE   = "/ESL/ESL_MPRA/Figure_4/model_processing/outputs/hal/hal_predictions.tsv"
 
