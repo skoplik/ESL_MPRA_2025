@@ -2,8 +2,8 @@
 set -e
 
 DATA=/ESL/Figures_SK/General_preprocessing/output_04_26_2026/04_26_2026_1e-2_ALL_WITH_WT.csv
-INPUT_DIR=/ESL/Figures_SK_Updated_Apr_2026/Figure_3/model_processing/outputs/mmsplice/input_files
-SCRIPTS=/ESL/Figures_SK_Updated_Apr_2026/Figure_3/model_processing
+INPUT_DIR=/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files
+SCRIPTS=/ESL/ESL_MPRA/Figure_3/model_processing
 
 mkdir -p $INPUT_DIR
 

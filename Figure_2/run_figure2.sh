@@ -2,8 +2,8 @@
 set -e
 
 DATA=/ESL/Figures_SK/General_preprocessing/output_04_26_2026/04_26_2026_1e-2_ALL_WITH_WT.csv
-OUTDIR=/ESL/Figures_SK_Updated_Apr_2026/Figure_2/outputs/plots
-SCRIPTS=/ESL/Figures_SK_Updated_Apr_2026/Figure_2
+OUTDIR=/ESL/ESL_MPRA/Figure_2/outputs/plots
+SCRIPTS=/ESL/ESL_MPRA/Figure_2/other_analyses
 
 mkdir -p $OUTDIR
 
