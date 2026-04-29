@@ -113,10 +113,10 @@ ax2.hist(df[df["non_additive"] == 1]["distance"], bins=bins_hist,
 ax2.set_xlabel("Distance between SNVs (nt)", fontsize=10)
 ax2.set_ylabel("Density", fontsize=10)
 ax2.set_title("Distance distribution: all vs. non-additive pairs", fontsize=10)
-ax2.legend(fontsize=8, loc="upper left", bbox_to_anchor=(1.01, 1.0),
+ax2.legend(fontsize=8, loc="upper right", bbox_to_anchor=(1.01, 1.0),
            frameon=True, framealpha=1.0, facecolor="white", edgecolor="grey")
 ax2.text(
-    0.97, 0.03,
+    0.97, 0.85,
     f"8.1% of pairs non-additive overall\n(2,243 / 27,840)",
     transform=ax2.transAxes, fontsize=7.5,
     ha="right", va="bottom",

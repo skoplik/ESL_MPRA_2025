@@ -1,25 +1,23 @@
 """
-03_alt_transcript_si_table.py.
+Build SI table for ambiguous SJ events.
 
-For every ambiguous event, computes PSI at every NON-CHOSEN Gencode-annotated
-transcript's junction for all rows (each WT + variant). One output row per
-(Reference, alt_transcript_id) with `_alt` suffixed PSI / logit / dPSI /
-delta-logit columns mirroring the main table schema.
+For each ambiguous event, computes PSI at EVERY non-primary transcript's
+junction for ALL rows (every WT and variant), regardless of which transcript
+that row was originally annotated to.
+
+For events with N transcripts, this produces N-1 alt rows per reference row,
+one per alternative transcript. Each row is distinguished by alt_transcript_id.
 
 Junction formula (0-indexed construct coordinates):
   i1 = (26, 286 + alt_intron1_len)
   i2 = (286 + alt_intron1_len + alt_exon_len + 1, 871)
   e  = (26, 871)
 
-Inputs:
-  - source supertable (gz) — to enumerate alt transcripts per event
-  - corrected supertable from Stage 1 — to identify the chosen transcript to skip
-  - merged main CSV from Stage 2 — for the per-row context
-  - 12 per-replicate junction-count pickles
+Output: SI_alt_transcript_psi.csv
+  One row per (Reference, alt_transcript). Columns mirror the main
+  ALL_WTS_VARS_NO_DELTAS.csv structure with _alt suffix.
 """
 
-import gzip
-import os
 import pickle
 import re
 import pandas as pd
@@ -27,12 +25,10 @@ import numpy as np
 from scipy.special import logit as scipy_logit
 
 # ── Paths ──────────────────────────────────────────────────────────────────
-SOURCE_GZ          = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv.gz"
-CORRECTED_ST       = "/ESL/Figures_SK/General_preprocessing/output_04_26_2026/st_04_26_2026.csv"
-MAIN_CSV           = "/ESL/Figures_SK/General_preprocessing/output_04_26_2026/04_26_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
-GTF                = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/gencode.v48.annotation.gtf"
-OUTPUT_DIR         = "/ESL/Figures_SK/ambiguous_sjs"
-OUTPUT_BASENAME    = "SI_alt_transcript_psi_04_26_2026.csv"
+SUPERTABLE = "/ESL/Figures_SK/General_preprocessing/output_04_24_2026/st_working_04_24_2026.csv"
+MAIN_CSV   = "/ESL/Figures_SK/General_preprocessing/output_04_24_2026/04_24_2026_1e-2_ALL_WTS_VARS_NO_DELTAS_seqfix.csv"
+GTF        = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/gencode.v48.annotation.gtf"
+OUTPUT_DIR = "/ESL/Figures_SK/ambiguous_sjs"
 
 PKL_BASE = "/ESL/Analysis/STAR_alignment/separate_concat_2023_09_19_d1c_ms75_from_s3_2023_11_27/recount_SJs"
 PKL_2024  = PKL_BASE + "/2024_07_26"
@@ -123,65 +119,57 @@ def mane_priority(transcript_id):
     return 2
 
 
-# ── Load source + corrected supertables ────────────────────────────────────
-# Source carries one row per (Reference, transcript) — needed to enumerate
-# alts. Corrected has one row per (Reference, event) at the chosen MANE
-# junction — used to identify which transcript to skip per event.
-print("Loading source supertable from gz...")
-with gzip.open(SOURCE_GZ, "rt") as f:
-    st_source = pd.read_csv(f, low_memory=False)
-st_source["_intron1_len"] = st_source["intron1"].str.len()
+# ── Load supertable ────────────────────────────────────────────────────────
+print("Loading supertable...")
+st = pd.read_csv(SUPERTABLE, low_memory=False)
 
-print("Loading corrected supertable...")
-st_corr = pd.read_csv(CORRECTED_ST, low_memory=False)
-
-# Ambiguity: source supertable rows per event with >1 distinct intron1_len.
-intron_counts = st_source.groupby("event_id")["_intron1_len"].nunique()
+# Detect ambiguity by intron1 length diversity — robust to supertable coordinate
+# updates (which preserve the actual intron1/exon sequences).
+st["_intron1_len"] = st["intron1"].str.len()
+intron_counts = st.groupby("event_id")["_intron1_len"].nunique()
 ambig_eids = set(intron_counts[intron_counts > 1].index)
-print(f"Ambiguous events (source): {len(ambig_eids)}")
+print(f"Ambiguous events: {len(ambig_eids)}")
 
-# Chosen transcript per event = the per-row transcript_id of any row in the
-# corrected supertable for that event (all rows in an event share it).
-chosen_tx_per_event = (st_corr[st_corr["event_id"].isin(ambig_eids)]
-                       .drop_duplicates("event_id")
-                       .set_index("event_id")["transcript_id"])
+# Primary Reference per event (lowest Reference with snp==none)
+primary_ref = (st[(st["event_id"].isin(ambig_eids)) & (st["snp"] == "none")]
+               .sort_values("Reference")
+               .drop_duplicates("event_id")
+               .set_index("event_id")["Reference"])
 
-# Alt junctions per event: every distinct intron1_len in the source supertable
-# whose transcript_id base differs from the chosen transcript.
+# All alt junction coords per event: all non-primary intron1 lengths,
+# sorted MANE Select > MANE Plus Clinical > lowest Reference.
+# Deduplicate by intron1_len (not transcript_id) to capture all distinct junctions
+# even after supertable transcript annotation updates.
 alt_jxns = {}   # event_id -> list of alt transcript dicts
 for event_id in ambig_eids:
-    chosen_tx = chosen_tx_per_event.get(event_id)
-    if chosen_tx is None:
-        # No chosen junction (e.g. one of the 6 events with no reads anywhere) —
-        # fall back to skipping the lowest-Reference primary's intron1_len.
-        chosen_tx_base = None
-    else:
-        chosen_tx_base = str(chosen_tx).split(".")[0]
-
-    sub = (st_source[st_source["event_id"] == event_id].copy())
+    sub = (st[(st["event_id"] == event_id)]
+           .copy())
     sub["_mane_priority"] = sub["transcript_id"].map(mane_priority)
     sub = sub.sort_values(["_mane_priority", "Reference"])
-    sub = sub.drop_duplicates("_intron1_len")  # one entry per distinct junction
+    sub = sub.drop_duplicates("_intron1_len")   # one entry per distinct junction
+    pref_i1_len = sub.iloc[0]["_intron1_len"]   # primary = first after sort (lowest ref, MANE preferred)
+    # But primary_ref is actually the lowest Reference snp==none; use its intron1_len
+    pref_ref = primary_ref.get(event_id)
+    if pref_ref is not None:
+        pref_row = st[st["Reference"] == pref_ref]
+        pref_i1_len = int(pref_row["_intron1_len"].iloc[0]) if len(pref_row) else pref_i1_len
 
     alts = []
     for _, row in sub.iterrows():
-        tx_base = str(row["transcript_id"]).split(".")[0]
-        if chosen_tx_base is not None and tx_base == chosen_tx_base:
-            continue  # skip the chosen junction
-        alts.append({
-            "intron1_len":     int(row["_intron1_len"]),
-            "exon_len":        len(str(row["exon"])),
-            "transcript_id":   row["transcript_id"],
-            "exon_start_hg38": row["exon_start_hg38"],
-            "exon_end_hg38":   row["exon_end_hg38"],
-        })
+        if int(row["_intron1_len"]) != pref_i1_len:
+            alts.append({
+                "intron1_len":   int(row["_intron1_len"]),
+                "exon_len":      len(str(row["exon"])),
+                "transcript_id": row["transcript_id"],
+                "exon_start_hg38": row["exon_start_hg38"],
+                "exon_end_hg38":   row["exon_end_hg38"],
+            })
     if alts:
         alt_jxns[event_id] = alts
 
-# Map full_seq → 1-indexed pickle Reference. Source supertable Reference is
-# 0-indexed (matching pickle = Reference + 1).
+# Pickle keys are 1-indexed; supertable Reference is 0-indexed → add 1
 seen_seq = {}
-for _, r in st_source.iterrows():
+for _, r in st.iterrows():
     if r["full_seq"] not in seen_seq:
         seen_seq[r["full_seq"]] = int(r["Reference"]) + 1
 
@@ -193,7 +181,7 @@ main["Reference_0"] = main["Reference"] - 1
 ambig_main = main[main["event_id"].isin(ambig_eids)].copy()
 print(f"Rows in ambiguous events: {len(ambig_main):,}")
 
-ref0_to_seq = st_source.drop_duplicates("Reference").set_index("Reference")["full_seq"]
+ref0_to_seq = st.set_index("Reference")["full_seq"]
 ambig_main["full_seq_st"]  = ambig_main["Reference_0"].map(ref0_to_seq)
 ambig_main["fasta_ref"]    = ambig_main["full_seq_st"].map(seen_seq)
 
@@ -297,8 +285,7 @@ print(f"  Events: {alt_df['event_id'].nunique()}")
 print(f"  Unique alt transcripts: {alt_df['alt_transcript_id'].nunique()}")
 print(f"  WTs: {(alt_df['snp']=='none').sum():,}   Variants: {(alt_df['snp']!='none').sum():,}")
 
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-out = os.path.join(OUTPUT_DIR, OUTPUT_BASENAME)
+out = f"{OUTPUT_DIR}/SI_alt_transcript_psi.csv"
 alt_df.to_csv(out, index=False)
 print(f"\nSaved: {out}")
 print(f"Columns: {list(alt_df.columns)}")
