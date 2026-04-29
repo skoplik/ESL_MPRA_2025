@@ -43,12 +43,12 @@ import numpy as np
 import pandas as pd
 
 # ── Paths ──────────────────────────────────────────────────────────────────
-GZ_IN  = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/st_final_with_snp_and_coords_05_30_25.csv.gz"
+GZ_IN  = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
 GTF    = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/gencode.v48.annotation.gtf"
 
-OUT_DIR    = "/ESL/Figures_SK/General_preprocessing/output_04_26_2026"
-ST_OUT     = os.path.join(OUT_DIR, "st_04_26_2026.csv")
-PSI_OUT_DIR = os.path.join(OUT_DIR, "recount_PSIs_04_26_2026")
+OUT_DIR    = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output"
+ST_OUT     = os.path.join(OUT_DIR, "st_corrected.csv")
+PSI_OUT_DIR = os.path.join(OUT_DIR, "recount_PSIs")
 
 PKL_BASE = "/ESL/Analysis/STAR_alignment/separate_concat_2023_09_19_d1c_ms75_from_s3_2023_11_27/recount_SJs"
 PKL_2024 = PKL_BASE + "/2024_07_26"
