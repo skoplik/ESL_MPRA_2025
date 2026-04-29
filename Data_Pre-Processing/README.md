@@ -142,7 +142,7 @@ See `Post-process_STAR_PSIs/README_04_26_2026.md` for full per-stage detail
 |------|------|
 | Supertable (sequence metadata) | `/ESL/Data/Sequences/supertable.tsv` |
 | Corrected supertable (current canonical) | `/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/st_corrected.csv` |
-| Supertable source (gz, never modified) | `/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz` |
+| Supertable source (gz, never modified, retired) | `/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz` |
 | Gencode v48 GTF | `/ESL/Figures_SK/General_preprocessing/fix_supertable_2/gencode.v48.annotation.gtf` |
 | Barcode FASTA reference | `/ESL/Analysis/clustering_barcodes_DNA/concat_2023_09_19_d1c_ms75/shorter3p/*_reference_with_close_matches.fasta` |
 | Construct GTF annotation | `/ESL/Analysis/clustering_barcodes_DNA/concat_2023_09_19_d1c_ms75/shorter3p/assembled_GTF_supertable_*.gtf` |
