@@ -15,6 +15,7 @@ __pycache__/
 *.xlsx
 *.ipynb
 *.gz
+!Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz
 *.bam
 *.bai
 *.fastq
