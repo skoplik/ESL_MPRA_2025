@@ -16,6 +16,8 @@ __pycache__/
 *.ipynb
 *.gz
 !Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz
+!Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz
+!Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz
 *.bam
 *.bai
 *.fastq
