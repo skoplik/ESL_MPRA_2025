@@ -3,9 +3,9 @@ import os
 
 # === Paths ===
 supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
-fasta_out = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files/synthetic_reference.fa"
-gtf_out = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files/synthetic_reference.gtf"
-vcf_out = "/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files/synthetic_variants.vcf"
+fasta_out = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files/synthetic_reference.fa"
+gtf_out = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files/synthetic_reference.gtf"
+vcf_out = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files/synthetic_variants.vcf"
 
 # === Padding sequences ===
 CITRINE_EXON1 = ("ATGGTGTCCAAGGGCGAGGAGCTGTTCACCGGGGTGGTGCCCATCCTGGTCGAGCTGGACGGCGACGTAAACGGCCACAAGTTCAGCGTCAGCGGCGAGGGCGAGGGCGATGCCACCTACGGCAAACTGACCCTGAAGTTCATCTGCACCACCGGCAAGCTGCCCGTGCCCTGGCCCACCCTCGTGACCACCTTCGGCTACGGCCTGATGTGCTTCGCCCGCTACCCCGACCACATGAAGCAGCACGACTTCTTCAAGTCCGCCATGCCCGAAGGCTACGTCCAGGAGCGCACCATCTTCTTCAAGGACGACGGCAACTACAAGACCCGCGCCGAAGTGAAGTTCGAGGGCGACACCCTCGTGAACCGCATCGAGCTAAAGGGCATCGACTTCAAGGAGGACGGCAACATCCTGGGGCACAAGCTGGAGTACAACTACAACAGCCACAACGTCTATATCATGGCCGACAAGCAGAAGAACGGCATCAAAGTGAACTTCAAGATCCGCCACAACATCGAG")

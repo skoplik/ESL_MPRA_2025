@@ -2,8 +2,8 @@
 set -e
 
 DATA=/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz
-OUTDIR=/ESL/ESL_MPRA/Figure_3/model_processing/outputs/spliceai
-SCRIPTS=/ESL/ESL_MPRA/Figure_4/model_processing
+OUTDIR=/ESL/ESL_MPRA/Figure_3/SpliceAI/outputs
+SCRIPTS=/ESL/ESL_MPRA/Figure_3/SpliceAI
 
 mkdir -p $OUTDIR
 

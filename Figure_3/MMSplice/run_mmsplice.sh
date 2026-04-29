@@ -2,8 +2,8 @@
 set -e
 
 DATA=/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz
-INPUT_DIR=/ESL/ESL_MPRA/Figure_3/model_processing/outputs/mmsplice/input_files
-SCRIPTS=/ESL/ESL_MPRA/Figure_4/model_processing
+INPUT_DIR=/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files
+SCRIPTS=/ESL/ESL_MPRA/Figure_3/MMSplice
 
 mkdir -p $INPUT_DIR
 
