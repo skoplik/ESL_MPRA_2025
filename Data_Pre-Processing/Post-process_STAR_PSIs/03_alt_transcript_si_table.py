@@ -1,24 +1,22 @@
 """
-03_alt_transcript_si_table.py.
+03_alt_transcript_si_table.py — 2026-05-01 rewrite.
 
-For every ambiguous event, computes PSI at every NON-CHOSEN Gencode-annotated
-transcript's junction for all rows (each WT + variant). One output row per
-(Reference, alt_transcript_id) with `_alt` suffixed PSI / logit / dPSI /
-delta-logit columns mirroring the main table schema.
+Builds the SI alt-transcript PSI table for **Gencode-only alts** — Gencode
+transcripts whose junctions fit the construct window AND have read coverage
+but were NOT in the original supertable design.
 
-Junction formula (0-indexed construct coordinates):
-  i1 = (26, 286 + alt_intron1_len)
-  i2 = (286 + alt_intron1_len + alt_exon_len + 1, 871)
-  e  = (26, 871)
+Supertable-design alts (the duplicate rows of ambiguous events, e.g. KCTD10
+84926, 84927) live in the main table now under their own re-keyed event_ids
+and are NOT included here.
 
 Inputs:
-  - source supertable (gz) — to enumerate alt transcripts per event
-  - corrected supertable from Stage 1 — to identify the chosen transcript to skip
-  - merged main CSV from Stage 2 — for the per-row context
+  - st_corrected.csv from Stage 1 (carries event_id_161 + new columns)
+  - st_alt_junctions.csv from Stage 1 (Gencode-only alts; one row per
+    (canonical_reference, alt_transcript_id) with junction coords)
+  - 1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz from Stage 2 (per-row main data)
   - 12 per-replicate junction-count pickles
 """
 
-import gzip
 import os
 import pickle
 import re
@@ -27,11 +25,12 @@ import numpy as np
 from scipy.special import logit as scipy_logit
 
 # ── Paths ──────────────────────────────────────────────────────────────────
-SOURCE_GZ          = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
-CORRECTED_ST       = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/st_corrected.csv"
-MAIN_CSV           = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
+BASE_OUT           = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output"
+CORRECTED_ST       = os.path.join(BASE_OUT, "st_corrected.csv")
+ST_ALT_JUNCTIONS   = os.path.join(BASE_OUT, "st_alt_junctions.csv")
+MAIN_CSV           = os.path.join(BASE_OUT, "1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz")
 GTF                = "/ESL/Figures_SK/General_preprocessing/fix_supertable_2/gencode.v48.annotation.gtf"
-OUTPUT_DIR         = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/ambiguous_sjs"
+OUTPUT_DIR         = os.path.join(BASE_OUT, "ambiguous_sjs")
 OUTPUT_BASENAME    = "SI_alt_transcript_psi.csv"
 
 PKL_BASE = "/ESL/Analysis/STAR_alignment/separate_concat_2023_09_19_d1c_ms75_from_s3_2023_11_27/recount_SJs"
@@ -72,6 +71,7 @@ CLIP      = 1e-2
 def junctions(i1_len, ex_len):
     return (26, SHARED_5P + i1_len), (SHARED_5P + i1_len + ex_len + 1, 871), (26, 871)
 
+
 def get_psi(pkl, ref, i1, i2, e=(26, 871)):
     if ref not in pkl:
         return np.nan, np.nan, 0
@@ -82,6 +82,7 @@ def get_psi(pkl, ref, i1, i2, e=(26, 871)):
     if tot < MINCOV:
         return np.nan, np.nan, tot
     return inc / tot, inc / tot, tot
+
 
 def clip_logit(psi):
     if np.isnan(psi):
@@ -106,6 +107,7 @@ with open(GTF) as _f:
         if 'MANE_Plus_Clinical' in _line:
             mane_plus.add(_tx)
 
+
 def mane_label(transcript_id):
     tx = str(transcript_id).split('.')[0]
     if tx in mane_select:
@@ -114,90 +116,60 @@ def mane_label(transcript_id):
         return 'MANE Plus Clinical'
     return ''
 
-def mane_priority(transcript_id):
-    tx = str(transcript_id).split('.')[0]
-    if tx in mane_select:
-        return 0
-    if tx in mane_plus:
-        return 1
-    return 2
 
-
-# ── Load source + corrected supertables ────────────────────────────────────
-# Source carries one row per (Reference, transcript) — needed to enumerate
-# alts. Corrected has one row per (Reference, event) at the chosen MANE
-# junction — used to identify which transcript to skip per event.
-print("Loading source supertable from gz...")
-with gzip.open(SOURCE_GZ, "rt") as f:
-    st_source = pd.read_csv(f, low_memory=False)
-st_source["_intron1_len"] = st_source["intron1"].str.len()
-
+# ── Load corrected supertable + Gencode-only alt junctions ────────────────
 print("Loading corrected supertable...")
 st_corr = pd.read_csv(CORRECTED_ST, low_memory=False)
 
-# Ambiguity: source supertable rows per event with >1 distinct intron1_len.
-intron_counts = st_source.groupby("event_id")["_intron1_len"].nunique()
-ambig_eids = set(intron_counts[intron_counts > 1].index)
-print(f"Ambiguous events (source): {len(ambig_eids)}")
+print("Loading Gencode-only alt junctions table...")
+alt_jxns_df = pd.read_csv(ST_ALT_JUNCTIONS)
+print(f"  Gencode-only alts: {len(alt_jxns_df)}")
 
-# Chosen transcript per event = the per-row transcript_id of any row in the
-# corrected supertable for that event (all rows in an event share it).
-chosen_tx_per_event = (st_corr[st_corr["event_id"].isin(ambig_eids)]
-                       .drop_duplicates("event_id")
-                       .set_index("event_id")["transcript_id"])
+# Map: event_id_161 → list of alt transcript dicts.
+# st_alt_junctions.csv is now deduped per (event_id_161, alt_transcript_id).
+alt_jxns = {}
+for _, row in alt_jxns_df.iterrows():
+    eid_161 = row["event_id_161"]
+    alt_jxns.setdefault(eid_161, []).append({
+        "intron1_len":        int(row["alt_intron1_len"]),
+        "exon_len":           int(row["alt_exon_len"]),
+        "transcript_id":      row["alt_transcript_id"],
+        "exon_start_hg38":    row["alt_exon_start_hg38"],
+        "exon_end_hg38":      row["alt_exon_end_hg38"],
+        "alt_mane_status":    row.get("alt_mane_status", ""),
+        "main_transcript_id": row.get("main_transcript_id", ""),
+        "canonical_reference":int(row["canonical_reference"]),
+    })
 
-# Alt junctions per event: every distinct intron1_len in the source supertable
-# whose transcript_id base differs from the chosen transcript.
-alt_jxns = {}   # event_id -> list of alt transcript dicts
-for event_id in ambig_eids:
-    chosen_tx = chosen_tx_per_event.get(event_id)
-    if chosen_tx is None:
-        # No chosen junction (e.g. one of the 6 events with no reads anywhere) —
-        # fall back to skipping the lowest-Reference primary's intron1_len.
-        chosen_tx_base = None
-    else:
-        chosen_tx_base = str(chosen_tx).split(".")[0]
+# Build event_id_161 → set of supertable transcript_id bases (any row sharing
+# the same construct). Used to flag whether each alt is also a supertable alt.
+st_tx_bases_by_event = {}
+for eid_161, grp in st_corr.groupby("event_id_161"):
+    bases = {str(t).split(".")[0] for t in grp["transcript_id"].dropna()}
+    st_tx_bases_by_event[eid_161] = bases
+print(f"  Events (event_id_161) with alts: {len(alt_jxns)}")
 
-    sub = (st_source[st_source["event_id"] == event_id].copy())
-    sub["_mane_priority"] = sub["transcript_id"].map(mane_priority)
-    sub = sub.sort_values(["_mane_priority", "Reference"])
-    sub = sub.drop_duplicates("_intron1_len")  # one entry per distinct junction
+# Build full_seq → canonical Reference (0-indexed) map from supertable
+canonical_ref_by_fseq = (
+    st_corr.groupby("full_seq")["Reference"].min().astype(int).to_dict()
+)
 
-    alts = []
-    for _, row in sub.iterrows():
-        tx_base = str(row["transcript_id"]).split(".")[0]
-        if chosen_tx_base is not None and tx_base == chosen_tx_base:
-            continue  # skip the chosen junction
-        alts.append({
-            "intron1_len":     int(row["_intron1_len"]),
-            "exon_len":        len(str(row["exon"])),
-            "transcript_id":   row["transcript_id"],
-            "exon_start_hg38": row["exon_start_hg38"],
-            "exon_end_hg38":   row["exon_end_hg38"],
-        })
-    if alts:
-        alt_jxns[event_id] = alts
 
-# Map full_seq → 1-indexed pickle Reference. Source supertable Reference is
-# 0-indexed (matching pickle = Reference + 1).
-seen_seq = {}
-for _, r in st_source.iterrows():
-    if r["full_seq"] not in seen_seq:
-        seen_seq[r["full_seq"]] = int(r["Reference"]) + 1
-
-# ── Load main data: all rows for ambiguous events ──────────────────────────
+# ── Load main data ────────────────────────────────────────────────────────
 print("Loading main data...")
 main = pd.read_csv(MAIN_CSV, low_memory=False)
 main["Reference_0"] = main["Reference"] - 1
 
-ambig_main = main[main["event_id"].isin(ambig_eids)].copy()
-print(f"Rows in ambiguous events: {len(ambig_main):,}")
+# For each row in main: look up its canonical_reference (= pkl key - 1)
+main["canonical_reference"] = main["full_seq"].map(canonical_ref_by_fseq)
+main["fasta_ref"] = main["canonical_reference"] + 1
 
-ref0_to_seq = st_source.drop_duplicates("Reference").set_index("Reference")["full_seq"]
-ambig_main["full_seq_st"]  = ambig_main["Reference_0"].map(ref0_to_seq)
-ambig_main["fasta_ref"]    = ambig_main["full_seq_st"].map(seen_seq)
+# Restrict to rows whose event_id_161 has Gencode-only alts
+ambig_main = main[main["event_id_161"].isin(alt_jxns.keys())].copy()
+print(f"Rows in events with Gencode-only alts: {len(ambig_main):,}")
 
-# ── Load pickles ───────────────────────────────────────────────────────────
+
+# ── Load pickles ──────────────────────────────────────────────────────────
 print("Loading pickles...")
 pkls = {}
 for name, path in REP_PKLS.items():
@@ -205,31 +177,41 @@ for name, path in REP_PKLS.items():
         pkls[name] = pickle.load(f)
     print(f"  {name}: {len(pkls[name])} refs")
 
+
 # ── Compute alt PSI per row per replicate ──────────────────────────────────
-print("Computing alt junction PSI for all rows (all alt transcripts)...")
+print("Computing alt junction PSI for all rows × Gencode-only alts...")
 records = []
 
 for _, row in ambig_main.iterrows():
-    event_id = row["event_id"]
-    if event_id not in alt_jxns:
+    eid_161 = row["event_id_161"]
+    if eid_161 not in alt_jxns:
         continue
-    ref   = row["fasta_ref"]
+    ref   = int(row["fasta_ref"])
     is_wt = (row["snp"] == "none")
 
-    for aj in alt_jxns[event_id]:
+    for aj in alt_jxns[eid_161]:
         i1, i2, e = junctions(aj["intron1_len"], aj["exon_len"])
 
         rec = {
             "Reference":            row["Reference"],   # 1-indexed to match main table
-            "event_id":             event_id,
+            "canonical_reference":  aj["canonical_reference"],
+            "event_id_161":         eid_161,
+            "event_id":             row["event_id"],
             "gene_exon":            row["gene_exon"],
             "snp":                  row["snp"],
             "source":               row["source"],
             "seq_type":             row["seq_type"],
+            "main_transcript_id":   row["transcript_id"],
+            "main_intron1_len":     len(str(row["intron1"])) if pd.notna(row["intron1"]) else "",
+            "main_exon_len":        len(str(row["exon"]))    if pd.notna(row["exon"])    else "",
             "alt_transcript_id":    aj["transcript_id"],
-            "alt_mane_status":      mane_label(aj["transcript_id"]),
+            "alt_mane_status":      aj["alt_mane_status"] or mane_label(aj["transcript_id"]),
+            "alt_intron1_len":      aj["intron1_len"],
+            "alt_exon_len":         aj["exon_len"],
             "alt_exon_start_hg38":  aj["exon_start_hg38"],
             "alt_exon_end_hg38":    aj["exon_end_hg38"],
+            "alt_in_supertable":    str(aj["transcript_id"]).split(".")[0] in
+                                       st_tx_bases_by_event.get(eid_161, set()),
         }
 
         for cell in CELLS:
@@ -266,18 +248,42 @@ for _, row in ambig_main.iterrows():
 alt_df = pd.DataFrame(records)
 print(f"  Rows computed: {len(alt_df):,}")
 
-# ── Compute WT PSI at alt junction per event per cell ──────────────────────
-print("Computing dPSI and delta logit...")
-# Group by (event_id, alt_transcript_id) so each alt transcript gets its own WT reference
-wt_df = alt_df[alt_df["snp"] == "none"].copy()
 
+# ── Compute WT PSI at alt junction per (event_id_161, alt_transcript) per cell ──
+# Coverage filter: keep only (event_id_161, alt_transcript) pairs where ≥1 WT
+# and ≥1 variant have valid pooled PSI in at least one cell line.
+print("Computing dPSI and delta logit; applying WT+variant coverage filter...")
+psi_cols_per_cell = {c: f"{c}_pooled_psi_raw_alt" for c in CELLS}
+
+wt_df  = alt_df[alt_df["snp"] == "none"]
+var_df = alt_df[alt_df["snp"] != "none"]
+
+# Pairs with ≥1 WT having a valid pooled PSI in any cell
+def any_valid(df, cell_cols):
+    return df[list(cell_cols.values())].notna().any(axis=1)
+
+wt_ok  = wt_df.assign(_ok=any_valid(wt_df, psi_cols_per_cell))
+var_ok = var_df.assign(_ok=any_valid(var_df, psi_cols_per_cell))
+
+wt_pairs  = set(map(tuple,
+    wt_ok.loc[wt_ok["_ok"], ["event_id_161", "alt_transcript_id"]].values.tolist()))
+var_pairs = set(map(tuple,
+    var_ok.loc[var_ok["_ok"], ["event_id_161", "alt_transcript_id"]].values.tolist()))
+ok_pairs  = wt_pairs & var_pairs
+
+alt_df["_pair"] = list(zip(alt_df["event_id_161"], alt_df["alt_transcript_id"]))
+alt_df = alt_df[alt_df["_pair"].isin(ok_pairs)].copy()
+alt_df = alt_df.drop(columns=["_pair"])
+print(f"  Rows after coverage filter: {len(alt_df):,}")
+
+wt_df = alt_df[alt_df["snp"] == "none"].copy()
 for cell in CELLS:
-    wt_map = (wt_df.groupby(["event_id", "alt_transcript_id"])[f"{cell}_pooled_psi_raw_alt"].mean()
+    wt_map = (wt_df.groupby(["event_id_161", "alt_transcript_id"])[f"{cell}_pooled_psi_raw_alt"].mean()
               .rename(f"wt_psi_alt_{cell}"))
-    wt_logit_map = (wt_df.groupby(["event_id", "alt_transcript_id"])[f"{cell}_pooled_logit_alt"].mean()
+    wt_logit_map = (wt_df.groupby(["event_id_161", "alt_transcript_id"])[f"{cell}_pooled_logit_alt"].mean()
                     .rename(f"wt_logit_alt_{cell}"))
-    alt_df = alt_df.join(wt_map, on=["event_id", "alt_transcript_id"])
-    alt_df = alt_df.join(wt_logit_map, on=["event_id", "alt_transcript_id"])
+    alt_df = alt_df.join(wt_map, on=["event_id_161", "alt_transcript_id"])
+    alt_df = alt_df.join(wt_logit_map, on=["event_id_161", "alt_transcript_id"])
     alt_df[f"{cell}_wt_pooled_psi_raw_alt"]  = alt_df[f"wt_psi_alt_{cell}"]
     alt_df[f"{cell}_wt_pooled_logit_alt"]    = alt_df[f"wt_logit_alt_{cell}"]
     alt_df[f"{cell}_dpsi_pooled_alt"] = np.where(
@@ -290,10 +296,8 @@ for cell in CELLS:
     )
     alt_df = alt_df.drop(columns=[f"wt_psi_alt_{cell}", f"wt_logit_alt_{cell}"])
 
-psi_cols = [f"{c}_pooled_psi_raw_alt" for c in CELLS]
-alt_df = alt_df[alt_df[psi_cols].notna().any(axis=1)].copy()
-print(f"  Rows with ≥1 valid alt PSI: {len(alt_df):,}")
-print(f"  Events: {alt_df['event_id'].nunique()}")
+print(f"  Final rows: {len(alt_df):,}")
+print(f"  event_id_161 events: {alt_df['event_id_161'].nunique()}")
 print(f"  Unique alt transcripts: {alt_df['alt_transcript_id'].nunique()}")
 print(f"  WTs: {(alt_df['snp']=='none').sum():,}   Variants: {(alt_df['snp']!='none').sum():,}")
 
@@ -301,4 +305,3 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 out = os.path.join(OUTPUT_DIR, OUTPUT_BASENAME)
 alt_df.to_csv(out, index=False)
 print(f"\nSaved: {out}")
-print(f"Columns: {list(alt_df.columns)}")

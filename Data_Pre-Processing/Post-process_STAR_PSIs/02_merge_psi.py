@@ -13,14 +13,15 @@ def offset_psis(rep_df, clip=1e-3):
     return rep_df
 
 def build_fullseqs_df(supertable):
-    # 04/26/2026: extended from 9 to 13 supertable columns so that
-    # transcript_id / exon_start_hg38 / exon_end_hg38 / variant_hg38 are
-    # carried into the merged main CSV. They propagate unchanged through the
-    # downstream PSI computations (which merge on Reference / event_id) and
-    # land in the per-cell-line + ALL_WTS_VARS_NO_DELTAS outputs.
+    # Carries event_id_161 (original SE: id), event_id (chr:exon_start-exon_end:strand),
+    # transcript_class (MANE/alt/duplicate), and the two alt-transcript columns.
+    # All rows kept — including alt rows of ambiguous events. WT/variant pairing
+    # in compute_pooled_stats groups by the new event_id, which puts each
+    # transcript-annotation family into its own group.
     full_seqs = pd.DataFrame({
         'Reference': np.arange(1, len(supertable)+1),
         'event_id': supertable['event_id'],
+        'event_id_161': supertable['event_id_161'] if 'event_id_161' in supertable.columns else supertable['event_id'],
         'gene_exon': supertable['gene_exon'],
         'snp': supertable['snp'],
         'source': supertable['source'],
@@ -33,22 +34,27 @@ def build_fullseqs_df(supertable):
         'exon_start_hg38': supertable['exon_start_hg38'],
         'exon_end_hg38': supertable['exon_end_hg38'],
         'variant_hg38': supertable['variant_hg38'],
+        'transcript_class': supertable['transcript_class'] if 'transcript_class' in supertable.columns else 'MANE',
+        'alt_transcripts_in_supertable': supertable['alt_transcripts_in_supertable'] if 'alt_transcripts_in_supertable' in supertable.columns else '',
+        'alt_transcripts_gencode_only': supertable['alt_transcripts_gencode_only'] if 'alt_transcripts_gencode_only' in supertable.columns else '',
     })
     return full_seqs
 
 def compute_pooled_stats(df_list, full_seqs, label, clip=1e-3):
     rep_refs = pd.concat([df[['Reference']] for df in df_list])
     ref_counts = rep_refs['Reference'].value_counts()
-    valid_refs = ref_counts[ref_counts >= 2].index.tolist()
+    valid_refs = set(ref_counts[ref_counts >= 2].index)
 
     all_df = pd.concat(df_list)
     all_df = all_df[all_df['Reference'].isin(valid_refs)]
 
-    grouped = all_df.groupby('Reference')
-    pooled = grouped.apply(lambda group: pd.Series({
-        f'{label}_pooled_included': (group['Coverage'] * group['PSI']).sum(),
-        f'{label}_pooled_excluded': (group['Coverage'] * (1 - group['PSI'])).sum()
-    })).reset_index()
+    # Vectorize: pre-compute inc/exc per row, then a single groupby.sum()
+    inc_col = f'{label}_pooled_included'
+    exc_col = f'{label}_pooled_excluded'
+    all_df[inc_col] = all_df['Coverage'] * all_df['PSI']
+    all_df[exc_col] = all_df['Coverage'] * (1 - all_df['PSI'])
+    pooled = (all_df.groupby('Reference', sort=False)[[inc_col, exc_col]]
+                    .sum().reset_index())
 
     pooled[f'{label}_total_pooled'] = pooled[f'{label}_pooled_included'] + pooled[f'{label}_pooled_excluded']
     pooled[f'{label}_pooled_psi_raw'] = pooled[f'{label}_pooled_included'] / pooled[f'{label}_total_pooled']
@@ -57,7 +63,12 @@ def compute_pooled_stats(df_list, full_seqs, label, clip=1e-3):
 
     pooled = pd.merge(pooled, full_seqs, on='Reference', how='left')
 
-    wt_pool = pooled[pooled['snp'] == 'none'][['event_id', f'{label}_pooled_psi_raw', f'{label}_pooled_logit']]
+    # Multiple WT rows can share an event_id (e.g. true duplicates with same
+    # full_seq AND same SJ). Average across them so the merge below produces
+    # one match per row, not a cartesian-style row blow-up.
+    wt_pool = (pooled[pooled['snp'] == 'none']
+               [['event_id', f'{label}_pooled_psi_raw', f'{label}_pooled_logit']]
+               .groupby('event_id', as_index=False).mean())
     wt_pool = wt_pool.rename(columns={
         f'{label}_pooled_psi_raw': f'{label}_wt_pooled_psi_raw',
         f'{label}_pooled_logit': f'{label}_wt_pooled_logit'
@@ -157,15 +168,19 @@ def compute_replicate_sds(pooled_df, label, var_rep_indices=None, wt_rep_indices
             rep_dlogit_cols.append(dlogit_col)
 
     else:
-        # Standard: WT rows identified by snp=='none', same rep columns for all rows
+        # Standard: WT rows identified by snp=='none', same rep columns for all rows.
+        # Multiple WT rows can share an event_id (e.g. true duplicates with same
+        # full_seq AND same SJ within an exon family). Average across them so
+        # set_index doesn't fail on duplicate index values.
         wt_rows = pooled_df[pooled_df['snp'] == 'none'][['event_id'] + sd_psi_cols + sd_logit_cols].copy()
+        wt_rows = wt_rows.groupby('event_id', as_index=True).mean()
 
         wt_psi_lookup = {}
         wt_logit_lookup = {}
         for i, psi_col in zip(sd_rep_indices, sd_psi_cols):
-            wt_psi_lookup[i] = wt_rows.set_index('event_id')[psi_col]
+            wt_psi_lookup[i] = wt_rows[psi_col]
         for i, logit_col in zip(sd_rep_indices, sd_logit_cols):
-            wt_logit_lookup[i] = wt_rows.set_index('event_id')[logit_col]
+            wt_logit_lookup[i] = wt_rows[logit_col]
 
         for i in sd_rep_indices:
             psi_col = f'{label}_rep{i}_psi_raw'
@@ -327,19 +342,36 @@ def main():
             print(f"WARNING: Missing {path}")
 
     if all_no_deltas:
-        merged_no_deltas = reduce(lambda left, right: pd.merge(
-            left, right,
-            on=['Reference', 'event_id', 'gene_exon', 'intron1', 'exon', 'intron2',
-                'full_seq', 'snp', 'source', 'seq_type',
-                'transcript_id', 'exon_start_hg38', 'exon_end_hg38', 'variant_hg38'],
-            how='outer'
-        ), all_no_deltas)
+        # Outer-merge on Reference only (each Reference is unique within a
+        # cell-line file). Merging on full metadata columns explodes to a
+        # cartesian-like product because NaN keys don't match across files —
+        # this fix avoids a 14+ GiB allocation. Take metadata from the union
+        # of all files via a concat → drop_duplicates pass.
+        meta_cols = ['Reference', 'event_id', 'event_id_161', 'gene_exon', 'snp',
+                     'source', 'seq_type', 'intron1', 'exon', 'intron2',
+                     'full_seq', 'transcript_id', 'exon_start_hg38',
+                     'exon_end_hg38', 'variant_hg38']
+        extra_meta = [c for c in ('transcript_class',
+                                  'alt_transcripts_in_supertable',
+                                  'alt_transcripts_gencode_only',
+                                  'n_alt_transcripts_in_supertable',
+                                  'n_alt_transcripts_gencode_only')
+                      if all(c in df.columns for df in all_no_deltas)]
+        all_meta_cols = meta_cols + extra_meta
 
-        seq_cols = ['Reference', 'event_id', 'gene_exon', 'snp', 'source', 'seq_type',
-                    'intron1', 'exon', 'intron2', 'full_seq',
-                    'transcript_id', 'exon_start_hg38', 'exon_end_hg38', 'variant_hg38']
-        other_cols = [col for col in merged_no_deltas.columns if col not in seq_cols]
-        col_order = seq_cols + other_cols
+        meta_df = pd.concat(
+            [df[[c for c in all_meta_cols if c in df.columns]] for df in all_no_deltas],
+            ignore_index=True
+        ).drop_duplicates(subset='Reference', keep='first')
+
+        # Strip metadata cols from each cell-line df, keep PSI cols + Reference
+        psi_dfs = [df.drop(columns=[c for c in all_meta_cols if c != 'Reference' and c in df.columns])
+                   for df in all_no_deltas]
+        merged_no_deltas = reduce(lambda l, r: pd.merge(l, r, on='Reference', how='outer'),
+                                  psi_dfs)
+        merged_no_deltas = pd.merge(meta_df, merged_no_deltas, on='Reference', how='outer')
+
+        col_order = all_meta_cols + [c for c in merged_no_deltas.columns if c not in all_meta_cols]
         merged_no_deltas = merged_no_deltas[col_order]
 
         # Fill individual rep columns for refs that passed >=2 reps in at least
@@ -347,6 +379,18 @@ def main():
         print("\nFilling single-rep columns for refs with NaN pooled stats...")
         merged_no_deltas = fill_single_rep_columns(merged_no_deltas, rep_dfs_by_label, clip=clip_val)
         print("  Done.")
+
+        # Drop barcode-cluster duplicate rows: same full_seq + same SJ + same
+        # transcript_id as a lower-Reference row → identical PSI computation.
+        # Verified: duplicate rows have identical pooled PSI / WT PSI / dPSI /
+        # delta_logit values across all cell lines (same canonical pkl key,
+        # same junction). Keep the canonical (lowest Reference) per
+        # (full_seq, intron1_len, exon_len) combo only.
+        if 'transcript_class' in merged_no_deltas.columns:
+            n_dup = int((merged_no_deltas['transcript_class'] == 'duplicate').sum())
+            merged_no_deltas = merged_no_deltas[merged_no_deltas['transcript_class'] != 'duplicate'].copy()
+            print(f"\nDropped {n_dup:,} barcode-cluster duplicate rows (transcript_class=='duplicate'); "
+                  f"identical PSI to canonical row.")
 
         merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv", index=False)
         merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv.gz", index=False, compression='gzip')
