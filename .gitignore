@@ -42,3 +42,27 @@ __pycache__/
 *.RData
 *.rds
 *.pkl
+
+# ---- added during the May 2026 reprocessing cleanup ----
+# in-place edit backups (.bak_style, .bak_path, .bak_pre_annot, ...)
+*.bak
+*.bak_*
+
+# run logs
+*.log
+
+# large regenerable model outputs (regenerate from the scripts; keep off git)
+Figure_3/MMSplice/outputs/
+SI_figures/Sig_diff_cell_lines/outputs/
+Figure_3/SpliceAI/output_MAY_v2/
+SI_figures/Pangolin/output_MAY_v2/
+Figure_3/model_comparison/mega_pred_file*.csv
+
+# per-position prediction archives
+*.npz
+fullpos_npz/
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
