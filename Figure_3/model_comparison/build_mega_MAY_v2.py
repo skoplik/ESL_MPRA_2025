@@ -11,16 +11,47 @@ Replaces build_mega_pred_file.py (2026-04-29). What changed and WHY:
   2. JOINS ARE ASSERTED, NOT ASSUMED. Each prediction file carries
      (event_id_161, snp); after joining on Reference we verify they match and
      abort if not. This makes a repeat of bug #1 impossible to miss.
+     (AlphaGenome and MMSplice files carry no stable key, so they are checked
+     indirectly instead: References-exist-in-MAY, and REF/ALT-vs-snp agreement.)
 
-  3. WT IS KEYED BY gene_exon, NOT event_id. Keying WT by event_id silently
-     dropped variants on split-annotation exons (ADAM15 ex20, PIGH ex3,
-     ACAD9 ex2) - the same bug that cost MMSplice ~1,700 variants.
+  3. EVERYTHING IS KEYED BY LOCUS (`event_id_161`), NOT `gene_exon`.
+     This is the delta-logit correctness guarantee, so read it carefully:
 
-  4. PRIMARY-JUNCTION RULE, explicit: prefer the MANE junction per gene_exon;
-     keep an `alt` junction only when that gene_exon has no MANE annotation.
+       - A `gene_exon` LABEL can span two different junctions. "CACNA1C exon 31"
+         is the mutually exclusive 31a/31b pair (chr12:2633629 and chr12:2648475,
+         ~15 kb apart). Keying WT by gene_exon could therefore subtract a WT
+         measured at a DIFFERENT splice junction from the variant.
+       - Conversely one LOCUS can carry two gene_exon labels, because exon
+         NUMBERING is transcript-dependent ("ANKS1B exon 20" == "ANKS1B exon 5").
+         Keying by gene_exon lets both survive and double-counts that full_seq.
 
-  5. EDGE FILTER is exact: drop a variant if ANY cell line's WT pooled PSI is
+     So: the primary-junction rule (#4) runs on `event_id_161` and collapses each
+     locus to exactly ONE `event_id` BEFORE any WT lookup happens. The WT map is
+     then keyed by `event_id_161`. Because only one junction survives per locus,
+     variant and WT are always the same splice junction by construction.
+     Audited on the MAY data: 0 / 86,390 variants paired with a WT from a
+     different event_id, and 0 loci carrying >1 event_id after the primary rule.
+
+     Note the other models enforce the same invariant their own way:
+     build_mm_v3.py restricts variants to the chromosome's own annotation, and
+     the AlphaGenome runner groups by `event_id` and scores ref and alt at the
+     same exon_start/exon_end.
+
+  4. PRIMARY-JUNCTION RULE, explicit: prefer the MANE junction per LOCUS; keep an
+     `alt` junction only when that locus has no MANE. Where a locus has two
+     non-MANE annotations of the same sequence (tandem acceptors 3 nt apart, e.g.
+     AFDN exon 30), a deterministic tie-break applies: MANE, then a row with a
+     measured value, then the lowest event_id.
+
+  5. NO DOUBLE COUNTING. A hard assertion aborts the build if any
+     (event_id_161, snp) appears twice, i.e. if the same full_seq would enter the
+     correlation more than once.
+
+  6. EDGE FILTER is exact: drop a variant if ANY cell line's WT pooled PSI is
      exactly 0 or exactly 1 (not a tolerance).
+
+Note: variants at a locus with no WT row anywhere in the data (2,359 variants /
+773 loci in MAY) have no baseline to subtract and are necessarily excluded.
 
 Writes NEW files only; never overwrites an input.
 """
@@ -32,8 +63,8 @@ MAIN = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL
 SPLICEAI_TSV = sys.argv[1] if len(sys.argv) > 1 else "/ESL/ESL_MPRA/Figure_3/SpliceAI/output_MAY_v2/spliceai_junction_scores_MAY.tsv"
 PANGOLIN_TSV = sys.argv[2] if len(sys.argv) > 2 else "/ESL/ESL_MPRA/SI_figures/Pangolin/output_MAY_v2/pangolin_junction_scores_MAY.tsv"
 ALPHAGENOME = "/ESL/ESL_MPRA/Figure_3/AlphaGenome/alphagenome_16k_all_variants_MAY_2026.tsv"
-MMSPLICE = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/mmsplice_predictions_MAY_v2.csv"
-MMSPLICE_VCF = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files_MAY_v2/synthetic_variants.vcf.gz"
+MMSPLICE = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/mmsplice_predictions_MAY_v3.csv"
+MMSPLICE_VCF = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files_MAY_v3/synthetic_variants.vcf.gz"
 OUTDIR = "/ESL/ESL_MPRA/Figure_3/model_comparison"
 OUT = os.path.join(OUTDIR, "mega_pred_file_MAY_v2.csv")
 REPORT = os.path.join(OUTDIR, "mega_pred_file_MAY_v2_report.json")
