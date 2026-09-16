@@ -57,7 +57,7 @@ PSI_CSV   = Path(
     "1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 )
 POS_CACHE = SCRIPT_DIR / "cryptic_pos_cache.csv"
-OUT_RS = SCRIPT_DIR / "outputs_nature"
+OUT_RS = SCRIPT_DIR / "outputs_figS2"
 OUT_RS.mkdir(exist_ok=True)
 
 CELL_LINES = ["HEK", "HeLa", "K562", "MCF7", "HMC3"]

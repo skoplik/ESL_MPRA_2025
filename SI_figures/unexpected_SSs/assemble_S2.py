@@ -3,7 +3,7 @@ import matplotlib; matplotlib.use("Agg")
 import matplotlib as mpl
 mpl.rcParams["pdf.fonttype"]=42; mpl.rcParams["ps.fonttype"]=42
 import matplotlib.pyplot as plt
-OUT="/ESL/ESL_MPRA/SI_figures/unexpected_SSs/outputs_nature"
+OUT="/ESL/ESL_MPRA/SI_figures/unexpected_SSs/outputs_figS2"
 panels={'A': 'figA_unexpected_distribution', 'B': 'fig1_cryptic_vs_wt_psi', 'C': 'fig2_cryptic_by_variant_class', 'D': 'fig4_top_exons', 'E': 'fig3_cryptic_position_map'}
 imgs={k:plt.imread(f"{OUT}/_r_{k}.png") for k in panels}
 asp={k:imgs[k].shape[1]/imgs[k].shape[0] for k in panels}   # w/h
