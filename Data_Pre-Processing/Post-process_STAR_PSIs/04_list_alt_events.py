@@ -30,7 +30,24 @@ ev_st = (st.groupby("event_id_161")
                "n_unique_full_seqs":          g["full_seq"].nunique(),
            })).reset_index())
 
-ev_gen = (sia.groupby("event_id_161")
+# Restrict to alts that are actually Gencode-only (i.e., transcript_id is not
+# already a supertable transcript for this event) AND whose junction is not
+# already represented by a supertable transcript for this event.
+sia_pure = sia[sia["alt_in_supertable"] != True].copy()
+st_pairs = {}
+for ev, grp in st.groupby("event_id_161"):
+    pairs = set()
+    for _, r in grp.iterrows():
+        i1, ex = r.get("intron1_len"), r.get("exon_len")
+        if pd.notna(i1) and pd.notna(ex):
+            pairs.add((int(i1), int(ex)))
+    st_pairs[ev] = pairs
+sia_pure["_pair"] = list(zip(sia_pure["alt_intron1_len"].astype(int),
+                              sia_pure["alt_exon_len"].astype(int)))
+sia_pure = sia_pure[sia_pure.apply(
+    lambda r: r["_pair"] not in st_pairs.get(r["event_id_161"], set()), axis=1)]
+
+ev_gen = (sia_pure.groupby("event_id_161")
             .agg(n_gencode_only_alts=("alt_transcript_id", "nunique"),
                  gencode_only_transcripts=("alt_transcript_id",
                                            lambda s: ";".join(sorted(s.dropna().astype(str).unique())))

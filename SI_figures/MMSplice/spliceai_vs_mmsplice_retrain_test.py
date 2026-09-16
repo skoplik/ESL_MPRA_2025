@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+import matplotlib as _mpl_style  # paper style: editable vector text
+_mpl_style.rcParams['pdf.fonttype'] = 42
+_mpl_style.rcParams['ps.fonttype'] = 42
+_mpl_style.rcParams['svg.fonttype'] = 'none'
 import os
 import pandas as pd
 import numpy as np
@@ -7,8 +11,8 @@ import seaborn as sns
 from scipy.stats import pearsonr
 
 # === Paths ===
-spliceai_file = "/ESL/ESL_MPRA/Figure_3/SpliceAI/output/spliceai_psi_logit.tsv"
-mmsplice_test_file = "/ESL/ESL_MPRA/Figure_3/MMSplice/model_output_csv/retrained_mmsplice_model_predictions_test_dataset7_model10.csv"
+spliceai_file = "/ESL/Figures_SK/Spliceai/all/spliceai_psi_logit.tsv"
+mmsplice_test_file = "/ESL/ESL_MPRA/Figure_3/MMSplice/model_retraining_output_csv/retrained_mmsplice_model_predictions_test_dataset7_model10_04_09_26_updated.csv"
 supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 
 outdir = "/ESL/ESL_MPRA/Figure_3/SpliceAI/output/spliceai_vs_exp_refs"

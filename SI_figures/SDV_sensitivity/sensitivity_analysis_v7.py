@@ -19,6 +19,10 @@ Produces three supplementary figures:
 
 Output: /ESL/ESL_MPRA/SI_figures/SDV_sensitivity/outputs/
 """
+import matplotlib as _mpl_style  # paper style: editable vector text
+_mpl_style.rcParams['pdf.fonttype'] = 42
+_mpl_style.rcParams['ps.fonttype'] = 42
+_mpl_style.rcParams['svg.fonttype'] = 'none'
 
 import os
 import numpy as np
@@ -35,8 +39,8 @@ from statsmodels.stats.multitest import multipletests
 # Paths & constants
 # ---------------------------------------------------------------------------
 DATA_PATH = (
-    "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/"
-    "03_16_2026_1e-2_ALL_WTS_VARS_NO_DELTAS.csv"
+    ""
+    "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 )
 OUT_DIR    = "/ESL/ESL_MPRA/SI_figures/SDV_sensitivity/outputs"
 os.makedirs(OUT_DIR, exist_ok=True)

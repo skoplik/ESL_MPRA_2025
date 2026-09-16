@@ -2,14 +2,27 @@ import argparse
 import os
 import threading
 import time
+import warnings
+warnings.filterwarnings("ignore")
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+import tensorflow as tf
+tf.get_logger().setLevel("ERROR")
 import pandas as pd
 import numpy as np
 from mmsplice import MMSplice, predict_all_table
 from mmsplice.vcf_dataloader import SplicingVCFDataloader
-import warnings
-import tensorflow as tf
 from pyfaidx import Fasta
 import pysam
+
+# Use GPU if available; fall back to CPU with a warning
+gpus = tf.config.list_physical_devices("GPU")
+if gpus:
+    print(f"GPU detected: {[g.name for g in gpus]}")
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
+else:
+    print("WARNING: No GPU detected. Predictions will run on CPU and may take several hours.")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--vcf_path",    required=True, help="bgzipped + tabix-indexed VCF")
@@ -30,43 +43,37 @@ all_ids = {rec.id for rec in vcf_count.fetch()}
 total_variants = len(all_ids)
 print(f"Total variants in VCF: {total_variants:,}")
 
-print("\n=== Initializing SplicingVCFDataloader ===")
-dl = SplicingVCFDataloader(args.gtf_path, args.fasta_path, args.vcf_path, tissue_specific=False)
+print("\n=== Initializing SplicingVCFDataloader (this may take several minutes) ===")
+dl_result = {}
+dl_error = {}
+
+def _init_dl():
+    try:
+        dl_result["dl"] = SplicingVCFDataloader(args.gtf_path, args.fasta_path, args.vcf_path, tissue_specific=False)
+    except Exception as e:
+        dl_error["err"] = e
+
+t = threading.Thread(target=_init_dl, daemon=True)
+t.start()
+spinner = ["|", "/", "-", "\\"]
+i = 0
+init_start = time.time()
+while t.is_alive():
+    elapsed = int(time.time() - init_start)
+    mins, secs = divmod(elapsed, 60)
+    print(f"\r  {spinner[i % 4]}  Initializing dataloader... {mins:02d}:{secs:02d}", end="", flush=True)
+    i += 1
+    time.sleep(1)
+print()
+if "err" in dl_error:
+    raise dl_error["err"]
+dl = dl_result["dl"]
 print("DataLoader initialized successfully")
 
 print("\n=== Running MMSplice predictions ===")
 model = MMSplice()
-
-result_container = {}
-error_container = {}
-
-def run_predictions():
-    try:
-        result_container["df"] = predict_all_table(
-            model, dl, batch_size=256, pathogenicity=True, splicing_efficiency=True
-        )
-    except Exception as e:
-        error_container["err"] = e
-
-t = threading.Thread(target=run_predictions, daemon=True)
-t.start()
-
 start = time.time()
-spinner = ["|", "/", "-", "\\"]
-i = 0
-while t.is_alive():
-    elapsed = int(time.time() - start)
-    mins, secs = divmod(elapsed, 60)
-    print(f"\r  {spinner[i % 4]}  Running... {mins:02d}:{secs:02d} elapsed", end="", flush=True)
-    i += 1
-    time.sleep(1)
-
-print()  # newline after spinner
-
-if "err" in error_container:
-    raise error_container["err"]
-
-pred_df = result_container["df"]
+pred_df = predict_all_table(model, dl, batch_size=1024, pathogenicity=True, splicing_efficiency=True, progress=True)
 elapsed = int(time.time() - start)
 mins, secs = divmod(elapsed, 60)
 print(f"Prediction complete in {mins:02d}:{secs:02d}. {len(pred_df):,} variants processed.")

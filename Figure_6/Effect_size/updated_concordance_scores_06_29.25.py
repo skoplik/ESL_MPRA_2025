@@ -1,3 +1,7 @@
+import matplotlib as _mpl_style  # paper style: editable vector text
+_mpl_style.rcParams['pdf.fonttype'] = 42
+_mpl_style.rcParams['ps.fonttype'] = 42
+_mpl_style.rcParams['svg.fonttype'] = 'none'
 import pandas as pd
 import matplotlib.pyplot as plt
 import os

@@ -1,6 +1,10 @@
 """
 Plot heatmap of STAR_PSI output files. Only significantly different sequences in at least 1 cell line vs. cell line. 
 """
+import matplotlib as _mpl_style  # paper style: editable vector text
+_mpl_style.rcParams['pdf.fonttype'] = 42
+_mpl_style.rcParams['ps.fonttype'] = 42
+_mpl_style.rcParams['svg.fonttype'] = 'none'
 
 from scipy.stats import linregress, fisher_exact
 import getopt, sys, os, resource

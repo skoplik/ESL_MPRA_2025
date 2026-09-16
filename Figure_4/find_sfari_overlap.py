@@ -11,7 +11,7 @@ mpl.rcParams['svg.fonttype'] = 'none'  # Keep text editable if you also save SVG
 # === Paths ===
 sfari_file = "/ESL/ESL_MPRA/Figure_4/SFARI-Gene_genes_07-08-2025release_08-20-2025export.csv"
 hgnc_file = "/ESL/Figures_SK/Disease_relevant_genes/hgnc_complete_set.txt"
-supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
+supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25_strandfix.csv"
 allseq_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
 clinvar_path = "/ESL/ESL_MPRA/Figure_4/outputs/clinvar/swarm_delta_logit.csv"
 
@@ -83,9 +83,7 @@ sfari_event_exons = overlap[["event_id", "gene_exon", "gene_name", "variant_coun
 sfari_event_exons = sfari_event_exons.sort_values("gene_exon").reset_index(drop=True)
 
 # Label: "GENE exonX, n=###"
-sfari_event_exons["label"] = sfari_event_exons.apply(
-    lambda r: f"{r['gene_exon']}, n={r['variant_count']}", axis=1
-)
+sfari_event_exons["label"] = sfari_event_exons["gene_exon"].astype(str) + ", n=" + sfari_event_exons["variant_count"].astype(str)
 
 # Map to variants
 variants = allseq[(allseq["event_id"].isin(sfari_event_exons["event_id"])) & (allseq["snp"] != "none")].copy()

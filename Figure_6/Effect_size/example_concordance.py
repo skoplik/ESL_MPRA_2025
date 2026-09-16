@@ -1,3 +1,7 @@
+import matplotlib as _mpl_style  # paper style: editable vector text
+_mpl_style.rcParams['pdf.fonttype'] = 42
+_mpl_style.rcParams['ps.fonttype'] = 42
+_mpl_style.rcParams['svg.fonttype'] = 'none'
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
@@ -8,7 +12,7 @@ import re
 
 # === Load CSVs ===
 df = pd.read_csv("/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/subsample.csv")
-st = pd.read_csv("/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz", dtype=str)
+st = pd.read_csv("/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25_strandfix.csv", dtype=str)
 
 # === Map event_id to gene_exon ===
 event_to_label = st.drop_duplicates(subset="event_id")[["event_id", "gene_exon"]].set_index("event_id")["gene_exon"]

@@ -1,5 +1,10 @@
+import matplotlib as _mpl_style  # paper style: editable vector text
+_mpl_style.rcParams['pdf.fonttype'] = 42
+_mpl_style.rcParams['ps.fonttype'] = 42
+_mpl_style.rcParams['svg.fonttype'] = 'none'
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 from scipy.stats import pearsonr
 from scipy.special import logit
 import os
@@ -7,7 +12,8 @@ import os
 # === Input paths ===
 hal_pred_path = "/ESL/ESL_MPRA/Figure_3/HAL/outputs/hal_predictions.tsv"
 supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
-output_base = "/ESL/ESL_MPRA/Figure_3/HAL/outputs/plots/"
+output_base = "/ESL/ESL_MPRA/Figure_3/HAL/outputs/plots/hal"
+os.makedirs(os.path.dirname(output_base), exist_ok=True)
 
 # === Load HAL predictions ===
 pred_df = pd.read_csv(hal_pred_path, sep="\t", header=0)
@@ -59,8 +65,9 @@ merged_filtered = compute_predicted_logit(merged_filtered)
 
 # === Plotting function ===
 def make_plot(df, xcol, ycol, xlabel, ylabel, label, out_path):
-    x = df[xcol]
-    y = df[ycol]
+    mask = np.isfinite(df[xcol]) & np.isfinite(df[ycol])
+    x = df.loc[mask, xcol]
+    y = df.loc[mask, ycol]
     r, pval = pearsonr(x, y)
     print(f"{label}: pearson r = {r:.4f}, p = {pval:.4e}, n = {len(x)}")
 

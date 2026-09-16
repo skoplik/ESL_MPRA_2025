@@ -2,7 +2,7 @@ import pandas as pd
 import os
 
 # === Paths ===
-supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
+supertable_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25_strandfix.csv"
 fasta_out = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files/synthetic_reference.fa"
 gtf_out = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files/synthetic_reference.gtf"
 vcf_out = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files/synthetic_variants.vcf"

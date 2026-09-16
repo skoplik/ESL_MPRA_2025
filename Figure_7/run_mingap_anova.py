@@ -32,7 +32,7 @@ N_BASELINE       = 200   # bottom-mingap variants for negative control figure
 
 # === Paths
 psi_table_path  = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
-meta_table_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz"
+meta_table_path = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25_strandfix.csv"
 output_dir      = "/ESL/ESL_MPRA/Figure_7/outputs/mingap"
 os.makedirs(output_dir, exist_ok=True)
 
@@ -387,10 +387,11 @@ def plot_exclusive_heatmap(df, title, filename, show_gene_labels=False):
     cl_colors = {"HEK": "#E984B6", "HeLa": "#7FBE7E", "K562": "#F9AE33",
                  "MCF7": "#807CB9", "HMC3": "#EF4025"}
     exclusive_cl_map = df.set_index("label")["exclusive_cl"].to_dict()
-    row_colors = pd.Series(grouped_labels[::-1]).map(
-        lambda lbl: cl_colors.get(exclusive_cl_map.get(lbl), "grey")
+    # Build row_colors from matrix.index (already reversed + NaN-dropped)
+    row_colors = pd.Series(
+        [cl_colors.get(exclusive_cl_map.get(lbl), 'grey') for lbl in matrix.index],
+        index=matrix.index
     )
-    row_colors.index = matrix.index
 
     fig_height = min(max(3, 0.3 * len(matrix)), 40)
     fig = plt.figure(figsize=(9, fig_height))
@@ -416,7 +417,7 @@ def plot_exclusive_heatmap(df, title, filename, show_gene_labels=False):
     if show_gene_labels:
         ax_main.tick_params(axis='y', labelsize=8)
 
-    df_for_rect = df.set_index("label").loc[pd.Series(grouped_labels[::-1])].copy()
+    df_for_rect = df.set_index("label").loc[matrix.index].copy()
     df_for_rect["row_idx"] = range(len(df_for_rect))
     for cl in cell_lines:
         cl_rows = df_for_rect[df_for_rect["exclusive_cl"] == cl]

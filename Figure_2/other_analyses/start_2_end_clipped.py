@@ -9,6 +9,12 @@ from matplotlib.colors import LinearSegmentedColormap
 from scipy.stats import gaussian_kde
 import getopt
 
+import matplotlib as mpl
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42
+mpl.rcParams['svg.fonttype'] = 'none'
+
+
 
 def make_combined_start2end_df(df):
     cell_lines = ["HeLa", "K562", "MCF7", "HMC3", "HEK"]

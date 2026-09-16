@@ -4,6 +4,7 @@ import seaborn as sns
 import matplotlib
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
+matplotlib.rcParams['svg.fonttype'] = 'none'
 import matplotlib.pyplot as plt
 import os
 
@@ -42,7 +43,7 @@ df = pd.read_csv(input_file)
 all_rows = []
 for cell, reps in replicate_cols.items():
     avg_psi = df[reps].mean(axis=1, skipna=True)
-    valid = df[reps].notna().any(axis=1)
+    valid = df[reps].notna().sum(axis=1) >= 2  # require >=2 reps (downstream needs 2); drops HeLa rows with a NaN rep
     subset = pd.DataFrame({
         "cell_line": cell,
         "psi": avg_psi[valid]

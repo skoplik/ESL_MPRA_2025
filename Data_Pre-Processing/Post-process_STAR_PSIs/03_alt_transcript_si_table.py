@@ -121,33 +121,85 @@ def mane_label(transcript_id):
 print("Loading corrected supertable...")
 st_corr = pd.read_csv(CORRECTED_ST, low_memory=False)
 
+# Per full_seq → sorted list of supertable Refs, converted to NO_DELTAS-Ref
+# space (+1 systematic offset). Used in SI to expose other supertable rows
+# sharing the same sequence (MANE-preferred row is `Reference`; others list
+# in `alt_supertable_refs`).
+supertable_refs_by_fseq = (
+    st_corr.groupby("full_seq")["Reference"]
+           .agg(lambda s: sorted((int(x) + 1) for x in s.dropna().unique()))
+           .to_dict()
+)
+
 print("Loading Gencode-only alt junctions table...")
 alt_jxns_df = pd.read_csv(ST_ALT_JUNCTIONS)
 print(f"  Gencode-only alts: {len(alt_jxns_df)}")
 
-# Map: event_id_161 → list of alt transcript dicts.
-# st_alt_junctions.csv is now deduped per (event_id_161, alt_transcript_id).
-alt_jxns = {}
+# MANE priority helper (used both for picking the dedup row per full_seq and
+# for picking which transcript_id labels each candidate junction).
+def _mane_priority(tx_id):
+    base = str(tx_id).split(".")[0]
+    if base in mane_select:
+        return 0
+    if base in mane_plus:
+        return 1
+    return 2
+
+# Build candidate alt junctions per event_id_161. Each unique (intron1_len,
+# exon_len) pair becomes one candidate, labeled by its preferred transcript:
+# supertable transcripts beat Gencode-only alts; within supertable, MANE Select
+# beats MANE Plus Clinical beats other (lowest Reference tiebreak).
+candidates_per_event = {}
+for ev, grp in st_corr.groupby("event_id_161"):
+    g = grp.drop_duplicates("transcript_id").copy()
+    g["_mp"] = g["transcript_id"].apply(_mane_priority)
+    g = g.sort_values(["_mp", "Reference"])
+    cands = {}
+    for _, r in g.iterrows():
+        i1 = r.get("intron1_len")
+        ex = r.get("exon_len")
+        if pd.notna(i1) and pd.notna(ex):
+            key = (int(i1), int(ex))
+            if key not in cands:
+                cands[key] = {
+                    "intron1_len":     int(i1),
+                    "exon_len":        int(ex),
+                    "transcript_id":   r["transcript_id"],
+                    "exon_start_hg38": r.get("exon_start_hg38"),
+                    "exon_end_hg38":   r.get("exon_end_hg38"),
+                    "alt_mane_status": r.get("mane_status", "") or mane_label(r["transcript_id"]),
+                    "in_supertable":   True,
+                    "canonical_reference": int(grp["Reference"].min()),
+                }
+    candidates_per_event[ev] = cands
+
+# Layer in Gencode-only alts from st_alt_junctions.csv (skip if the junction
+# already has a supertable representative — supertable wins).
+n_gencode_added = 0
+n_gencode_skipped = 0
 for _, row in alt_jxns_df.iterrows():
     eid_161 = row["event_id_161"]
-    alt_jxns.setdefault(eid_161, []).append({
-        "intron1_len":        int(row["alt_intron1_len"]),
-        "exon_len":           int(row["alt_exon_len"]),
-        "transcript_id":      row["alt_transcript_id"],
-        "exon_start_hg38":    row["alt_exon_start_hg38"],
-        "exon_end_hg38":      row["alt_exon_end_hg38"],
-        "alt_mane_status":    row.get("alt_mane_status", ""),
-        "main_transcript_id": row.get("main_transcript_id", ""),
-        "canonical_reference":int(row["canonical_reference"]),
-    })
-
-# Build event_id_161 → set of supertable transcript_id bases (any row sharing
-# the same construct). Used to flag whether each alt is also a supertable alt.
-st_tx_bases_by_event = {}
-for eid_161, grp in st_corr.groupby("event_id_161"):
-    bases = {str(t).split(".")[0] for t in grp["transcript_id"].dropna()}
-    st_tx_bases_by_event[eid_161] = bases
-print(f"  Events (event_id_161) with alts: {len(alt_jxns)}")
+    key = (int(row["alt_intron1_len"]), int(row["alt_exon_len"]))
+    cands = candidates_per_event.setdefault(eid_161, {})
+    if key in cands:
+        n_gencode_skipped += 1
+        continue
+    cands[key] = {
+        "intron1_len":     key[0],
+        "exon_len":        key[1],
+        "transcript_id":   row["alt_transcript_id"],
+        "exon_start_hg38": row["alt_exon_start_hg38"],
+        "exon_end_hg38":   row["alt_exon_end_hg38"],
+        "alt_mane_status": row.get("alt_mane_status", ""),
+        "in_supertable":   False,
+        "canonical_reference": int(row["canonical_reference"]),
+    }
+    n_gencode_added += 1
+print(f"  Gencode-only alts added: {n_gencode_added}; skipped (junction already in supertable): {n_gencode_skipped}")
+# Restrict to events that have >1 candidate junction (else there's nothing alt
+# to score — the construct only has one possible junction).
+candidates_per_event = {ev: c for ev, c in candidates_per_event.items() if len(c) > 1}
+print(f"  Events with multiple candidate junctions: {len(candidates_per_event)}")
 
 # Build full_seq → canonical Reference (0-indexed) map from supertable
 canonical_ref_by_fseq = (
@@ -164,9 +216,28 @@ main["Reference_0"] = main["Reference"] - 1
 main["canonical_reference"] = main["full_seq"].map(canonical_ref_by_fseq)
 main["fasta_ref"] = main["canonical_reference"] + 1
 
-# Restrict to rows whose event_id_161 has Gencode-only alts
-ambig_main = main[main["event_id_161"].isin(alt_jxns.keys())].copy()
-print(f"Rows in events with Gencode-only alts: {len(ambig_main):,}")
+# Junctions already represented in the data file per full_seq. Used to skip
+# candidates that are already scored (don't double-count what's in NO_DELTAS).
+main["_jx_pair"] = list(zip(
+    main["intron1"].fillna("").astype(str).str.len(),
+    main["exon"].fillna("").astype(str).str.len(),
+))
+nd_jxns_per_fseq = (
+    main.groupby("full_seq")["_jx_pair"]
+        .agg(lambda s: set(p for p in s if p[0] > 0 and p[1] > 0))
+        .to_dict()
+)
+
+# Restrict to rows in events that have multiple candidate junctions, and
+# collapse to one row per unique full_seq (MANE Select > MANE Plus > lowest Ref).
+ambig_main = main[main["event_id_161"].isin(candidates_per_event.keys())].copy()
+n_before = len(ambig_main)
+ambig_main["_mane_priority"] = ambig_main["transcript_id"].apply(_mane_priority)
+ambig_main = (ambig_main
+              .sort_values(["_mane_priority", "Reference"])
+              .drop_duplicates(subset=["full_seq"], keep="first")
+              .drop(columns=["_mane_priority"]))
+print(f"Rows in events with candidate alts: {n_before:,}  →  unique sequences: {len(ambig_main):,}")
 
 
 # ── Load pickles ──────────────────────────────────────────────────────────
@@ -179,22 +250,54 @@ for name, path in REP_PKLS.items():
 
 
 # ── Compute alt PSI per row per replicate ──────────────────────────────────
-print("Computing alt junction PSI for all rows × Gencode-only alts...")
+print("Computing alt junction PSI for all unique sequences × candidate alts...")
 records = []
+n_candidates_skipped_in_data = 0
+n_candidates_skipped_main_jx = 0
 
 for _, row in ambig_main.iterrows():
     eid_161 = row["event_id_161"]
-    if eid_161 not in alt_jxns:
+    cands = candidates_per_event.get(eid_161, {})
+    if not cands:
         continue
     ref   = int(row["fasta_ref"])
     is_wt = (row["snp"] == "none")
+    fseq  = row["full_seq"]
+    main_i1_len = len(str(row["intron1"])) if pd.notna(row["intron1"]) else 0
+    main_ex_len = len(str(row["exon"]))    if pd.notna(row["exon"])    else 0
+    main_pair = (main_i1_len, main_ex_len)
+    represented = nd_jxns_per_fseq.get(fseq, set())
 
-    for aj in alt_jxns[eid_161]:
+    for key, aj in cands.items():
+        # Skip the row's own junction (this is the "main" measurement, already in the data file).
+        if key == main_pair:
+            n_candidates_skipped_main_jx += 1
+            continue
+        # For variants: skip if the junction is already in NO_DELTAS for this full_seq.
+        # For WTs: keep — needed as the dPSI/delta-logit baseline for variant SI rows.
+        if (not is_wt) and key in represented:
+            n_candidates_skipped_in_data += 1
+            continue
+
         i1, i2, e = junctions(aj["intron1_len"], aj["exon_len"])
 
+        # All supertable Refs for this full_seq, excluding this row's Reference
+        # (which is the MANE-preferred one). Empty if the full_seq has only the
+        # one supertable row.
+        all_st_refs = supertable_refs_by_fseq.get(fseq, [])
+        other_refs = [r for r in all_st_refs if r != int(row["Reference"])]
+        alt_refs_str = ";".join(str(r) for r in other_refs)
+
+        # Composite row id, distinct from the main-file Reference. Same
+        # variant/Reference can appear in multiple SI rows (one per alt
+        # junction), so the bare Reference is not unique here. Format:
+        # "<Reference>__alt_<i1>-<ex>__<alt_transcript_id>".
+        si_row_id = f"{int(row['Reference'])}__alt_{aj['intron1_len']}-{aj['exon_len']}__{aj['transcript_id']}"
+
         rec = {
-            "Reference":            row["Reference"],   # 1-indexed to match main table
-            "canonical_reference":  aj["canonical_reference"],
+            "si_row_id":            si_row_id,
+            "Reference":            row["Reference"],   # MANE-preferred Reference (1-indexed); links to ALL_WITH_WT.csv
+            "alt_supertable_refs":  alt_refs_str,        # other supertable Refs for the same full_seq
             "event_id_161":         eid_161,
             "event_id":             row["event_id"],
             "gene_exon":            row["gene_exon"],
@@ -202,16 +305,15 @@ for _, row in ambig_main.iterrows():
             "source":               row["source"],
             "seq_type":             row["seq_type"],
             "main_transcript_id":   row["transcript_id"],
-            "main_intron1_len":     len(str(row["intron1"])) if pd.notna(row["intron1"]) else "",
-            "main_exon_len":        len(str(row["exon"]))    if pd.notna(row["exon"])    else "",
+            "main_intron1_len":     main_i1_len,
+            "main_exon_len":        main_ex_len,
             "alt_transcript_id":    aj["transcript_id"],
             "alt_mane_status":      aj["alt_mane_status"] or mane_label(aj["transcript_id"]),
             "alt_intron1_len":      aj["intron1_len"],
             "alt_exon_len":         aj["exon_len"],
             "alt_exon_start_hg38":  aj["exon_start_hg38"],
             "alt_exon_end_hg38":    aj["exon_end_hg38"],
-            "alt_in_supertable":    str(aj["transcript_id"]).split(".")[0] in
-                                       st_tx_bases_by_event.get(eid_161, set()),
+            "alt_in_supertable":    aj["in_supertable"],
         }
 
         for cell in CELLS:
@@ -221,14 +323,20 @@ for _, row in ambig_main.iterrows():
 
             rep_psijs = []
             for ri, rname in enumerate(rep_names, 1):
-                p, _, tot = get_psi(pkls[rname], ref, i1, i2, e)
-                rec[f"{cell}_rep{ri}_psi_raw_alt"]     = p
-                rec[f"{cell}_rep{ri}_psi_clipped_alt"] = float(np.clip(p, CLIP, 1-CLIP)) if not np.isnan(p) else np.nan
-                rec[f"{cell}_rep{ri}_logit_alt"]       = clip_logit(p)
-                if not np.isnan(p) and ref in pkls[rname]:
+                p, _, tot_rep = get_psi(pkls[rname], ref, i1, i2, e)
+                # Raw inc/exc counts at this junction in this rep (regardless of MINCOV)
+                if ref in pkls[rname]:
                     jd  = pkls[rname][ref]
                     inc = min(jd.get(i1, 0), jd.get(i2, 0))
                     exc = jd.get(e, 0)
+                else:
+                    inc, exc = 0, 0
+                rec[f"{cell}_rep{ri}_included_alt"]    = inc
+                rec[f"{cell}_rep{ri}_excluded_alt"]    = exc
+                rec[f"{cell}_rep{ri}_psi_raw_alt"]     = p
+                rec[f"{cell}_rep{ri}_psi_clipped_alt"] = float(np.clip(p, CLIP, 1-CLIP)) if not np.isnan(p) else np.nan
+                rec[f"{cell}_rep{ri}_logit_alt"]       = clip_logit(p)
+                if not np.isnan(p):
                     rep_psijs.append((inc, exc))
 
             valid = [(i, ex) for i, ex in rep_psijs if not np.isnan(i)]
@@ -238,7 +346,10 @@ for _, row in ambig_main.iterrows():
                 tot     = tot_inc + tot_exc
                 pool    = tot_inc / tot if tot >= MINCOV else np.nan
             else:
-                pool = np.nan
+                tot_inc, tot_exc, tot, pool = 0, 0, 0, np.nan
+            rec[f"{cell}_pooled_included_alt"]    = tot_inc
+            rec[f"{cell}_pooled_excluded_alt"]    = tot_exc
+            rec[f"{cell}_total_pooled_alt"]       = tot
             rec[f"{cell}_pooled_psi_raw_alt"]     = pool
             rec[f"{cell}_pooled_psi_clipped_alt"] = float(np.clip(pool, CLIP, 1-CLIP)) if not np.isnan(pool) else np.nan
             rec[f"{cell}_pooled_logit_alt"]       = clip_logit(pool)
@@ -247,18 +358,22 @@ for _, row in ambig_main.iterrows():
 
 alt_df = pd.DataFrame(records)
 print(f"  Rows computed: {len(alt_df):,}")
+print(f"  Candidates skipped (own junction = main row's): {n_candidates_skipped_main_jx:,}")
+print(f"  Candidates skipped (already in NO_DELTAS for this full_seq): {n_candidates_skipped_in_data:,}")
 
 
 # ── Compute WT PSI at alt junction per (event_id_161, alt_transcript) per cell ──
-# Coverage filter: keep only (event_id_161, alt_transcript) pairs where ≥1 WT
-# and ≥1 variant have valid pooled PSI in at least one cell line.
-print("Computing dPSI and delta logit; applying WT+variant coverage filter...")
+# Coverage flag (not a filter — Gabriel needs all candidate measurements,
+# including low-coverage ones, with counts so downstream can filter):
+# add `low_coverage_rescue=True` for (event, alt_transcript) pairs without
+# ≥1 WT AND ≥1 variant having a valid pooled PSI in any cell.
+print("Computing dPSI and delta logit; flagging low-coverage pairs...")
 psi_cols_per_cell = {c: f"{c}_pooled_psi_raw_alt" for c in CELLS}
 
 wt_df  = alt_df[alt_df["snp"] == "none"]
 var_df = alt_df[alt_df["snp"] != "none"]
 
-# Pairs with ≥1 WT having a valid pooled PSI in any cell
+# Pairs with ≥1 WT (resp. variant) having a valid pooled PSI in any cell
 def any_valid(df, cell_cols):
     return df[list(cell_cols.values())].notna().any(axis=1)
 
@@ -272,9 +387,10 @@ var_pairs = set(map(tuple,
 ok_pairs  = wt_pairs & var_pairs
 
 alt_df["_pair"] = list(zip(alt_df["event_id_161"], alt_df["alt_transcript_id"]))
-alt_df = alt_df[alt_df["_pair"].isin(ok_pairs)].copy()
+alt_df["low_coverage_rescue"] = ~alt_df["_pair"].isin(ok_pairs)
 alt_df = alt_df.drop(columns=["_pair"])
-print(f"  Rows after coverage filter: {len(alt_df):,}")
+n_rescue = int(alt_df["low_coverage_rescue"].sum())
+print(f"  Rows kept: {len(alt_df):,}  (low_coverage_rescue=True: {n_rescue:,})")
 
 wt_df = alt_df[alt_df["snp"] == "none"].copy()
 for cell in CELLS:
@@ -300,6 +416,50 @@ print(f"  Final rows: {len(alt_df):,}")
 print(f"  event_id_161 events: {alt_df['event_id_161'].nunique()}")
 print(f"  Unique alt transcripts: {alt_df['alt_transcript_id'].nunique()}")
 print(f"  WTs: {(alt_df['snp']=='none').sum():,}   Variants: {(alt_df['snp']!='none').sum():,}")
+
+# ── Re-key Reference so each SI row has a unique number ───────────────────
+# In the original schema, SI's `Reference` was the MANE-row's Reference (the
+# row in NO_DELTAS this SI row attaches to), so two SI rows could share the
+# same `Reference` if a construct had multiple alt junctions. That made the
+# merged files awkward (multiple rows with the same `Reference`). Move the
+# MANE-row Reference to `original_reference` and assign each SI row its own
+# Reference starting at SUPERTABLE_SIZE + 1 = 244,001 (the supertable ends at
+# data-Ref 244,000). `si_row_id` (already in the table) remains a stable
+# identifier across pipeline runs; the synthetic Reference is recomputed on
+# every run.
+SUPERTABLE_SIZE = 244_000
+alt_df = alt_df.reset_index(drop=True)
+alt_df.insert(alt_df.columns.get_loc("Reference"),
+              "original_reference",
+              alt_df["Reference"].astype(int).values)
+alt_df["Reference"] = pd.RangeIndex(SUPERTABLE_SIZE + 1,
+                                     SUPERTABLE_SIZE + 1 + len(alt_df))
+print(f"  Re-keyed Reference to {alt_df['Reference'].min()}..{alt_df['Reference'].max()}; original_reference column added")
+
+# ── Add wt_reference (= Reference of WT row at same alt junction) ─────────
+# Done AFTER re-keying so wt_reference points to the synthetic SI Reference
+# of the WT row, not the old MANE-row Reference.
+wt = alt_df[alt_df["snp"] == "none"][["Reference", "event_id_161", "alt_intron1_len", "alt_exon_len"]]
+wt_jx = (wt.sort_values("Reference")
+           .drop_duplicates(subset=["event_id_161", "alt_intron1_len", "alt_exon_len"], keep="first")
+           .set_index(["event_id_161", "alt_intron1_len", "alt_exon_len"])["Reference"])
+wt_ev = (wt.sort_values("Reference")
+           .drop_duplicates(subset=["event_id_161"], keep="first")
+           .set_index("event_id_161")["Reference"])
+key_jx = list(zip(alt_df["event_id_161"], alt_df["alt_intron1_len"], alt_df["alt_exon_len"]))
+wt_jx_map = wt_jx.to_dict()
+wt_ev_map = wt_ev.to_dict()
+wt_ref = [wt_jx_map.get(k, wt_ev_map.get(k[0])) for k in key_jx]
+alt_df["wt_reference"] = wt_ref
+is_wt = alt_df["snp"] == "none"
+alt_df.loc[is_wt, "wt_reference"] = alt_df.loc[is_wt, "Reference"].values
+alt_df["wt_reference"] = alt_df["wt_reference"].astype("Int64")
+# Move wt_reference right after Reference
+cols = list(alt_df.columns)
+cols.remove("wt_reference")
+cols.insert(cols.index("Reference") + 1, "wt_reference")
+alt_df = alt_df[cols]
+print(f"  wt_reference filled: {alt_df['wt_reference'].notna().sum():,}")
 
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 out = os.path.join(OUTPUT_DIR, OUTPUT_BASENAME)

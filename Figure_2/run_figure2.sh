@@ -17,8 +17,7 @@ echo "=== Position effects ==="
 python3 $SCRIPTS/plot_dpsi_by_pos.py \
   --cell_psi_merged_file $DATA \
   --output_dir $OUTDIR \
-  --output_prefix d
-  psi_by_pos
+  --output_prefix dpsi_by_pos
 
 echo "=== Double variant additivity ==="
 python3 $SCRIPTS/analyze_dnv_snv.py \

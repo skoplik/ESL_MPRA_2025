@@ -1,64 +1,81 @@
-# Figure 3 Model Processing — April 2026 Data Update
+# Figure 3 — Model Comparisons
 
-Scripts to rebuild model prediction inputs and rerun predictions using the April 26 2026 COMPASS data. Required because exon/intron sequences and splice site positions changed in the new pipeline run, making old prediction files stale.
+Scripts to rebuild model prediction inputs and rerun predictions using the current COMPASS data.
 
 All inputs use:
-- `/ESL/Figures_SK/General_preprocessing/output_04_26_2026/04_26_2026_1e-2_ALL_WITH_WT.csv`
+- `/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz`
 
-Outputs go to `outputs/` subdirectories.
-
----
-
-## SpliceAI
-
-**Run on GPU.**
-
-```bash
-bash run_spliceai.sh
-```
-
-Runs `run_spliceai_all.py` — scores all sequences in one batched pass using the 5 SpliceAI models. Saves raw per-nucleotide scores to:
-- `outputs/spliceai/spliceai_raw_preds_all.tsv`
-
-After GPU run completes, run `process_spliceai.py` (TODO) to compute Δlogit from raw scores using updated exon coordinates.
+Outputs go to each model's `outputs/` subdirectory.
 
 ---
 
-## MMSplice
+## SpliceAI — **Run on GPU**
 
-**Step 1 (local):** Rebuild synthetic FASTA, GTF, and VCF input files from new sequences.
+**Step 1 (local):** Build input files.
 
 ```bash
-bash run_mmsplice.sh
+bash SpliceAI/run_spliceai.sh
 ```
 
-This also runs `bgzip` + `tabix` on the VCF. Output files:
-- `outputs/mmsplice/input_files/synthetic_reference.fa`
-- `outputs/mmsplice/input_files/synthetic_reference.gtf`
-- `outputs/mmsplice/input_files/synthetic_variants.vcf.gz` (+ `.tbi`)
+**Step 2 (GPU machine):** Run predictions. Copy `SpliceAI/outputs/` to a GPU machine and run:
 
-**Step 2 (manual):** Run the kipoi MMSplice dataloader with the new input files:
+```bash
+python3 run_spliceai_all.py
+```
+
+Saves raw per-nucleotide scores to `outputs/spliceai/spliceai_raw_preds_all.tsv`. Copy back when done, then run `process_spliceai.py` to compute Δlogit from raw scores.
+
+---
+
+## MMSplice — **Step 2 must run on GPU**
+
+The kipoi MMSplice dataloader uses TensorFlow and is very slow on CPU (~hours). Run Step 2 on a machine with a GPU.
+
+**Step 1 (local):** Build synthetic FASTA, GTF, and VCF input files.
+
+```bash
+bash MMSplice/run_mmsplice.sh
+```
+
+Output files written to `MMSplice/outputs/input_files/`:
+- `synthetic_reference.fa`   — FASTA of all synthetic exon constructs
+- `synthetic_reference.gtf`  — GTF annotation for the FASTA
+- `synthetic_variants.vcf.gz` + `.tbi` — all variants in VCF format
+
+**Step 2 (GPU machine):** Copy the `input_files/` directory to a GPU machine, then run:
 
 ```bash
 python3 run_mmsplice_dataloader.py \
-  --vcf_path   outputs/mmsplice/input_files/synthetic_variants.vcf.gz \
-  --gtf_path   outputs/mmsplice/input_files/synthetic_reference.gtf \
-  --fasta_path outputs/mmsplice/input_files/synthetic_reference.fa \
+  --vcf_path   input_files/synthetic_variants.vcf.gz \
+  --gtf_path   input_files/synthetic_reference.gtf \
+  --fasta_path input_files/synthetic_reference.fa \
   --output_path outputs/mmsplice/mmsplice_predictions.csv
 ```
+
+Copy the resulting `mmsplice_predictions.csv.gz` back to `MMSplice/outputs/mmsplice/` when done.
 
 ---
 
 ## HAL
 
-**Step 1 (local):** Build HAL input zip from new sequences and exon sizes.
+HAL runs via the web server — no local GPU needed.
+
+**Step 1 (local):** Build HAL input zip.
 
 ```bash
-bash run_hal.sh
+bash HAL/run_hal.sh
 ```
 
 Output:
-- `outputs/hal/hal_input_variants_only_avgwtpsi_exon6nt.tsv.zip`
-- `outputs/hal/hal_plotting_input.csv`
+- `HAL/outputs/hal_input_variants_only_avgwtpsi_exon6nt.tsv.zip`
+- `HAL/outputs/hal_plotting_input.csv`
 
-**Step 2 (manual):** Submit the zip to HAL at http://splicing.cs.washington.edu/SE. Save predictions to `outputs/hal/hal_predictions.tsv`.
+**Step 2 (web):** Upload the zip to http://splicing.cs.washington.edu/SE. Download results and save to `HAL/outputs/hal_predictions.tsv`.
+
+**Step 3 (local):** Plot results.
+
+```bash
+python3 HAL/plot_hal_res.py
+```
+
+Output plots saved to `HAL/outputs/plots/`.

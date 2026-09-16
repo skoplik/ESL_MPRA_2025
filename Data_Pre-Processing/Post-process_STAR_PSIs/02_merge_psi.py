@@ -258,7 +258,56 @@ def fill_single_rep_columns(merged_df, rep_dfs_by_label, clip=1e-3):
     return merged_df
 
 
+def add_wt_reference(df, event_col='event_id_161',
+                     i1_col='intron1', ex_col='exon'):
+    """Add `wt_reference` column = Reference of the wild-type row at the same
+    (event_id_161, intron1_len, exon_len). For WT rows (snp=='none'),
+    wt_reference == Reference. Falls back to event-level (lowest-Ref WT in
+    the event) if no junction match. Inserted right after `Reference` for
+    readability.
+
+    Skips silently if required columns aren't present (caller can decide
+    whether to error)."""
+    if event_col not in df.columns or 'snp' not in df.columns:
+        return df
+    if i1_col not in df.columns or ex_col not in df.columns:
+        return df
+
+    df = df.copy()
+    df['_i1'] = df[i1_col].fillna('').astype(str).str.len()
+    df['_ex'] = df[ex_col].fillna('').astype(str).str.len()
+
+    wt = df[df['snp'] == 'none'][['Reference', event_col, '_i1', '_ex']]
+    wt_jx = (wt.sort_values('Reference')
+               .drop_duplicates(subset=[event_col, '_i1', '_ex'], keep='first')
+               .set_index([event_col, '_i1', '_ex'])['Reference'])
+    wt_ev = (wt.sort_values('Reference')
+               .drop_duplicates(subset=[event_col], keep='first')
+               .set_index(event_col)['Reference'])
+
+    key_jx = list(zip(df[event_col], df['_i1'], df['_ex']))
+    wt_jx_map = wt_jx.to_dict()
+    wt_ev_map = wt_ev.to_dict()
+    wt_ref = [wt_jx_map.get(k, wt_ev_map.get(k[0])) for k in key_jx]
+
+    df['wt_reference'] = wt_ref
+    is_wt = df['snp'] == 'none'
+    df.loc[is_wt, 'wt_reference'] = df.loc[is_wt, 'Reference'].values
+    df['wt_reference'] = df['wt_reference'].astype('Int64')
+
+    df = df.drop(columns=['_i1', '_ex'])
+    cols = list(df.columns)
+    cols.remove('wt_reference')
+    cols.insert(cols.index('Reference') + 1, 'wt_reference')
+    return df[cols]
+
+
 def write_outputs_with_and_without_wt(pooled_df, output_prefix, label):
+    # Add wt_reference column. Uses event_id_161 (from the supertable) +
+    # junction lengths so variants are paired to the WT at their own junction
+    # in ambiguous events (where the WT has multiple rows, one per junction).
+    pooled_df = add_wt_reference(pooled_df, event_col='event_id_161')
+
     wt_refs = pooled_df[pooled_df['snp'] == 'none']
     var_refs = pooled_df[pooled_df['snp'] != 'none']
     wt_event_ids = set(wt_refs['event_id'].dropna().unique())
@@ -355,7 +404,8 @@ def main():
                                   'alt_transcripts_in_supertable',
                                   'alt_transcripts_gencode_only',
                                   'n_alt_transcripts_in_supertable',
-                                  'n_alt_transcripts_gencode_only')
+                                  'n_alt_transcripts_gencode_only',
+                                  'wt_reference')
                       if all(c in df.columns for df in all_no_deltas)]
         all_meta_cols = meta_cols + extra_meta
 
@@ -391,6 +441,11 @@ def main():
             merged_no_deltas = merged_no_deltas[merged_no_deltas['transcript_class'] != 'duplicate'].copy()
             print(f"\nDropped {n_dup:,} barcode-cluster duplicate rows (transcript_class=='duplicate'); "
                   f"identical PSI to canonical row.")
+
+        # Add wt_reference (= Reference of the matching WT row at the same
+        # event+junction). Done on the merged combined dataframe so all five
+        # cell lines share one wt_reference value per row.
+        merged_no_deltas = add_wt_reference(merged_no_deltas, event_col='event_id_161')
 
         merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv", index=False)
         merged_no_deltas.to_csv(f"{output_prefix}_ALL_WTS_VARS_NO_DELTAS.csv.gz", index=False, compression='gzip')

@@ -8,6 +8,10 @@ import numpy as np
 from scipy.stats import mannwhitneyu
 import os
 from matplotlib.lines import Line2D
+import matplotlib as mpl
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42
+mpl.rcParams['svg.fonttype'] = 'none'
 from matplotlib.colors import to_rgba
 
 # === ClinVar color palette 

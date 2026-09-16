@@ -8,6 +8,12 @@ import matplotlib.pyplot as plt
 from scipy import stats
 from collections import Counter
 
+import matplotlib as mpl
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42
+mpl.rcParams['svg.fonttype'] = 'none'
+
+
 def main():
     opts = parse_args()
     df = pd.read_csv(opts["--cell_psi_merged_file"], low_memory=False)

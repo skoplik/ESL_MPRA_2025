@@ -325,10 +325,12 @@ def find_mane_split_for_gene(gene_name, ev_start, ev_end, strand="+"):
     return None
 
 
-def gather_alt_candidates(full_seq, gene_name, ev_start, ev_end, source_intron1_lens, strand="+"):
+def gather_alt_candidates(st_table, full_seq, gene_name, ev_start, ev_end, source_intron1_lens, strand="+"):
     """Collect all alt junction candidates (other supertable rows + Gencode
     transcripts in window) for a given canonical row.
 
+    `st_table` is the supertable to query for sibling rows (callers pass
+    `st` for pre-rewrite context, `st_out` for post-rewrite context).
     `source_intron1_lens` is the set of intron1_lens already in the supertable
     for this full_seq (so we mark which alts came from the supertable design).
 
@@ -339,7 +341,7 @@ def gather_alt_candidates(full_seq, gene_name, ev_start, ev_end, source_intron1_
     seen_i1 = set()
 
     # From other supertable rows sharing this full_seq
-    sub = st[st["full_seq"] == full_seq]
+    sub = st_table[st_table["full_seq"] == full_seq]
     for _, row in sub.iterrows():
         i1 = int(row["intron1_len"])
         if i1 in seen_i1:
@@ -380,48 +382,6 @@ def gather_alt_candidates(full_seq, gene_name, ev_start, ev_end, source_intron1_
                     "from_supertable": False,
                 })
     return candidates
-
-
-# ── Per-full_seq alt-transcript bookkeeping (no rewrite) ──────────────────
-# Builds alt_supertable_by_ref + alt_gencode_by_ref so Stage 3 can find them.
-# MANE-canonical rewrite happens later, per-event, not per-full_seq.
-print("\nBuilding per-row alt-transcript columns...")
-
-alt_supertable_by_ref = {}
-alt_gencode_by_ref    = {}
-
-fs_groups = st.groupby("full_seq", sort=False)
-for full_seq, group in fs_groups:
-    canonical_ref = int(group["Reference"].min())
-    crow_match = group[group["Reference"].astype(int) == canonical_ref]
-    if crow_match.empty:
-        continue
-    crow = crow_match.iloc[0]
-    pkl_key = canonical_ref + 1
-    coords = parse_event_coords(crow["event_id"])
-    gene = crow.get("gene_name", "")
-
-    fs_all_tx_ids = [str(t) for t in group["transcript_id"].dropna().unique().tolist()]
-
-    # Gencode-only alts: discover only for genuinely ambiguous full_seqs.
-    gencode_only = []
-    if coords is not None and full_seq in ambig_fseqs:
-        chrom, ev_start, ev_end, strand = coords
-        source_i1s = set(int(i) for i in group["intron1_len"].tolist())
-        all_alts = gather_alt_candidates(full_seq, gene, ev_start, ev_end, source_i1s, strand)
-        for a in all_alts:
-            if a["from_supertable"]:
-                continue
-            valid_reps, _ = reads_at_junction(pkl_key, a["intron1_len"], a["exon_len"], pkls)
-            if valid_reps >= 1:
-                gencode_only.append(a["transcript_id"])
-    alt_gen_str = ";".join(str(t) for t in gencode_only)
-
-    for ref, own_tx in zip(group["Reference"].astype(int),
-                            group["transcript_id"].astype(str)):
-        own_alts = [t for t in fs_all_tx_ids if t != own_tx]
-        alt_supertable_by_ref[ref] = ";".join(own_alts)
-        alt_gencode_by_ref[ref]    = alt_gen_str
 
 
 # ── Per-event MANE-canonical SJ assignment ────────────────────────────────
@@ -489,7 +449,7 @@ for eid_161, ev_group in event_groups:
         seen_keys = set()
         for fs in wt_full_seqs:
             source_i1s = set(int(i) for i in ev_group[ev_group["full_seq"] == fs]["intron1_len"].tolist())
-            for c in gather_alt_candidates(fs, gene, ev_start, ev_end, source_i1s, strand):
+            for c in gather_alt_candidates(st, fs, gene, ev_start, ev_end, source_i1s, strand):
                 key = (int(c["intron1_len"]), int(c["exon_len"]))
                 if key in seen_keys:
                     continue
@@ -638,6 +598,57 @@ for cls, n in st_out["transcript_class"].value_counts(dropna=False).items():
 st_out["n_rows_per_full_seq"] = st_out.groupby("full_seq")["full_seq"].transform("size").astype(int)
 
 
+# ── Per-full_seq alt-transcript bookkeeping (POST-rewrite) ────────────────
+# Runs on st_out (after MANE rewrites applied). A Gencode candidate whose
+# (intron1_len, exon_len) was deduped against a pre-rewrite supertable row
+# that got overwritten will now NOT collide with anything in st_out, so it
+# becomes a genuine Gencode-only candidate and lands in alt_gencode_by_ref.
+# This is what lets SI rescue the displaced annotations.
+print("\nBuilding per-row alt-transcript columns (post-rewrite)...")
+
+# Recompute ambig_fseqs on st_out (post-rewrite SJ counts per full_seq).
+fs_count_out = st_out.groupby("full_seq").size()
+sj_uniq_out = (st_out.assign(_sj=list(zip(st_out["intron1_len"], st_out["exon_len"])))
+                     .groupby("full_seq")["_sj"].nunique())
+ambig_fseqs_out = set(sj_uniq_out[sj_uniq_out > 1].index)
+
+alt_supertable_by_ref = {}
+alt_gencode_by_ref    = {}
+
+fs_groups_out = st_out.groupby("full_seq", sort=False)
+for full_seq, group in fs_groups_out:
+    canonical_ref = int(group["Reference"].min())
+    crow_match = group[group["Reference"].astype(int) == canonical_ref]
+    if crow_match.empty:
+        continue
+    crow = crow_match.iloc[0]
+    pkl_key = canonical_ref + 1
+    coords = parse_event_coords(crow["event_id_161"])
+    gene = crow.get("gene_name", "")
+
+    fs_all_tx_ids = [str(t) for t in group["transcript_id"].dropna().unique().tolist()]
+
+    # Gencode-only alts: discover only for genuinely ambiguous full_seqs.
+    gencode_only = []
+    if coords is not None and full_seq in ambig_fseqs_out:
+        chrom, ev_start, ev_end, strand = coords
+        source_i1s = set(int(i) for i in group["intron1_len"].tolist())
+        all_alts = gather_alt_candidates(st_out, full_seq, gene, ev_start, ev_end, source_i1s, strand)
+        for a in all_alts:
+            if a["from_supertable"]:
+                continue
+            valid_reps, _ = reads_at_junction(pkl_key, a["intron1_len"], a["exon_len"], pkls)
+            if valid_reps >= 1:
+                gencode_only.append(a["transcript_id"])
+    alt_gen_str = ";".join(str(t) for t in gencode_only)
+
+    for ref, own_tx in zip(group["Reference"].astype(int),
+                            group["transcript_id"].astype(str)):
+        own_alts = [t for t in fs_all_tx_ids if t != own_tx]
+        alt_supertable_by_ref[ref] = ";".join(own_alts)
+        alt_gencode_by_ref[ref]    = alt_gen_str
+
+
 # ── alt_transcripts_in_supertable + alt_transcripts_gencode_only ──────────
 print("Adding alt_transcripts_in_supertable and alt_transcripts_gencode_only...")
 ref_int = st_out["Reference"].astype(int)
@@ -676,6 +687,7 @@ canon_lookup = canon_per_event.set_index("event_id_161")
 
 alt_rows = []
 seen_pairs = set()
+n_dropped_redundant = 0
 # Pre-build event-level set of supertable transcript bases (for alt_in_supertable flag)
 event_tx_bases = (
     st_out.assign(_tx_base=st_out["transcript_id"].astype(str).str.split(".").str[0])
@@ -683,6 +695,17 @@ event_tx_bases = (
           .apply(lambda s: set(s.dropna()))
           .to_dict()
 )
+# Pre-build event-level set of supertable (intron1_len, exon_len) pairs.
+# An alt whose junction matches an existing supertable transcript's junction
+# would produce the same splice outcome — drop it (redundant).
+event_supertable_pairs = {}
+for ev, grp in st_out.groupby("event_id_161"):
+    pairs = set()
+    for _, r in grp.iterrows():
+        i1, ex_ = r.get("intron1_len"), r.get("exon_len")
+        if pd.notna(i1) and pd.notna(ex_):
+            pairs.add((int(i1), int(ex_)))
+    event_supertable_pairs[ev] = pairs
 
 for ref, gen_alts in alt_gencode_by_ref.items():
     if not gen_alts:
@@ -722,6 +745,11 @@ for ref, gen_alts in alt_gencode_by_ref.items():
             if r is None:
                 continue
             i1, ex = r
+            # Skip alts whose junction matches a supertable transcript's
+            # junction for the same construct — same splice outcome, redundant.
+            if (i1, ex) in event_supertable_pairs.get(eid_161, set()):
+                n_dropped_redundant += 1
+                continue
             alt_rows.append({
                 "event_id_161":         eid_161,
                 "canonical_reference":  canonical_ref,
@@ -740,7 +768,7 @@ for ref, gen_alts in alt_gencode_by_ref.items():
             break
 
 pd.DataFrame(alt_rows).to_csv(ST_ALT_OUT, index=False)
-print(f"Saved: {ST_ALT_OUT}  ({len(alt_rows)} rows, deduped per (event_id_161, alt_transcript_id))")
+print(f"Saved: {ST_ALT_OUT}  ({len(alt_rows)} rows, deduped per (event_id_161, alt_transcript_id); {n_dropped_redundant} redundant junctions dropped)")
 
 
 # ── Patch per-replicate PSI text files ────────────────────────────────────
