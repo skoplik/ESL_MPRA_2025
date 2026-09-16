@@ -70,3 +70,6 @@ __pycache__/
 # archived/superseded script dirs - keep on disk, out of the repo
 old/
 old_scripts/
+
+# archived scripts - moved out of the active tree, kept on disk
+archive_2026_09/
