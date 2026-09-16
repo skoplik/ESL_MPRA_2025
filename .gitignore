@@ -66,3 +66,7 @@ fullpos_npz/
 __pycache__/
 *.pyc
 .ipynb_checkpoints/
+
+# archived/superseded script dirs - keep on disk, out of the repo
+old/
+old_scripts/
