@@ -64,6 +64,8 @@ SPLICEAI_TSV = sys.argv[1] if len(sys.argv) > 1 else "/ESL/ESL_MPRA/Figure_3/Spl
 PANGOLIN_TSV = sys.argv[2] if len(sys.argv) > 2 else "/ESL/ESL_MPRA/SI_figures/Pangolin/output_MAY_v2/pangolin_junction_scores_MAY.tsv"
 ALPHAGENOME = "/ESL/ESL_MPRA/Figure_3/AlphaGenome/alphagenome_16k_all_variants_MAY_2026.tsv"
 MMSPLICE = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/mmsplice_predictions_MAY_v3.csv"
+HAL_FILE = "/ESL/ESL_MPRA/Figure_3/HAL/outputs/hal_delta_logit_MAY_2026.csv"
+OLD_MEGA = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_filtered_MAY.csv"
 MMSPLICE_VCF = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files_MAY_v3/synthetic_variants.vcf.gz"
 OUTDIR = "/ESL/ESL_MPRA/Figure_3/model_comparison"
 OUT = os.path.join(OUTDIR, "mega_pred_file_MAY_v2.csv")
@@ -248,6 +250,33 @@ if mm is not None:
         columns={"delta_logit_psi": "baseline_mmsplice_delta_logit"}),
         on="Reference", how="left")
 
+# ---- HAL (already MAY; Reference maps 1:1, verified 27,791/27,791) --------
+print("HAL ...")
+hal = attach(HAL_FILE, ",", ["hal_delta_logit"], "hal")
+if hal is not None:
+    prim = prim.merge(hal[["Reference", "hal_delta_logit"]], on="Reference", how="left")
+
+# ---- retrained MMSplice + test-set flag ----------------------------------
+# NOTE: the retrained MMSplice model has NOT been re-fit on the May data; these
+# columns are carried over from the previous MAY mega so the retraining panel
+# still renders. Treat the retrained bar as APRIL-derived until it is re-fit.
+print("retrained MMSplice (carried over - NOT re-fit on May) ...")
+if os.path.exists(OLD_MEGA):
+    old = pd.read_csv(OLD_MEGA, low_memory=False,
+                      usecols=lambda c: c in ("Reference", "event_id_161", "snp",
+                                              "retrained_mmsplice_delta_logit", "mmsplice_is_test"))
+    old["Reference"] = old["Reference"].astype(str)
+    if "event_id_161" in old.columns:
+        chk = prim[["Reference", "event_id_161"]].merge(
+            old[["Reference", "event_id_161"]], on="Reference", suffixes=("_new", "_old"))
+        bad = int((chk["event_id_161_new"].astype(str) != chk["event_id_161_old"].astype(str)).sum())
+        report["retrained_join_mismatches"] = bad
+        print("  retrained: join checked on %d rows, %d mismatches" % (len(chk), bad))
+        if bad:
+            raise SystemExit("ABORT: retrained-MMSplice carry-over join mismatches (%d)" % bad)
+    keep = [c for c in ("Reference", "retrained_mmsplice_delta_logit", "mmsplice_is_test") if c in old.columns]
+    prim = prim.merge(old[keep].drop_duplicates("Reference"), on="Reference", how="left")
+
 # ---- (5) exact edge filter + variants only -------------------------------
 variants = prim[prim["snp"] != "none"].copy()
 report["variant_rows_primary"] = len(variants)
@@ -279,7 +308,9 @@ summary = {}
 for col, label in [("spliceai_delta_logit", "SpliceAI"),
                    ("alphagenome_delta_logit", "AlphaGenome"),
                    ("pangolin_delta_logit", "Pangolin"),
-                   ("baseline_mmsplice_delta_logit", "MMSplice")]:
+                   ("baseline_mmsplice_delta_logit", "MMSplice"),
+                   ("hal_delta_logit", "HAL"),
+                   ("retrained_mmsplice_delta_logit", "MMSplice retrained (APRIL)")]:
     if col not in final.columns:
         print("%-28s %10s %10s" % (label, "-", "absent"))
         continue
