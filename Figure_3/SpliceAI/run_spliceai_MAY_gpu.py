@@ -1,17 +1,11 @@
 """
-SpliceAI Stage-1 for the MAY 2026 reprocessed COMPASS data.
+SpliceAI stage 1 for the May 2026 data, GPU version.
 
-Differences vs run_spliceai_all.py (deliberate, all documented):
-  1. Reads the MAY file directly, so `Reference` is internally consistent
-     end-to-end (no cross-version Reference join, the root cause of the mess).
-  2. Carries the STABLE key (event_id_161, snp, gene_exon, transcript_class)
-     alongside Reference so every downstream join can be *verified*.
-  3. Extracts the junction SA/SD inline -> compact TSV, instead of dumping
-     full per-position tracks as text (~8 GB) and re-parsing them in stage 2.
-  4. Still saves FULL per-position tracks, but as sharded float16 .npz
-     (~0.8 GB total) per the requirement to keep full-length outputs.
-  5. Writes WT and variants in ONE file (old stage-2 expected three).
-  6. Resumable: skips References already present in the output TSV.
+Same outputs as run_spliceai_MAY.py: junction SA/SD inline to a compact TSV plus
+full per-position float16 .npz tracks, resumable on Reference.
+
+Uses tensorflow.keras with a reimplemented one_hot_encode rather than the
+spliceai package; validated against the original to a max difference of 4e-6.
 """
 import argparse, os, gc, glob
 import numpy as np

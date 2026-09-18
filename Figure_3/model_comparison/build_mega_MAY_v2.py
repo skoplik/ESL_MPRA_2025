@@ -1,59 +1,17 @@
 """
-Stage-2 / mega builder for the MAY 2026 COMPASS model comparison.
+Builds the Figure 3 model-comparison table from the May 2026 data.
 
-Replaces build_mega_pred_file.py (2026-04-29). What changed and WHY:
+Reads one canonical input so Reference is consistent across every model, joins
+the prediction files, and asserts the joins agree on (event_id_161, snp).
 
-  1. SINGLE SOURCE OF TRUTH. Every model's stage-1 ran on this exact file, so
-     `Reference` is internally consistent. The old builder joined prediction
-     files produced against OLDER data versions onto May rows by `Reference`,
-     a row index that renumbers on every reprocess -> silent misalignment.
+Everything keys on event_id_161, not gene_exon: a gene_exon label can span two
+junctions (CACNA1C 31a/31b, 15 kb apart) and one locus can carry two labels
+(ANKS1B "exon 20" == "exon 5"). The primary-junction rule collapses each locus
+to one event_id before the WT lookup -- MANE preferred, alt only where no MANE
+exists -- so a variant and its WT always share a junction.
 
-  2. JOINS ARE ASSERTED, NOT ASSUMED. Each prediction file carries
-     (event_id_161, snp); after joining on Reference we verify they match and
-     abort if not. This makes a repeat of bug #1 impossible to miss.
-     (AlphaGenome and MMSplice files carry no stable key, so they are checked
-     indirectly instead: References-exist-in-MAY, and REF/ALT-vs-snp agreement.)
-
-  3. EVERYTHING IS KEYED BY LOCUS (`event_id_161`), NOT `gene_exon`.
-     This is the delta-logit correctness guarantee, so read it carefully:
-
-       - A `gene_exon` LABEL can span two different junctions. "CACNA1C exon 31"
-         is the mutually exclusive 31a/31b pair (chr12:2633629 and chr12:2648475,
-         ~15 kb apart). Keying WT by gene_exon could therefore subtract a WT
-         measured at a DIFFERENT splice junction from the variant.
-       - Conversely one LOCUS can carry two gene_exon labels, because exon
-         NUMBERING is transcript-dependent ("ANKS1B exon 20" == "ANKS1B exon 5").
-         Keying by gene_exon lets both survive and double-counts that full_seq.
-
-     So: the primary-junction rule (#4) runs on `event_id_161` and collapses each
-     locus to exactly ONE `event_id` BEFORE any WT lookup happens. The WT map is
-     then keyed by `event_id_161`. Because only one junction survives per locus,
-     variant and WT are always the same splice junction by construction.
-     Audited on the MAY data: 0 / 86,390 variants paired with a WT from a
-     different event_id, and 0 loci carrying >1 event_id after the primary rule.
-
-     Note the other models enforce the same invariant their own way:
-     build_mm_v3.py restricts variants to the chromosome's own annotation, and
-     the AlphaGenome runner groups by `event_id` and scores ref and alt at the
-     same exon_start/exon_end.
-
-  4. PRIMARY-JUNCTION RULE, explicit: prefer the MANE junction per LOCUS; keep an
-     `alt` junction only when that locus has no MANE. Where a locus has two
-     non-MANE annotations of the same sequence (tandem acceptors 3 nt apart, e.g.
-     AFDN exon 30), a deterministic tie-break applies: MANE, then a row with a
-     measured value, then the lowest event_id.
-
-  5. NO DOUBLE COUNTING. A hard assertion aborts the build if any
-     (event_id_161, snp) appears twice, i.e. if the same full_seq would enter the
-     correlation more than once.
-
-  6. EDGE FILTER is exact: drop a variant if ANY cell line's WT pooled PSI is
-     exactly 0 or exactly 1 (not a tolerance).
-
-Note: variants at a locus with no WT row anywhere in the data (2,359 variants /
-773 loci in MAY) have no baseline to subtract and are necessarily excluded.
-
-Writes NEW files only; never overwrites an input.
+Aborts if any (event_id_161, snp) appears twice. Edge filter is exact 0/1.
+Writes new files only.
 """
 import os, sys, json
 import numpy as np

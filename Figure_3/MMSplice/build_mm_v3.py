@@ -1,20 +1,14 @@
 """
-MMSplice input builder v3 (MAY data).
+MMSplice input builder for the May data.
 
-Fix vs v2: v2 keyed the synthetic chromosome by `gene_exon`:
-    wt.drop_duplicates("gene_exon");  ge2chr = {gene_exon: Reference+1}
-A gene_exon label can cover TWO DIFFERENT LOCI (e.g. "CACNA1C exon 31" is the
-mutually-exclusive 31a/31b pair, chr12:2633629 and chr12:2648475, ~15 kb apart).
-drop_duplicates() then silently discarded one whole locus and all of its variants
-never entered the VCF -> 518 variants missing from the predictions.
+Keys each synthetic chromosome by event_id_161 rather than gene_exon, because a
+gene_exon label can cover two loci (CACNA1C exon 31 is the 31a/31b pair, 15 kb
+apart) -- keying by label dropped one locus and its 518 variants entirely.
+Variants are restricted to the same junction annotation whose WT defines their
+chromosome, so a locus with two annotations contributes each variant once.
 
-v3 keys everything by `event_id_161` (the sequence-level locus), so every locus
-gets its own synthetic chromosome. Variants are additionally restricted to the
-SAME junction annotation whose WT defines that chromosome, so a locus carrying
-two annotations (tandem acceptors) contributes each variant exactly once.
-
-The VCF ID convention (Reference+1) is KEPT deliberately, unchanged from v2, so
-the already-verified downstream mapping (ID-1, 100% allele agreement) still holds.
+The VCF ID convention (Reference+1) is unchanged, so the verified downstream
+mapping still holds.
 """
 import pandas as pd, os
 

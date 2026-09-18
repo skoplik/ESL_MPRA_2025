@@ -1,26 +1,13 @@
 #!/usr/bin/env python3
 """
-Export a shareable model-prediction table from the v2 mega file.
+Exports a shareable model-prediction table from the v2 mega file.
 
-The mega files are ~160-185 MB because they carry the construct sequences and
-every per-replicate measurement column. GitHub rejects files over 100 MB, and
-collaborators comparing model scores do not need any of that. This writes a
-gzipped table with just the variant key, the WT PSI values needed to reproduce
-the edge filter, the pooled measurement, and one delta-logit column per model.
+The mega files are 160-185 MB, over GitHub's limit. This writes ~5 MB: the
+variant key, the WT PSI needed to reproduce the edge filter, the pooled
+measurement, and one delta-logit column per model. The edge_filtered column
+makes both rows of the benchmark table reproducible from this one file.
 
-Source : mega_pred_file_MAY_v2_NOEDGEFILTER.csv  (all 86,390 variant rows)
-Output : model_predictions_MAY_v2.csv.gz          (~5 MB, committed to the repo)
-
-The `edge_filtered` column marks rows where any cell line has WT PSI exactly 0
-or 1, so BOTH rows of the published benchmark table are reproducible from this
-one file:
-
-    df = pd.read_csv("model_predictions_MAY_v2.csv.gz")
-    unfiltered = df                       # n=84,021  SpliceAI r=0.7473
-    filtered   = df[~df.edge_filtered]    # n=71,017  SpliceAI r=0.7763
-
-Run with no arguments. Verifies its own output against the expected
-correlations before exiting non-zero on mismatch.
+Verifies its output against the published n and r before exiting.
 """
 import os
 import numpy as np

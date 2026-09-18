@@ -1,26 +1,18 @@
 """
-AlphaGenome splice site prediction — MAY 2026 junctions + FULL per-position outputs.
+AlphaGenome splice-site predictions on the May 2026 junctions.
 
-Changes vs run_alphagenome_predictions_all.py:
-  1. DATA_PATH -> May reprocessed file (1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz).
-     exon_start/exon_end are derived from intron1/exon lengths in this file,
-     so pointing here fixes the 8 exons whose junctions moved in May.
-  2. Saves the FULL per-position SPLICE_SITES track (donor + acceptor) across the
-     entire construct window, one compressed .npz per event_id. This lets SA x SD be
-     re-extracted at ANY junction annotation later WITHOUT re-running the model.
+exon_start/exon_end come from the intron1/exon lengths in the May file. Saves the
+full per-position SPLICE_SITES track (donor + acceptor) as one compressed .npz
+per event_id, so SA x SD can be re-extracted at any junction annotation without
+re-running the model:
 
-Re-extraction recipe (no model needed):
-    z = np.load(f"{PER_POS_DIR}/{event_id}.npz")   # keys: 'ref', '<Reference>' ...
-    arr = z['ref']                 # shape [construct_len, 2], col0=donor, col1=acceptor, float16
-    sa  = float(arr[exon_start - 2, 1])   # acceptor at exon_start (-1 peak offset)
-    sd  = float(arr[exon_end   - 2, 0])   # donor   at exon_end
-    psi = sa * sd
-  where exon_start/exon_end are the 1-based construct coords stored in the TSV.
+    z   = np.load(f"{PER_POS_DIR}/{event_id}.npz")   # keys: 'ref', '<Reference>'
+    arr = z['ref']          # [construct_len, 2], col0 donor, col1 acceptor, float16
+    sa  = float(arr[exon_start - 2, 1])
+    sd  = float(arr[exon_end   - 2, 0])
 
-Install:
-    git clone https://github.com/google-deepmind/alphagenome_research.git
-    pip install -e ./alphagenome_research alphagenome
-    export KAGGLE_USERNAME=... KAGGLE_KEY=...
+Setup: clone google-deepmind/alphagenome_research, pip install -e it plus
+alphagenome, then set KAGGLE_USERNAME / KAGGLE_KEY.
 """
 
 import os

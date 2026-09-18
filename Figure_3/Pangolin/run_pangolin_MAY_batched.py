@@ -1,24 +1,14 @@
 """
-Pangolin Stage-1 for the MAY 2026 reprocessed COMPASS data.
+Pangolin stage 1 for the May 2026 data.
 
-Restructured to mirror the SpliceAI stage-1: score EVERY row (WT and variant)
-independently and write per-row junction scores. The WT subtraction moves to
-stage 2 (pandas). This fixes two bugs in run_pangolin_all_MAY_fullpos.py:
+Scores every row (WT and variant) independently and writes per-row junction
+scores; the WT subtraction happens in stage 2. Each row's coordinates come from
+its own intron1/exon. Batched across the 20 models (4 model_nums x 5 folds),
+which takes the run from ~25 h to under an hour.
 
-  * `if group['snp'].eq('none').sum() != 1: continue` SILENTLY dropped whole
-    exon families that lack exactly one WT row - exactly what happens on the
-    split-annotation exons (ADAM15 ex20 / PIGH ex3 / ACAD9 ex2).
-  * exon coords were taken from the WT row and applied to variants.
-    Now each row's coords come from its OWN intron1/exon.
-
-and one performance bug:
-
-  * every sequence was run at BATCH SIZE 1 through 20 models (4 model_nums x
-    5 folds) -> ~25 h. Now batched -> ~30-60 min.
-
-The scoring math is preserved EXACTLY: per-position track per model_num is the
-mean over the 5 folds, and the junction values are taken at s[exon_start-1] /
-s[exon_end-1] in the model's (cropped) output coordinates.
+Scoring math is unchanged: the per-position track per model_num is the mean over
+the 5 folds, sampled at s[exon_start-1] and s[exon_end-1] in the model's cropped
+output coordinates.
 """
 import os, re, argparse, datetime, glob
 import numpy as np
