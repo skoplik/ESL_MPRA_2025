@@ -363,7 +363,7 @@ print(f"  Candidates skipped (already in NO_DELTAS for this full_seq): {n_candid
 
 
 # ── Compute WT PSI at alt junction per (event_id_161, alt_transcript) per cell ──
-# Coverage flag (not a filter — Gabriel needs all candidate measurements,
+# Coverage flag (not a filter — downstream needs all candidate measurements,
 # including low-coverage ones, with counts so downstream can filter):
 # add `low_coverage_rescue=True` for (event, alt_transcript) pairs without
 # ≥1 WT AND ≥1 variant having a valid pooled PSI in any cell.
