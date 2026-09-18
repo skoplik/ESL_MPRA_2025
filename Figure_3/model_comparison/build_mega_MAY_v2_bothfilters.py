@@ -61,7 +61,7 @@ import pandas as pd
 
 MAIN = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 SPLICEAI_TSV = sys.argv[1] if len(sys.argv) > 1 else "/ESL/ESL_MPRA/Figure_3/SpliceAI/output_MAY_v2/spliceai_junction_scores_MAY.tsv"
-PANGOLIN_TSV = sys.argv[2] if len(sys.argv) > 2 else "/ESL/ESL_MPRA/SI_figures/Pangolin/output_MAY_v2/pangolin_junction_scores_MAY.tsv"
+PANGOLIN_TSV = sys.argv[2] if len(sys.argv) > 2 else "/ESL/ESL_MPRA/Figure_3/Pangolin/output_MAY_v2/pangolin_junction_scores_MAY.tsv"
 ALPHAGENOME = "/ESL/ESL_MPRA/Figure_3/AlphaGenome/alphagenome_16k_all_variants_MAY_2026.tsv"
 MMSPLICE = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/mmsplice_predictions_MAY_v3.csv"
 HAL_FILE = "/ESL/ESL_MPRA/Figure_3/HAL/outputs/hal_delta_logit_MAY_2026.csv"

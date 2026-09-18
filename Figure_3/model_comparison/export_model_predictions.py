@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Export a slim, shareable model-prediction table from the v2 mega file.
+Export a shareable model-prediction table from the v2 mega file.
 
 The mega files are ~160-185 MB because they carry the construct sequences and
 every per-replicate measurement column. GitHub rejects files over 100 MB, and
