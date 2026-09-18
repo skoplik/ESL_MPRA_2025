@@ -77,3 +77,6 @@ archive_2026_09/
 # Shareable model prediction outputs (small; see Figure_3/model_comparison/export_model_predictions.py)
 !Figure_3/model_comparison/model_predictions_MAY_v2.csv.gz
 !Figure_3/AlphaGenome/alphagenome_16k_all_variants_MAY_2026.tsv
+
+# Local archive of superseded scripts - kept on disk, not on the branch
+_archive/
