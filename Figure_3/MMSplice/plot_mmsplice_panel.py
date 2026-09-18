@@ -23,8 +23,8 @@ from scipy import stats
 mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 
-MEGA_FILE = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_filtered.csv"
-OUTDIR    = "/ESL/ESL_MPRA/Figure_3/plots/MMSplice/aggregate_analysis"
+MEGA_FILE = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_MAY_v2.csv"
+OUTDIR    = "/ESL/ESL_MPRA/Figure_3/plots_MAY_v2/MMSplice/aggregate_analysis"
 os.makedirs(OUTDIR, exist_ok=True)
 
 # ── Load ───────────────────────────────────────────────────────────────────────

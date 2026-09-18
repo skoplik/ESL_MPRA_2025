@@ -19,9 +19,9 @@ from scipy import stats
 mpl.rcParams["pdf.fonttype"] = 42
 mpl.rcParams["ps.fonttype"] = 42
 
-MEGA_FILE = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_filtered.csv"
+MEGA_FILE = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_MAY_v2.csv"
 DATA_PATH = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
-OUTDIR = "/ESL/ESL_MPRA/Figure_3/plots/MMSplice/aggregate_analysis"
+OUTDIR = "/ESL/ESL_MPRA/Figure_3/plots_MAY_v2/MMSplice/aggregate_analysis"
 os.makedirs(OUTDIR, exist_ok=True)
 
 

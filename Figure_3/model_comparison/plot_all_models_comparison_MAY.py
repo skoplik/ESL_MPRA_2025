@@ -20,8 +20,8 @@ from scipy.stats import pearsonr
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype']  = 42
 
-MEGA_FILE = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_filtered_MAY.csv"
-PLOTDIR   = "/ESL/ESL_MPRA/Figure_3/plots_MAY"
+MEGA_FILE = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_MAY_v2.csv"
+PLOTDIR   = "/ESL/ESL_MPRA/Figure_3/plots_MAY_v2"
 
 OUTDIR = {
     "SpliceAI":      os.path.join(PLOTDIR, "SpliceAI"),
