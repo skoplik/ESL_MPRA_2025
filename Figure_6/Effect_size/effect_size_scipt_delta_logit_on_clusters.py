@@ -832,22 +832,26 @@ def main():
     print(output_path_prefix)
 
     
-    #Load data
-    '''
-    fimo_df,psi_supertable_merged_df = load_data(fimo_out_file,indv_cell_lines_file,cluster_file)
-    
-    print(fimo_df)
-    print(psi_supertable_merged_df)
-    psi_supertable_merged_df = filter_splice_sites(psi_supertable_merged_df)
-    psi_supertable_merged_df.to_csv(f'{output_path_prefix}_psi_supetable_merged_NO_FIMO.csv', sep=',', index=False) #save the file with merged fimo and PSI results after filtering splice sites
-    psi_supetable_fimo_merged_df = merge_data_fimo(fimo_df, psi_supertable_merged_df)
-    print(psi_supetable_fimo_merged_df)
-    psi_supetable_fimo_merged_df.to_csv(f'{output_path_prefix}_psi_supetable_fimo_merged.csv', sep=',', index=False) #save the file with merged fimo and PSI results after filtering splice sites
-    #split fimo data on where the motif binds (eg. intron or exon)
-    df_intron1, df_exon, df_intron2 = split_results_by_loc(psi_supetable_fimo_merged_df)
-    save_split_data(df_intron1, df_exon, df_intron2, output_path_prefix)
-    '''
-    
+    # Load data.
+    # This block used to be commented out, so every run silently re-read whatever
+    # intermediates already sat in the output dir -- which is why Figure 6 stayed on
+    # 2025 PSIs through repeated "regenerations". It now rebuilds them whenever they
+    # are absent, and only reuses a cache that matches this output prefix.
+    _need = not all(os.path.exists(f'{output_path_prefix}_df_{x}.csv')
+                    for x in ('intron1', 'exon', 'intron2')) \
+            or not os.path.exists(f'{output_path_prefix}_psi_supetable_merged_NO_FIMO.csv')
+    if _need:
+        print("Intermediates absent -- rebuilding from PSI + FIMO (slow).")
+        fimo_df, psi_supertable_merged_df = load_data(fimo_out_file, indv_cell_lines_file, cluster_file)
+        psi_supertable_merged_df = filter_splice_sites(psi_supertable_merged_df)
+        psi_supertable_merged_df.to_csv(f'{output_path_prefix}_psi_supetable_merged_NO_FIMO.csv', sep=',', index=False)
+        psi_supetable_fimo_merged_df = merge_data_fimo(fimo_df, psi_supertable_merged_df)
+        psi_supetable_fimo_merged_df.to_csv(f'{output_path_prefix}_psi_supetable_fimo_merged.csv', sep=',', index=False)
+        df_intron1, df_exon, df_intron2 = split_results_by_loc(psi_supetable_fimo_merged_df)
+        save_split_data(df_intron1, df_exon, df_intron2, output_path_prefix)
+    else:
+        print("Reusing existing intermediates for prefix %s" % output_path_prefix)
+
     df_intron1, df_exon, df_intron2 = open_split_data(output_path_prefix)
     psi_supertable_merged_df = pd.read_csv(f'{output_path_prefix}_psi_supetable_merged_NO_FIMO.csv') #no fimo data, just all sequences
     
