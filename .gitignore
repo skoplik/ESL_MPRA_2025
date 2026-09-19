@@ -81,3 +81,8 @@ archive_2026_09/
 # Local archive of superseded scripts - kept on disk, not on the branch
 _archive/
 SI_figures/GTEx_comparison/README.md
+
+# Figure bundle manifests - the map from source PDF to published panel.
+# Versioned deliberately: wrong pointers here have silently shipped wrong panels.
+!_paper_figure_bundles/MANIFEST.txt
+!_paper_figure_bundles/MANIFEST_SI.txt

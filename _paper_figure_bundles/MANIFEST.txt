@@ -1,0 +1,50 @@
+# MANIFEST - MAIN figures only. The Figure_S* entries were removed 20260918:
+# they duplicated MANIFEST_SI.txt with stale paths (April MMSplice plots and the
+# renamed outputs_nature dir). MANIFEST_SI.txt is authoritative for all SI figures.
+# MANIFEST - updated 2026-09-16: Figure_3 panels rebuilt from plots_MAY_v2 (model re-run)
+COMPASS paper figure panel bundles - MANIFEST
+Generated into /ESL/ESL_MPRA/_paper_figure_bundles/
+Format: <Figure> <panel>: <legend desc> -> <file(s) | SCHEMATIC-no-plot | NOT FOUND>
+================================================================================
+Figure_1 A: Workflow diagram of COMPASS splicing reporter (schematic) -> SCHEMATIC-no-plot
+Figure_1 B: Breakdown of sequence sources (schematic; no plot file found) -> SCHEMATIC-no-plot
+Figure_1 C: Measured PSI distribution across 5 cell lines -> Figure_1/outputs/plots/violin_cell_line_PSI_distributions.pdf
+Figure_1 D: Pearson R2 correlation of MPRA across 5 cell lines -> Figure_1/outputs/plots/replicate_psi_raw_corrs.pdf
+Figure_2 A: Variant PSI by reference-PSI quantiles -> Figure_2/outputs/plots/start2end_endpsi_300dpi_clipped_e-2.pdf
+Figure_2 B: dPSI by reference-PSI quantiles -> Figure_2/outputs/plots/start2end_deltapsi_300dpi_clipped_e-2.pdf
+Figure_2 C: dlogit(PSI) by reference-PSI quantiles -> Figure_2/outputs/plots/start2end_deltalogit_300dpi_clipped_e-2.pdf
+Figure_2 D: dlogit by SNV position rel. SA/SD + SA/SD zoom insets -> Figure_2/outputs/plots/dpsi_by_pos_avg_delta_logit_pos_plot_plasma.pdf | Figure_2/outputs/plots/dpsi_by_pos_zoom_SA.pdf | Figure_2/outputs/plots/dpsi_by_pos_zoom_SD.pdf
+Figure_2 E: Additive effects of SNVs vs double variant (annotated) -> Figure_2/outputs/plots/dnv_snv_annotated_scatter_additive.pdf
+Figure_3 A: Model inference workflow (schematic) -> SCHEMATIC-no-plot
+Figure_3 B: Bar plot Pearson r for 5 baseline models -> Figure_3/plots_MAY_v2/merged_output/bar_inference_model_comparison.pdf
+Figure_3 C: Scatter baseline vs retrained MMSplice (testset+aggregate) -> Figure_3/plots_MAY_v2/merged_output/scatter_mmsplice_baseline_vs_retrained.pdf
+Figure_3 D: Bar retrained benchmarking testset+aggregate -> Figure_3/plots_MAY_v2/merged_output/bar_retrained_benchmarking_agg_train_test.pdf
+Figure_4 A: Avg dlogit distribution by ClinVar class (B/LB,P/LP,CL/VUS) -> Figure_4/outputs/swarm_delta_logit_sep2026.pdf
+Figure_4 B: Six representative NSSMs (SPINT2 e3,DEPDC5 e6,SNCA e3,BRCA1 e13,PPT1 e8,BIN1 e16) -> Figure_4/outputs/ssm_heatmap_sep2026/ALL/SPINT2_exon_3_chr19:38287876-38287935:+_ALL_delta_logit.pdf | Figure_4/outputs/ssm_heatmap_sep2026/ALL/DEPDC5_exon_6_chr22:31766585-31766668:+_ALL_delta_logit.pdf | Figure_4/outputs/ssm_heatmap_sep2026/ALL/SNCA_exon_3_chr4:89828143-89828184:-_ALL_delta_logit.pdf | NOT FOUND | Figure_4/outputs/ssm_heatmap_sep2026/ALL/PPT1_exon_8_chr1:40076842-40076913:-_ALL_delta_logit.pdf | Figure_4/outputs/ssm_heatmap_sep2026/ALL/BIN1_exon_16_chr2:127051154-127051243:-_ALL_delta_logit.pdf
+Figure_4 C: ClinVar classifications stratified by allele frequency (dbSNP155) -> Figure_4/outputs/regenerated_panels/fig4C/fig4C_clinvar_composition_by_rarity_counts.pdf
+Figure_4 D: NSSM section MYH11 exon 42 -> Figure_4/outputs/ssm_heatmap_sep2026/ALL/MYH11_exon_42_chr16:15708803-15708841:-_ALL_delta_logit.pdf
+Figure_4 E: NSSM section SCN5A exon 24 -> Figure_4/outputs/ssm_heatmap_sep2026/ALL/SCN5A_exon_24_chr3:38557231-38557284:-_ALL_delta_logit.pdf
+Figure_4 F: NSSM section LMNA exon 10 -> Figure_4/outputs/ssm_heatmap_sep2026/ALL/LMNA_exon_10_chr1:156137654-156137743:+_ALL_delta_logit.pdf
+Figure_4 G: ParSE-seq comparison, dPSI (r=0.9351, n=11) -> Figure_4/outputs/fig_parse_seq_fixed/parseq_dpsi.pdf
+Figure_4 H: SFARI 1S ClinVar stripplot -> SI_figures/ACMG_overlap/outputs/sfari_overlap_clinvar_stripplot.pdf
+Figure_5 A: Prime editing system + workflow (schematic) -> SCHEMATIC-no-plot
+Figure_5 B: NSSM BIN1 exon 16 in HEK293 -> Figure_4/outputs/ssm_heatmap_sep2026/HEK/BIN1_exon_16_chr2:127051154-127051243:-_HEK_delta_logit.pdf
+Figure_5 C: Editing efficiency variant 1 (rep1,rep2) -> Figure_5/Var4Rep1.pdf | Figure_5/Var4Rep2.pdf
+Figure_5 D: Editing efficiency variant 2 (rep1,rep2) -> Figure_5/Var5Rep1.pdf | Figure_5/Var5Rep2.pdf
+Figure_5 E: Reference PSI MPRA vs endogenous (no exported plot found) -> NOT FOUND
+Figure_5 F: Variant PSI COMPASS/edit-corrected/PE (no exported plot found) -> NOT FOUND
+Figure_5 G: dPSI MPRA vs PE (no exported plot found) -> NOT FOUND
+Figure_5 H: dlogit MPRA vs PE (no exported plot found) -> NOT FOUND
+Figure_6 A: Data processing workflow (schematic) -> SCHEMATIC-no-plot
+Figure_6 B: Motif effect size example w/ equation (schematic) -> SCHEMATIC-no-plot
+Figure_6 C: Concordance filtering of motif effect sizes HEK293 (best-guess: exon mean+SEM per cluster) -> Figure_6/outputs/effect_size_sep2026/plots/effects_concordance_colored/exon_mean_sem_per_cluster_HEK_min3families.pdf
+Figure_6 D: Concordant RBP motifs exonic (ESE/ESS examples) -> Figure_6/outputs/effect_size_sep2026/plots/figure6_panels/fig6_exon_panels.pdf
+Figure_6 E: Concordant RBP motifs intronic (ISE/ISS examples) -> Figure_6/outputs/effect_size_sep2026/plots/figure6_panels/fig6_intron1_panels.pdf | Figure_6/outputs/effect_size_sep2026/plots/figure6_panels/fig6_intron2_panels.pdf
+Figure_7 A: Heatmap cell-type-specific inclusion (top20/cell) -> Figure_7/outputs/mingap/top20_gap_high_per_cell_filtered.pdf
+Figure_7 B: Swarm MEF2C exon 8 -> Figure_7/outputs/regenerated_panels/MEF2C_exon_8_psi.pdf
+Figure_7 C: Recurrent variants MEF2C exon 8 -> Figure_7/outputs/regenerated_panels/recurrent_CG/MEF2C_exon_8_chr5_88730255_T.pdf | Figure_7/outputs/regenerated_panels/recurrent_CG/MEF2C_exon_8_chr5_88730327_A.pdf
+Figure_7 D: Exon families inclusion DIAPH1/USP28/TNNT2/OCA2 -> Figure_7/outputs/regenerated_panels/DIAPH1_exon_2_psi.pdf | Figure_7/outputs/regenerated_panels/USP28_exon_6_psi.pdf | Figure_7/outputs/regenerated_panels/TNNT2_exon_5_psi.pdf | Figure_7/outputs/regenerated_panels/OCA2_exon_10_psi.pdf
+Figure_7 E: Heatmap cell-type-specific skipping (top20/cell) -> Figure_7/outputs/mingap/top20_gap_low_per_cell_filtered.pdf
+Figure_7 F: Swarm DMD exon 71 -> Figure_7/outputs/regenerated_panels/DMD_exon_71_psi.pdf
+Figure_7 G: Recurrent variants DMD exon 71 -> Figure_7/outputs/regenerated_panels/recurrent_CG/DMD_exon_71_chrX_31177982_A.pdf | Figure_7/outputs/regenerated_panels/recurrent_CG/DMD_exon_71_chrX_31177994_T.pdf
+Figure_7 H: Exon families skipping UROS/ABCB7 -> Figure_7/outputs/regenerated_panels/UROS_exon_3_psi.pdf | Figure_7/outputs/regenerated_panels/ABCB7_exon_2_psi.pdf

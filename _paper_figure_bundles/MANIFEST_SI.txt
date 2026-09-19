@@ -1,0 +1,51 @@
+# SI MANIFEST - rebuilt 2026-09-17 against the CURRENT SI document (S1-S9)
+# Supersedes the earlier build, which used a stale Google Doc numbering (S1,S2,S3,S5,S7-S11).
+
+Figure_S1 A: Replicate PSI + dPSI correlation matrices -> SI_figures/Correlations_all_cell_lines/outputs/supplement_fig1_fullmatrix_PSI.pdf | SI_figures/Correlations_all_cell_lines/outputs/supplement_fig1_fullmatrix_dPSI.pdf
+Figure_S1 B: Replicate-averaged vs pooled dlogit -> SI_figures/Correlations_all_cell_lines/outputs/allcell_avg_repl_vs_pooled_dlogit_grid.pdf
+Figure_S1 Cont.: Intermediate PSI range (0.1-0.9) -> SI_figures/Correlations_all_cell_lines/outputs/intermediate_psi/replicate_corr_psi_0.1_0.9.pdf | SI_figures/Correlations_all_cell_lines/outputs/intermediate_psi/replicate_corr_dpsi_0.1_0.9.pdf | SI_figures/Correlations_all_cell_lines/outputs/intermediate_psi/replicate_corr_delta_logit_0.1_0.9.pdf
+
+Figure_S2 A: Distribution of unexpected splice site usage -> SI_figures/unexpected_SSs/outputs_figS2/figA_unexpected_distribution.pdf
+Figure_S2 B: Cryptic fraction vs reference PSI -> SI_figures/unexpected_SSs/outputs_figS2/fig1_cryptic_vs_wt_psi.pdf
+Figure_S2 C: Cryptic fraction by variant class -> SI_figures/unexpected_SSs/outputs_figS2/fig2_cryptic_by_variant_class.pdf
+Figure_S2 D: Cryptic position map -> SI_figures/unexpected_SSs/outputs_figS2/fig3_cryptic_position_map.pdf
+Figure_S2 E: Top exons with elevated cryptic splicing -> SI_figures/unexpected_SSs/outputs_figS2/fig4_top_exons.pdf
+
+Figure_S3 A: Scatter, five models benchmarked  [REGENERATED Sep16] -> Figure_3/plots_MAY_v2/merged_output/scatter_5panel_inference.pdf
+Figure_S3 B: Test set + aggregate, all models + retrained  [REGENERATED Sep16] -> Figure_3/plots_MAY_v2/merged_output/scatter_6panel_with_testset.pdf
+Figure_S3 C: Pearson r / MSE by variant region (upstream intron, exon, downstream intron) -> Figure_3/plots_MAY_v2/MMSplice/mmsplice_improvement_region.pdf
+Figure_S3 D: Pearson r / MSE by positional category (core 0-4 nt, proximal, distal) -> Figure_3/plots_MAY_v2/MMSplice/mmsplice_improvement_pos_bin.pdf
+Figure_S3 E: Pearson r / MSE by reference exon PSI -> Figure_3/plots_MAY_v2/MMSplice/mmsplice_improvement_psi_bin.pdf
+Figure_S3 F: Pearson r / MSE by dlogit variant effect (strong SDVs |dlogit| > 2) -> Figure_3/plots_MAY_v2/MMSplice/mmsplice_improvement_sdv_bin.pdf
+
+Figure_S4 A: Disease-exon RT-PCR validation -> GEL
+Figure_S4 B: Gel image with PSIs -> GEL
+Figure_S4 C: MFASS vs COMPASS -> SI_figures/MFASS_overlap/outputs/reprocessed_figs/mfass_vs_compass_FIXED.pdf
+Figure_S4 D: 13-plasmid mini-library -> GEL
+Figure_S4 E: ExAC dPSI vs allele frequency -> SI_figures/Exac_AF/outputs/06_10_25_exac_af_dpsi.pdf
+Figure_S4 F: GTEx pan-tissue PSI  [RECHECKED Sep17] -> /ESL/Analysis/Native/output_GTEx_v11_WT_comparison_mincov20_MAY/Fig_WT_vs_GTEx_v11_panTissue_PSI.pdf
+
+Figure_S5 A: ROC for SDV classification -> SI_figures/SDV_sensitivity/outputs/figC_roc.pdf
+Figure_S5 B: Empirical FDR vs |dlogit| -> SI_figures/SDV_sensitivity/outputs/figA_fdr_curve.pdf
+Figure_S5 C: Replicate noise vs SDV threshold -> SI_figures/SDV_sensitivity/outputs/figB_violin.pdf
+Figure_S5 D: Replicate concordance per cell line -> SI_figures/SDV_sensitivity/outputs/figB_scatter_per_cellline.pdf
+Figure_S5 E-F: Non-additivity vs inter-variant distance -> Figure_2/outputs/distance_analysis/nonadd_vs_distance.pdf
+
+Figure_S6 A: Full NSSMs, ACMG exons -> SI_figures/SpliceAI_NSSM/assembled/all_splice_ai_ssms_REPROCESSED.pdf
+Figure_S6 B: Full NSSMs, non-ACMG (BEST1 e8 shown) -> Figure_4/outputs/ssm_heatmap_sep2026/ALL/BEST1_exon_8_chr11:61959498-61959578:+_ALL_delta_logit.pdf
+
+Figure_S7 A: SpliceAI recapitulates NSSM -> SI_figures/SpliceAI_NSSM/assembled/all_splice_ai_ssms_REPROCESSED.pdf
+Figure_S7 B: SpliceAI spurious / missed -> SI_figures/SpliceAI_NSSM/assembled/additional_nssms_REPROCESSED.pdf
+
+Figure_S8 A: Exonic motif effect sizes -> Figure_6/outputs/effect_size_sep2026/plots/table_plots_all_cells/filtered_scatter_exon_exon_individual_vs_average_plot.pdf
+Figure_S8 B: Intronic motif effect sizes -> Figure_6/outputs/effect_size_sep2026/plots/table_plots_all_cells/filtered_scatter_intron1_intron1_individual_vs_average_plot.pdf
+Figure_S8 C: Concordance filtering HEK293 -> Figure_6/outputs/effect_size_sep2026/plots/concordance_sep2026/HEK_intron1.pdf
+Figure_S8 D: Mean effect per cluster (exon / intron) -> Figure_6/outputs/effect_size_sep2026/plots/effects_concordance_colored/exon_mean_sem_per_cluster_HEK_min3families.pdf | Figure_6/outputs/effect_size_sep2026/plots/effects_concordance_colored/intron1_mean_sem_per_cluster_HEK_min3families.pdf
+
+Figure_S9 A: Heatmap cell-type-specific inclusion -> Figure_7/outputs/mingap/all_gap_high_filtered_annotated.pdf
+Figure_S9 B: Heatmap cell-type-specific skipping -> Figure_7/outputs/mingap/all_gap_low_filtered_annotated.pdf
+Figure_S9 C: COLQ exon 5 PSI across cell lines  [NEW Sep17] -> Figure_7/outputs/regenerated_panels/COLQ_exon_5_psi.pdf
+Figure_S9 D: Representative sequence / motif selection -> SCHEMATIC
+Figure_S9 E: NSSM COLQ exon 5 -> Figure_4/outputs/ssm_heatmap_sep2026/ALL/COLQ_exon_5_chr3:15478977-15479003:-_ALL_delta_logit.pdf
+Figure_S9 F: RT-PCR gels, COLQ motif disruption -> GEL
+Figure_S9 G: HPA expression SRSF3/SRSF9/HNRNPH2 -> EXTERNAL
