@@ -96,3 +96,8 @@ SI_figures/GTEx_comparison/README.md
 !Figure_6/inputs/motif_clusters/clusters.tab
 !Figure_6/inputs/motif_clusters/Root_motifs.tf
 !Figure_4/inputs/supertable_ClinVar_matched_in_supertable.txt
+
+!Figure_4/inputs/supertable_dbSNP155_Gencode_v26_overlap_dbSNP155_matches_all_notes.txt
+!Figure_7/inputs/exclusive_psi_outliers_combined.tsv
+!SI_figures/Exac_AF/inputs/supertable_dbSNP155_Gencode_v26_overlap_dbSNP155_matches_ExAC.txt
+#   Figure_4/inputs/hgnc_complete_set.txt -> Figures_SK/Disease_relevant_genes/ (16M, symlink)

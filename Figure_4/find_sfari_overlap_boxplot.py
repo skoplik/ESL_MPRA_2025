@@ -10,7 +10,7 @@ mpl.rcParams['svg.fonttype'] = 'none'
 
 # === Paths ===
 sfari_file = "/ESL/ESL_MPRA/Figure_4/SFARI-Gene_genes_07-08-2025release_08-20-2025export.csv"
-hgnc_file = "/ESL/Figures_SK/Disease_relevant_genes/hgnc_complete_set.txt"
+hgnc_file = "/ESL/ESL_MPRA/Figure_4/inputs/hgnc_complete_set.txt"
 supertable_file = "/ESL/ESL_MPRA/Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25_strandfix.csv"
 allseq_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 clinvar_path = "/ESL/ESL_MPRA/Figure_4/outputs/clinvar/swarm_delta_logit.csv"

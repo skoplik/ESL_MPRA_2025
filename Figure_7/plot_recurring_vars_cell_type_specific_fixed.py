@@ -13,7 +13,7 @@ mpl.rcParams['ps.fonttype'] = 42
 mpl.rcParams['svg.fonttype'] = 'none'
 
 # === Config
-input_file = "/ESL/Figures_SK/sig_cell_types/out/exclusive_heatmaps/exclusive_psi_outliers_combined.tsv"
+input_file = "/ESL/ESL_MPRA/Figure_7/inputs/exclusive_psi_outliers_combined.tsv"
 output_dir = "/ESL/ESL_MPRA/Figure_7/outputs/regenerated_panels/recurrent_CG"
 os.makedirs(output_dir, exist_ok=True)
 

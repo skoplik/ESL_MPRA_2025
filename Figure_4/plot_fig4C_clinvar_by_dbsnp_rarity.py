@@ -9,9 +9,9 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Patch
 
 # Inputs (06_09_2025 supertable reproduces manuscript legend counts 1093/103/16 exactly)
-main_csv="/ESL/Figures_SK/General_preprocessing/output_6_09_2025/06_09_2025_1e-2_ALL_WITH_WT.csv"
-label_txt="/ESL/Figures/Population_variants/Resources/supertable_dbSNP155_Gencode_v26_overlap_dbSNP155_matches_all_notes.txt"
-clinvar_file="/ESL/Figures/Variant_analyses/heatmap_plots/supertable_ClinVar_matched_in_supertable.txt"
+main_csv="/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
+label_txt="/ESL/ESL_MPRA/Figure_4/inputs/supertable_dbSNP155_Gencode_v26_overlap_dbSNP155_matches_all_notes.txt"
+clinvar_file="/ESL/ESL_MPRA/Figure_4/inputs/supertable_ClinVar_matched_in_supertable.txt"
 outdir="/ESL/ESL_MPRA/Figure_4/outputs/regenerated_panels/fig4C"
 os.makedirs(outdir,exist_ok=True)
 
