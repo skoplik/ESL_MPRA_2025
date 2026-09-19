@@ -20,7 +20,7 @@ import sys
 import pandas as pd
 
 DATA = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
-CLINVAR_VCF = "/ESL/Data/Sequences/GRCh38_hg38/clinvar_20240902.vcf"
+CLINVAR_VCF = "/ESL/ESL_MPRA/Figure_1/inputs/clinvar_20240902.vcf"
 EXPECTED_TOTAL = 87735
 
 VAR_RE = re.compile(r"^(chr[^:]+):(\d+):([ACGTN]+)>([ACGTN]+)$")

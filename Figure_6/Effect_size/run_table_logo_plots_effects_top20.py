@@ -168,9 +168,9 @@ def plot_table_bar(df, value_column, error_column, pwm_dict, output_file, title)
 
 def main():
     effects_csv = '/ESL/ESL_MPRA/Figure_6/outputs/effect_size_MAY_v2/out_MAY_v2_boots_0_exon.csv'
-    super_table_csv = '/ESL/Figures_SK/General_preprocessing/fix_supertable/final_super_table_04_21_2025_with_event_and_gene_exon.csv'
-    cluster_tab = '/ESL/Figures_SK/Cluster_motifs/rsat_out_05_05_2025/motifs_05_05_2025_tables/clusters.tab'
-    transfac_file = '/ESL/Figures_SK/Cluster_motifs/rsat_out_05_05_2025/motifs_05_05_2025_motifs/root_motifs/Root_motifs.tf'
+    super_table_csv = '/ESL/ESL_MPRA/Figure_6/inputs/supertable/final_super_table_04_21_2025_with_event_and_gene_exon.csv'
+    cluster_tab = '/ESL/ESL_MPRA/Figure_6/inputs/motif_clusters/clusters.tab'
+    transfac_file = '/ESL/ESL_MPRA/Figure_6/inputs/motif_clusters/Root_motifs.tf'
     output_dir = '/ESL/ESL_MPRA/Figure_6/outputs/effect_size_MAY_v2/plots/table_logo'
     os.makedirs(output_dir, exist_ok=True)
 

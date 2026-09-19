@@ -15,9 +15,9 @@ SK=/ESL/Figures_SK
 
 script=$REPO/Figure_6/Effect_size/effect_size_scipt_delta_logit_on_clusters.py
 output_dir=$REPO/Figure_6/outputs/effect_size_MAY_v2
-fimo_out_file=$SK/effect_size_final/fimo_not_on_clusters_no_rc/merged_fimo_output_clusters.tsv
+fimo_out_file=$REPO/Figure_6/inputs/fimo/merged_fimo_output_clusters.tsv
 indv_cell_lines_file=$REPO/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz
-cluster_file=$SK/Cluster_motifs/rsat_out_05_05_2025/motifs_05_05_2025_tables/clusters.tab
+cluster_file=$REPO/Figure_6/inputs/motif_clusters/clusters.tab
 
 mkdir -p $output_dir
 python3 $script \
