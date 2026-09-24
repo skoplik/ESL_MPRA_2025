@@ -259,11 +259,11 @@ def plot_effect_size_box_one_cell(df, output_prefix, concordant_pairs, cell="HEK
 concordance_dir = "/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/plots/concordance_updated_08_10_25"
 
 for region in ["exon", "intron1", "intron2"]:
-    effects_file = f"/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/out_08_10_2025_boots_0_{region}.csv"
+    effects_file = f"/ESL/ESL_MPRA/Figure_6/outputs/effect_size_MAY_full/out_MAY_full_boots_0_{region}.csv"
     df_effects = pd.read_csv(effects_file)
 
     concordant_dict, shared_concordant = load_all_concordance(concordance_dir, region)
-    output_prefix = f"/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/plots/effects_colored_by_cluster_concordant_fullticks_08_10_2025/{region}"
+    output_prefix = f"/ESL/ESL_MPRA/Figure_6/outputs/figure6_elements_MAY_full/{region}"
 
     # Original plots
     #plot_effect_size_per_cell_line(df_effects, output_prefix, concordant_dict, shared_concordant, use_median=False)
