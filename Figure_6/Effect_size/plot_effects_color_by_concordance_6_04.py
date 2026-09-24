@@ -137,6 +137,7 @@ def plot_effect_size_per_cell_line(df, output_prefix, concordant_pairs, shared_p
     plt.close()
 
 def plot_effect_size_box_one_cell(df, output_prefix, concordant_pairs, cell="HEK", global_cbar_min=None, global_cbar_max=None):
+    disp = "HEK293" if cell == "HEK" else cell   # paper uses the full cell-line name
     colname = f"Mean {cell} Average"
     df_cell = df[["motif", "event_id", colname]].dropna(subset=[colname]).copy()
     df_cell["effect"] = pd.to_numeric(df_cell[colname], errors="coerce")
@@ -226,20 +227,20 @@ def plot_effect_size_box_one_cell(df, output_prefix, concordant_pairs, cell="HEK
     sm.set_array([])
     cbar = fig.colorbar(sm, ax=ax, orientation="vertical",
                         ticks=np.arange(cbar_tick_min, cbar_tick_max + 0.5, 0.5))
-    cbar.set_label("Effect Size", fontsize=25)
-    cbar.ax.tick_params(labelsize=16)
+    cbar.set_label("Effect Size", fontsize=14)
+    cbar.ax.tick_params(labelsize=10)
 
     # --- AXIS SETTINGS ---
     ax.axvline(0, color="black", linestyle="--", lw=1.5, zorder=0)
     ax.set_xlim(axis_min, axis_max)
     ax.set_xticks(np.arange(axis_tick_min, axis_tick_max + 0.5, 0.5))
-    ax.tick_params(axis="x", labelsize=20)  # Increased font size for x-axis ticks
+    ax.tick_params(axis="x", labelsize=11)  # match the paper: numbers sit under the axis label
     
     ax.set_yticks(range(len(cluster_order)))
-    ax.set_yticklabels(ytick_labels, fontsize=14)
-    ax.set_ylabel(f"Clusters (n = {len(cluster_order)})", fontsize=20)
-    ax.set_xlabel(f"{cell} Effect Size", fontsize=20)
-    ax.set_title(f"Motif Cluster Effect Size (Mean ± SEM) in {cell}", fontsize=22)
+    ax.set_yticklabels(ytick_labels, fontsize=7)
+    ax.set_ylabel(f"RBP Clusters (n = {len(cluster_order)})", fontsize=14)
+    ax.set_xlabel(f"{disp} Effect Size", fontsize=14)
+    ax.set_title(f"{disp} RBP Cluster Effect Sizes\nExon Family Mean $\\pm$ SEM", fontsize=15)
     ax.grid(axis="x", linestyle="--", alpha=0.6)
     ax.set_ylim(-2, len(cluster_order) + 2)
 
@@ -256,7 +257,7 @@ def plot_effect_size_box_one_cell(df, output_prefix, concordant_pairs, cell="HEK
 
 
 # === Main ===
-concordance_dir = "/ESL/ESL_MPRA/Figure_6/Effect_size/outputs/plots/concordance_updated_08_10_25"
+concordance_dir = "/ESL/ESL_MPRA/Figure_6/outputs/concordance_MAY_full"
 
 for region in ["exon", "intron1", "intron2"]:
     effects_file = f"/ESL/ESL_MPRA/Figure_6/outputs/effect_size_MAY_full/out_MAY_full_boots_0_{region}.csv"

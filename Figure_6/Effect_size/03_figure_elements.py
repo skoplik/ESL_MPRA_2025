@@ -194,6 +194,7 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
         ax_bar.set_xlim(true_vmin - 0.5, true_vmax + 0.5)
         ax_bar.set_ylim(-0.5, num_rows - 0.5)
         ax_bar.set_yticks([])
+        ax_bar.tick_params(axis='x', labelsize=_fs(11))  # tick numbers were at matplotlib default, oversized next to _fs-scaled text
         ax_bar.set_xlabel('Mean Effect Size ± SEM (All Cell Lines)', fontsize=_fs(13))
         # Hide all spines except the bottom (x-axis)
         for spine in ['top', 'right', 'left']:
