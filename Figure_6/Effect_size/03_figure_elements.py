@@ -112,7 +112,7 @@ FONT_SCALE     = 0.55
 def _fs(x):                   # scale a font size from the original 28in design
     return max(3.5, round(x * FONT_SCALE, 1))
 
-def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, original_to_display_name, full_effects_df, cluster_to_motifs, scale=None):
+def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, original_to_display_name, full_effects_df, cluster_to_motifs, scale=None, page_height=None):
     cell_line_cols = [col for col in full_effects_df.columns if col.startswith("Effect Size")]
     cell_line_cols = [c.replace("Effect Size HEK ", "Effect Size HEK293 ") for c in cell_line_cols]
     full_effects_df = full_effects_df.rename(columns=lambda x: x.replace("Effect Size HEK ", "Effect Size HEK293 "))
@@ -136,10 +136,20 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
     cmap = cm.get_cmap('coolwarm').copy()
 
     bar_spacing = 0.5
-    bar_height = 0.8
+    bar_height = 1.0   # one bar == one heatmap row
     row_heights = [len(event_effects_by_motif.get(m, [])) for m in motif_order]
-    fig = plt.figure(figsize=(PAGE_W, PAGE_H))
-    outer_gs = GridSpec(n, 1, height_ratios=row_heights, figure=fig)
+    # Data S2/S3 chunks its pages to fill PAGE_H, so it passes page_height and
+    # rows come out at their intended size. A standalone panel like 6D/6E has far
+    # fewer rows; on a fixed 11 in page each row is stretched tall and the
+    # square-celled heatmap ends up much shorter than the bar block beside it.
+    # With no page_height, size the figure to the content instead.
+    _fig_h = page_height if page_height is not None else \
+             max(3.0, sum(row_heights) * ROW_IN + PAGE_MARGIN)
+    fig = plt.figure(figsize=(PAGE_W, _fig_h))
+    _top = 1.0 - 0.75 / _fig_h          # room for title + column headers
+    _bot = 0.55 / _fig_h                 # room for the shared x label
+    outer_gs = GridSpec(n, 1, height_ratios=row_heights, figure=fig,
+                        top=_top, bottom=_bot, left=0.085, right=0.90)
 
     for i, motif in enumerate(motif_order):
         inner_gs = GridSpecFromSubplotSpec(1, 4, subplot_spec=outer_gs[i], width_ratios=[2.0, 6.0, 5.0, 2], wspace=0.3)
@@ -223,7 +233,7 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
             heat_arr[::-1],
             cmap=cmap,
             norm=norm,
-            aspect='equal',
+            aspect='auto',
             extent=[0, num_cols, -0.5, num_rows - 0.5],
             zorder=1
         )
@@ -243,6 +253,18 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
 
         ax_heat.set_ylim(-0.5, num_rows - 0.5)
         ax_heat.set_yticks([])
+
+        # Pin the heatmap to the bar block: same top and bottom, so row j of the
+        # heatmap lines up with bar j, and the two panels are the same height.
+        # Width is then derived so each cell stays square in inches --
+        # aspect='equal' would have done that by shrinking the axes instead,
+        # which is what made the two columns different heights.
+        _bb_bar = ax_bar.get_position()
+        _row_h = _bb_bar.height / max(num_rows, 1)          # figure fraction per row
+        _fw, _fh = fig.get_size_inches()
+        _w = num_cols * _row_h * (_fh / _fw)                 # same in inches -> square
+        _bb_heat = ax_heat.get_position()
+        ax_heat.set_position([_bb_heat.x0, _bb_bar.y0, _w, _bb_bar.height])
         if i == n - 1:
             xticks = np.arange(len(cell_line_cols)) + 0.5
             ax_heat.set_xticks(xticks)
@@ -258,26 +280,27 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
 
     # Taller bar with ticks every 0.5 - the default gave only two or three.
     import numpy as _np
-    cbar_ax = fig.add_axes([0.945, 0.40, 0.013, 0.30])
+    cbar_ax = fig.add_axes([0.925, 0.40, 0.012, 0.28])
     t0 = _np.ceil(true_vmin * 2) / 2
     t1 = _np.floor(true_vmax * 2) / 2
     cb = fig.colorbar(im, cax=cbar_ax, ticks=_np.arange(t0, t1 + 0.5, 0.5))
     cb.set_label('Δlogit Effect Size', fontsize=_fs(12))
     cb.ax.tick_params(labelsize=_fs(10))
 
-    fig.suptitle(title, fontsize=_fs(24), y=1)
+    fig.suptitle(title, fontsize=_fs(24), y=1.0 - 0.14 / _fig_h)
     # Header x-positions were tuned for the original 28 in sheet; at 8.5 in the
     # last two collided. Spread to match the 4 column centres at page width.
-    fig.text(0.09, 0.972, "Motif Logo", fontsize=_fs(14), ha='center')
-    fig.text(0.30, 0.972, "RBP Motifs in Cluster", fontsize=_fs(14), ha='center')
-    fig.text(0.63, 0.972, "Effect Size (Mean ± SEM per Exon)", fontsize=_fs(14), ha='center')
-    fig.text(0.875, 0.972, "Per-Cell Effects", fontsize=_fs(14), ha='center')
+    fig.text(0.09, _top + 0.14 / _fig_h, "Motif Logo", fontsize=_fs(14), ha='center')
+    fig.text(0.30, _top + 0.14 / _fig_h, "RBP Motifs in Cluster", fontsize=_fs(14), ha='center')
+    fig.text(0.63, _top + 0.14 / _fig_h, "Effect Size (Mean ± SEM per Exon)", fontsize=_fs(14), ha='center')
+    fig.text(0.875, _top + 0.14 / _fig_h, "Per-Cell Effects", fontsize=_fs(14), ha='center')
 
     plt.subplots_adjust(left=0.05, right=0.92, top=0.96, bottom=0.05, wspace=0.3, hspace=0.4)
     mpl.rcParams['pdf.fonttype'] = 42   # TrueType
     mpl.rcParams['ps.fonttype'] = 42
     mpl.rcParams['svg.fonttype'] = 'none' 
-    plt.savefig(output_file, dpi=150)
+    plt.savefig(output_file, dpi=150,
+                bbox_inches=None if page_height is not None else 'tight')
     plt.close()
 
     summary_rows = []
@@ -512,7 +535,7 @@ def plot_table_bar_paged(df, pwm_dict, output_file, title, event_effects_by_moti
         plot_table_bar(sub, pwm_dict, f,
                        "%s  (page %d of %d)" % (title, i, len(pages)),
                        ee, original_to_display_name, full_effects_df, cluster_to_motifs,
-                       scale=scale)
+                       scale=scale, page_height=PAGE_H)
         parts.append(f)
 
     mg = PdfMerger()
