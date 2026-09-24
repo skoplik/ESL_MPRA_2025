@@ -112,7 +112,7 @@ FONT_SCALE     = 0.55
 def _fs(x):                   # scale a font size from the original 28in design
     return max(3.5, round(x * FONT_SCALE, 1))
 
-def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, original_to_display_name, full_effects_df, cluster_to_motifs):
+def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, original_to_display_name, full_effects_df, cluster_to_motifs, scale=None):
     cell_line_cols = [col for col in full_effects_df.columns if col.startswith("Effect Size")]
     cell_line_cols = [c.replace("Effect Size HEK ", "Effect Size HEK293 ") for c in cell_line_cols]
     full_effects_df = full_effects_df.rename(columns=lambda x: x.replace("Effect Size HEK ", "Effect Size HEK293 "))
@@ -125,8 +125,13 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
     n = len(motif_order)
 
     all_effects = [mean for sublist in event_effects_by_motif.values() for (_, mean, _) in sublist]
-    true_vmin = min(all_effects)
-    true_vmax = max(all_effects)
+    # A page-local range would give every page its own colour mapping and its own
+    # x limits; `scale` carries the range computed once over all pages.
+    if scale is not None:
+        true_vmin, true_vmax = scale
+    else:
+        true_vmin = min(all_effects)
+        true_vmax = max(all_effects)
     norm = mcolors.TwoSlopeNorm(vmin=true_vmin, vcenter=0, vmax=true_vmax) if true_vmin != true_vmax else mcolors.Normalize(vmin=true_vmin - 0.5, vmax=true_vmax + 0.5)
     cmap = cm.get_cmap('coolwarm').copy()
 
@@ -194,8 +199,14 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
         ax_bar.set_xlim(true_vmin - 0.5, true_vmax + 0.5)
         ax_bar.set_ylim(-0.5, num_rows - 0.5)
         ax_bar.set_yticks([])
-        ax_bar.tick_params(axis='x', labelsize=_fs(11))  # tick numbers were at matplotlib default, oversized next to _fs-scaled text
-        ax_bar.set_xlabel('Mean Effect Size ± SEM (All Cell Lines)', fontsize=_fs(13))
+        # All blocks share one x scale, so label it once at the foot of the page
+        # instead of repeating identical ticks under every cluster.
+        if i == n - 1:
+            ax_bar.tick_params(axis='x', labelsize=_fs(11))
+            ax_bar.set_xlabel('Mean Effect Size ± SEM (All Cell Lines)', fontsize=_fs(13))
+        else:
+            ax_bar.set_xticklabels([])
+            ax_bar.tick_params(axis='x', length=2, labelsize=0)
         # Hide all spines except the bottom (x-axis)
         for spine in ['top', 'right', 'left']:
             ax_bar.spines[spine].set_visible(False)
@@ -243,11 +254,16 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
             ax_heat.set_xticks([])
 
         if i == 0:
-            ax_heat.set_title("Per-Cell\nEffect Size", fontsize=_fs(12))
+            pass  # column header already reads "Per-Cell Effects"; a title here collided with it
 
-    cbar_ax = fig.add_axes([0.94, 0.8, 0.01, 0.05])
-    cb = fig.colorbar(im, cax=cbar_ax)
+    # Taller bar with ticks every 0.5 - the default gave only two or three.
+    import numpy as _np
+    cbar_ax = fig.add_axes([0.945, 0.40, 0.013, 0.30])
+    t0 = _np.ceil(true_vmin * 2) / 2
+    t1 = _np.floor(true_vmax * 2) / 2
+    cb = fig.colorbar(im, cax=cbar_ax, ticks=_np.arange(t0, t1 + 0.5, 0.5))
     cb.set_label('Δlogit Effect Size', fontsize=_fs(12))
+    cb.ax.tick_params(labelsize=_fs(10))
 
     fig.suptitle(title, fontsize=_fs(24), y=1)
     # Header x-positions were tuned for the original 28 in sheet; at 8.5 in the
@@ -255,7 +271,7 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
     fig.text(0.09, 0.972, "Motif Logo", fontsize=_fs(14), ha='center')
     fig.text(0.30, 0.972, "RBP Motifs in Cluster", fontsize=_fs(14), ha='center')
     fig.text(0.63, 0.972, "Effect Size (Mean ± SEM per Exon)", fontsize=_fs(14), ha='center')
-    fig.text(0.90, 0.972, "Per-Cell\nEffects", fontsize=_fs(14), ha='center')
+    fig.text(0.875, 0.972, "Per-Cell Effects", fontsize=_fs(14), ha='center')
 
     plt.subplots_adjust(left=0.05, right=0.92, top=0.96, bottom=0.05, wspace=0.3, hspace=0.4)
     mpl.rcParams['pdf.fonttype'] = 42   # TrueType
@@ -482,6 +498,10 @@ def plot_table_bar_paged(df, pwm_dict, output_file, title, event_effects_by_moti
     if cur:
         pages.append(cur)
 
+    # One colour scale and one x range for the whole document.
+    _all = [m for v in event_effects_by_motif.values() for (_, m, _) in v]
+    scale = (min(_all), max(_all)) if _all else None
+
     tmp = tempfile.mkdtemp()
     parts = []
     for i, page_motifs in enumerate(pages, 1):
@@ -491,7 +511,8 @@ def plot_table_bar_paged(df, pwm_dict, output_file, title, event_effects_by_moti
         f = _os.path.join(tmp, "p%02d.pdf" % i)
         plot_table_bar(sub, pwm_dict, f,
                        "%s  (page %d of %d)" % (title, i, len(pages)),
-                       ee, original_to_display_name, full_effects_df, cluster_to_motifs)
+                       ee, original_to_display_name, full_effects_df, cluster_to_motifs,
+                       scale=scale)
         parts.append(f)
 
     mg = PdfMerger()
@@ -719,6 +740,38 @@ def main():
         full_effects_path = f'{base_dir}/out_MAY_full_boots_0_{region}.csv'
         full_effects_df = pd.read_csv(full_effects_path)
         full_effects_df['gene_exon'] = full_effects_df['event_id'].map(dict(zip(supertable_df['event_id'], supertable_df['gene_exon'])))
+
+        # --- Figure 6D / 6E: the same renderer restricted to the clusters called
+        # out in the manuscript panels, so their styling matches Data S2/S3.
+        # Identified from the V4 figure by logo consensus, effect sign and the
+        # RBP names in the legend:
+        #   6D exon    050 YBX1 | 054 SRSF1 | 023 FUS/ZNF346 | 061 HNRNPH1/H3
+        #   6E intron1 026 ZCRB1 | 143 PTBP1 | 075 PABPN1     | 118 RC3H1
+        PANEL_CLUSTERS = {
+            'exon':    ['cluster_050', 'cluster_054', 'cluster_023', 'cluster_061'],
+            'intron1': ['cluster_026', 'cluster_143', 'cluster_075', 'cluster_118'],
+        }
+        PANEL_NAME = {'exon': '6D', 'intron1': '6E'}
+        if region in PANEL_CLUSTERS:
+            keep = PANEL_CLUSTERS[region]
+            panel_df = merged_df[merged_df['original_motif'].isin(keep)].copy()
+            panel_ee = {m: v for m, v in motif_to_events.items() if m in keep}
+            missing = [c for c in keep if c not in set(panel_df['original_motif'])]
+            if missing:
+                print("  [WARN] %s: clusters absent from the May data: %s" % (PANEL_NAME[region], missing))
+            if len(panel_df):
+                plot_table_bar(
+                    panel_df,
+                    pwm_dict=pwm_dict,
+                    output_file=os.path.join(output_dir, 'fig%s_%s_panel.pdf' % (PANEL_NAME[region], region)),
+                    title='Effect Sizes (All Cell Lines) - %s' % ('Exon' if region == 'exon' else "5' Intron"),
+                    event_effects_by_motif=panel_ee,
+                    original_to_display_name=original_to_display_name,
+                    full_effects_df=full_effects_df,
+                    cluster_to_motifs=cluster_to_motifs,
+                )
+                print("  fig%s_%s_panel.pdf -> %d clusters, %d rows" % (
+                    PANEL_NAME[region], region, len(keep) - len(missing), len(panel_df)))
 
         plot_table_bar_paged(
             merged_df,

@@ -381,7 +381,16 @@ def full_bootstrap_effect_size_with_plots(df_with_fimo, df_without_fimo, mincov,
 
 
 
+# Only these (motif, event_id) pairs get a strip plot. With plot=True and no
+# whitelist this function fires for every motif x exon-family pair that passes
+# coverage - thousands of PDFs. Figure 6B needs exactly one. Set to None to
+# restore the old emit-everything behaviour.
+STRIP_WHITELIST = {("cluster_023", 'chr2:127051154-127051243:-')}
+
+
 def plot_effect_strips(event_id, motif, motif_data, non_motif_data, effect, motif_data_wts, non_motif_data_wts, mincov, output_dir):
+    if STRIP_WHITELIST is not None and (motif, event_id) not in STRIP_WHITELIST:
+        return
     cell_lines = ['HEK', 'HeLa', 'K562', 'HMC3', 'MCF7']
     columns_to_average = [f'{cl}_pooled_logit' for cl in cell_lines]
     colors = {'Motif Present': 'green', 'Motif Absent': 'red'}
@@ -864,7 +873,7 @@ def main():
     df_without_fimo=psi_supertable_merged_df,
     mincov=10,
     n_bootstraps=numboots,
-    plot=False,
+    plot=True,
     output_dir_plots=f"{output_dir}/plots/stripplots_exon")
 
 
