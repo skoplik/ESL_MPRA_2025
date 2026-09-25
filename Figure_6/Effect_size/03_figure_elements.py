@@ -107,8 +107,12 @@ def parse_transfac(filepath):
 # four columns still hold their text at 8.5 in.
 PAGE_W, PAGE_H = 8.5, 11.0
 PAGE_MARGIN    = 1.1          # inches reserved for title + header row + colourbar
-ROW_IN         = 0.135        # vertical inches per exon row
+ROW_IN         = 0.215        # vertical inches per exon row; also the
+                             # heatmap cell size, since cells are square
 FONT_SCALE     = 0.55
+HEAT_RIGHT     = 0.965       # right edge of the heatmap, figure fraction
+LABEL_GAP      = 0.175       # space kept between bars and heatmap so the
+                             # longest gene label is never clipped
 def _fs(x):                   # scale a font size from the original 28in design
     return max(3.5, round(x * FONT_SCALE, 1))
 
@@ -135,8 +139,10 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
     norm = mcolors.TwoSlopeNorm(vmin=true_vmin, vcenter=0, vmax=true_vmax) if true_vmin != true_vmax else mcolors.Normalize(vmin=true_vmin - 0.5, vmax=true_vmax + 0.5)
     cmap = cm.get_cmap('coolwarm').copy()
 
+    _pairs = []          # (ax_bar, ax_heat, rows, cols), positioned after layout
     bar_spacing = 0.5
-    bar_height = 1.0   # one bar == one heatmap row
+    bar_height = 0.68  # leaves a gap between bars; row alignment comes from
+                       # the axes positions below, not from this
     row_heights = [len(event_effects_by_motif.get(m, [])) for m in motif_order]
     # Data S2/S3 chunks its pages to fill PAGE_H, so it passes page_height and
     # rows come out at their intended size. A standalone panel like 6D/6E has far
@@ -147,7 +153,7 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
              max(3.0, sum(row_heights) * ROW_IN + PAGE_MARGIN)
     fig = plt.figure(figsize=(PAGE_W, _fig_h))
     _top = 1.0 - 0.75 / _fig_h          # room for title + column headers
-    _bot = 0.55 / _fig_h                 # room for the shared x label
+    _bot = 0.95 / _fig_h                 # x label + horizontal colourbar
     outer_gs = GridSpec(n, 1, height_ratios=row_heights, figure=fig,
                         top=_top, bottom=_bot, left=0.085, right=0.90)
 
@@ -259,12 +265,7 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
         # Width is then derived so each cell stays square in inches --
         # aspect='equal' would have done that by shrinking the axes instead,
         # which is what made the two columns different heights.
-        _bb_bar = ax_bar.get_position()
-        _row_h = _bb_bar.height / max(num_rows, 1)          # figure fraction per row
-        _fw, _fh = fig.get_size_inches()
-        _w = num_cols * _row_h * (_fh / _fw)                 # same in inches -> square
-        _bb_heat = ax_heat.get_position()
-        ax_heat.set_position([_bb_heat.x0, _bb_bar.y0, _w, _bb_bar.height])
+        _pairs.append((ax_bar, ax_heat, num_rows, num_cols))
         if i == n - 1:
             xticks = np.arange(len(cell_line_cols)) + 0.5
             ax_heat.set_xticks(xticks)
@@ -280,10 +281,11 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
 
     # Taller bar with ticks every 0.5 - the default gave only two or three.
     import numpy as _np
-    cbar_ax = fig.add_axes([0.925, 0.40, 0.012, 0.28])
     t0 = _np.ceil(true_vmin * 2) / 2
     t1 = _np.floor(true_vmax * 2) / 2
-    cb = fig.colorbar(im, cax=cbar_ax, ticks=_np.arange(t0, t1 + 0.5, 0.5))
+    cbar_ax = fig.add_axes([0.40, 0.12 / _fig_h, 0.24, 0.10 / _fig_h])
+    cb = fig.colorbar(im, cax=cbar_ax, orientation='horizontal',
+                      ticks=_np.arange(t0, t1 + 0.5, 0.5))
     cb.set_label('Δlogit Effect Size', fontsize=_fs(12))
     cb.ax.tick_params(labelsize=_fs(10))
 
@@ -296,6 +298,25 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
     fig.text(0.875, _top + 0.14 / _fig_h, "Per-Cell Effects", fontsize=_fs(14), ha='center')
 
     plt.subplots_adjust(left=0.05, right=0.92, top=0.96, bottom=0.05, wspace=0.3, hspace=0.4)
+
+    # Position the heatmaps only now. subplots_adjust recomputes every
+    # gridspec-managed axes from its subplotspec, so anything set inside the loop
+    # above is silently discarded -- which is why earlier attempts at this had no
+    # effect on the output at all.
+    #   - heatmap sits against a fixed right margin, same top/bottom as its bars,
+    #     so row j lines up with bar j and the two blocks are the same height
+    #   - its width is num_cols * row_height, so cells come out square in inches
+    #   - the bar axis is pulled back by LABEL_GAP to leave room for the longest
+    #     gene label ("NDUFAF5 exon 9") instead of it running under the heatmap
+    _fw, _fh = fig.get_size_inches()
+    for _axb, _axh, _rows, _cols in _pairs:
+        _bb = _axb.get_position()
+        _row_h = _bb.height / max(_rows, 1)
+        _w = _cols * _row_h * (_fh / _fw)
+        _x0 = HEAT_RIGHT - _w
+        _axh.set_position([_x0, _bb.y0, _w, _bb.height])
+        _axb.set_position([_bb.x0, _bb.y0,
+                           max(0.05, _x0 - LABEL_GAP - _bb.x0), _bb.height])
     mpl.rcParams['pdf.fonttype'] = 42   # TrueType
     mpl.rcParams['ps.fonttype'] = 42
     mpl.rcParams['svg.fonttype'] = 'none' 
