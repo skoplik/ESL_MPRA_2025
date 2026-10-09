@@ -185,22 +185,40 @@ if __name__ == "__main__":
     )
 
 
+    missing_keys = []
     try:
         df_merged["baseline_mmsplice_delta_logit"] = df_merged["Baseline_MMSplice_Predicted_Delta_Logit"]
     except KeyError as e:
+        missing_keys.append("Baseline_MMSplice_Predicted_Delta_Logit")
         print(f"missing key {e}")
     try:
         df_merged["retrained_mmsplice_delta_logit"] = df_merged["Retrained_MMSplice_Predicted_Delta_Logit"]
     except KeyError as e:
+        missing_keys.append("Retrained_MMSplice_Predicted_Delta_Logit")
         print(f"missing key {e}")
     try:
         df_merged["spliceai_delta_logit"] = df_merged["spliceai_dlogit"]
     except KeyError as e:
+        missing_keys.append("spliceai_dlogit")
         print(f"missing key {e}")
     try:
         df_merged["alphagenome_delta_logit"] = df_merged["alphagenome_16kb_dlogit"]
     except KeyError as e:
+        missing_keys.append("alphagenome_16kb_dlogit")
         print(f"missing key {e}")
+    try:
+        df_merged["alphagenome_16kb_delta_logit"] = df_merged["alphagenome_16kb_dlogit"]
+    except KeyError as e:
+        missing_keys.append("alphagenome_16kb_dlogit")
+        print(f"missing key {e}")
+    try:
+        df_merged["alphagenome_1Mb_delta_logit"] = df_merged["alphagenome_1Mb_dlogit"]
+    except KeyError as e:
+        missing_keys.append("alphagenome_1Mb_dlogit")
+        print(f"missing key {e}")
+
+    if missing_keys:
+        raise KeyError(repr(missing_keys))
 
     print_delta_logit_cols(df_merged)
     df_merged.to_csv(output_path, index=False)
