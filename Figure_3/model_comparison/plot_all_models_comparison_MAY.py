@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""
+help_="""
 Plot scatter + bar chart comparing all splicing model predictions
 against COMPASS experimental avg_delta_logit_pooled.
 
@@ -7,43 +7,117 @@ Models: SpliceAI, AlphaGenome, Pangolin, HAL,
         Baseline MMSplice, Retrained MMSplice
 
 All comparisons use the full aggregate (no test-set split).
-Outputs saved to: /ESL/ESL_MPRA/Figure_2/mmsplice_retrain_plots/
+Outputs saved to: /ESL/ESL_MPRA/Figure_3/plots_MAY_v2/
 """
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 from scipy.stats import pearsonr
+import getopt
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 mpl.rcParams['pdf.fonttype'] = 42
 mpl.rcParams['ps.fonttype']  = 42
 
-MEGA_FILE = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_MAY_v2.csv"
-PLOTDIR   = "/ESL/ESL_MPRA/Figure_3/plots_MAY_v2"
+
+
+opts, args = getopt.getopt(sys.argv[1:],"", [
+    "MEGA_FILE=",
+    "PLOTDIR=",
+    "FILTER=",
+    "MODEL_KEYS=",
+    "TRUE_COL=",
+    "DEBUG",
+    "HELP",
+])
+opts = dict(opts)
+
+if "--HELP" in opts:
+    print(help_)
+    sys.exit(0)
+
+debug = "--DEBUG" in opts
+if debug:
+    MEGA_FILE = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_MAY_v2.csv"
+    PLOTDIR   = "/ESL/ESL_MPRA/Figure_3/plots_MAY_v2"
+    MODEL_KEYS = "spliceai,alphagenome,pangolin,hal,baseline_mmsplice"
+    FILTER = ""
+    TRUE_COL = "avg_delta_logit_pooled"
+else:
+    MEGA_FILE = opts["--MEGA_FILE"]
+    PLOTDIR = opts["--PLOTDIR"]
+    FILTER = opts["--FILTER"]
+    MODEL_KEYS = opts["--MODEL_KEYS"]
+    TRUE_COL = opts["--TRUE_COL"]
+    print(opts, flush=True)
+
+MODEL_KEYS = MODEL_KEYS.split(",")
+
+
+def get_proper_model_name(model_key):
+    model_key = model_key.replace("alphagenome", "AlphaGenome")
+    model_key = model_key.replace("spliceai", "SpliceAI")
+    model_key = model_key.replace("mmsplice", "MMSplice")
+    model_key = model_key.replace("baseline", "Baseline")
+    model_key = model_key.replace("retrained", "Retrained")
+    model_key = model_key.replace("hal", "HAL")
+    model_key = model_key.replace("pangolin", "Pangolin")
+    model_key = model_key.replace("_", " ")
+    return model_key
+
+
+def check_id_col(df):
+    if "Reference" in df:
+        return "Reference"
+    if "var_id" in df:
+        return "var_id"
+    if "Variant ID" in df:
+        return "Variant ID"
+    if "Variant_ID" in df:
+        return "Variant_ID"
+    raise ValueError("FILTER does not have known variant ID column.")
+
+
+if FILTER:
+    var_filter_df = pd.read_csv(FILTER)
+    id_col = check_id_col(var_filter_df)
+    var_filter_df = var_filter_df.rename(columns={
+        id_col : "var_id"
+    })
+    id_col = "var_id"
+    var_filter = set(var_filter_df[id_col].to_list())
+else:
+    var_filter = None
+
+PROPER_MODELS = []
+proper_model_map = {}
+for m in MODEL_KEYS:
+    proper = get_proper_model_name(m)
+    PROPER_MODELS.append(proper)
+    proper_model_map[m] = proper
 
 OUTDIR = {
-    "SpliceAI":      os.path.join(PLOTDIR, "SpliceAI"),
-    "AlphaGenome":   os.path.join(PLOTDIR, "AlphaGenome"),
-    "Pangolin":      os.path.join(PLOTDIR, "Pangolin"),
-    "HAL":           os.path.join(PLOTDIR, "HAL"),
-    "MMSplice":      os.path.join(PLOTDIR, "MMSplice"),
     "merged_output": os.path.join(PLOTDIR, "merged_output"),
 }
+MODEL_OUTDIR = {}
+for model in PROPER_MODELS:
+    if "MMSplice" in model:
+        OUTDIR[model] = os.path.join(PLOTDIR, "MMSplice")
+        OUTDIR["MMSplice"] = os.path.join(PLOTDIR, "MMSplice")
+    else:
+        OUTDIR[model] = os.path.join(PLOTDIR, model)
+    MODEL_OUTDIR[model] = OUTDIR[model]
+
 for d in OUTDIR.values():
     os.makedirs(d, exist_ok=True)
-
-MODEL_OUTDIR = {
-    "SpliceAI":            OUTDIR["SpliceAI"],
-    "AlphaGenome":         OUTDIR["AlphaGenome"],
-    "Pangolin":            OUTDIR["Pangolin"],
-    "HAL":                 OUTDIR["HAL"],
-    "Baseline MMSplice":   OUTDIR["MMSplice"],
-    "Retrained MMSplice":  OUTDIR["MMSplice"],
-}
-
-TRUE_COL = "avg_delta_logit_pooled"
 
 # Colors: Plasma colormap shades; Retrained MMSplice stays blue
 # plasma positions: Baseline=0.05, SpliceAI=0.25, AlphaGenome=0.45, Pangolin=0.65, HAL=0.85
@@ -59,11 +133,8 @@ COLOR = {
 # 5 models for general benchmarking (no retrained MMSplice — that has its own script)
 # Each model uses its own full coverage (n varies)
 MODELS = [
-    ("baseline_mmsplice_delta_logit",  "Baseline MMSplice",  COLOR["Baseline MMSplice"]),
-    ("hal_delta_logit",                "HAL",                COLOR["HAL"]),
-    ("pangolin_delta_logit",           "Pangolin",           COLOR["Pangolin"]),
-    ("spliceai_delta_logit",           "SpliceAI",           COLOR["SpliceAI"]),
-    ("alphagenome_delta_logit",        "AlphaGenome",        COLOR["AlphaGenome"]),
+    (f"{model}_delta_logit", proper_model_map[model], COLOR[proper_model_map[model]])
+    for model in MODEL_KEYS
 ]
 
 # ── Helpers ────────────────────────────────────────────────────────────────────
@@ -121,6 +192,9 @@ def r_n(x, y):
 print("Loading mega pred file...")
 mega = pd.read_csv(MEGA_FILE, low_memory=False)
 print(f"  {len(mega):,} rows")
+if var_filter is not None:
+    mega = mega[mega[id_col].isin(var_filter)]
+    print(f"  {len(mega):,} rows (after filter)")
 
 # ── Individual scatter plots ───────────────────────────────────────────────────
 print("\n── Individual scatter plots ──")
@@ -156,6 +230,12 @@ BAR1_MODELS = [
     ("spliceai_delta_logit",           "SpliceAI",           COLOR["SpliceAI"]),
     ("alphagenome_delta_logit",        "AlphaGenome",        COLOR["AlphaGenome"]),
 ]
+BAR1_MODELS_ = []
+for bar in BAR1_MODELS:
+    if bar[0].replace("_delta_logit", "") in proper_model_map:
+        BAR1_MODELS_.append(bar)
+BAR1_MODELS = BAR1_MODELS_
+    
 
 bar1_labels = [m[1] for m in BAR1_MODELS]
 bar1_colors = [m[2] for m in BAR1_MODELS]

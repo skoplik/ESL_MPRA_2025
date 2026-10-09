@@ -1,4 +1,4 @@
-"""
+help_="""
 Same as build_mega_MAY_v2.py, but reports correlations with AND without the
 exact 0/1 edge filter in one run and writes the unfiltered variant table to
 mega_pred_file_MAY_v2_NOEDGEFILTER.csv. Outputs use new filenames; the existing
@@ -7,19 +7,56 @@ mega file and report are untouched.
 import os, sys, json
 import numpy as np
 import pandas as pd
+import getopt
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
-MAIN = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
-SPLICEAI_TSV = sys.argv[1] if len(sys.argv) > 1 else "/ESL/ESL_MPRA/Figure_3/SpliceAI/output_MAY_v2/spliceai_junction_scores_MAY.tsv"
-PANGOLIN_TSV = sys.argv[2] if len(sys.argv) > 2 else "/ESL/ESL_MPRA/Figure_3/Pangolin/output_MAY_v2/pangolin_junction_scores_MAY.tsv"
-ALPHAGENOME = "/ESL/ESL_MPRA/Figure_3/AlphaGenome/alphagenome_16k_all_variants_MAY_2026.tsv"
-MMSPLICE = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/mmsplice_predictions_MAY_v3.csv"
-HAL_FILE = "/ESL/ESL_MPRA/Figure_3/HAL/outputs/hal_delta_logit_MAY_2026.csv"
-OLD_MEGA = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_filtered_MAY.csv"
-MMSPLICE_VCF = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files_MAY_v3/synthetic_variants.vcf.gz"
-OUTDIR = "/ESL/ESL_MPRA/Figure_3/model_comparison"
+
+opts, args = getopt.getopt(sys.argv[1:],"", [
+    "SPLICEAI_TSV=",
+    "PANGOLIN_TSV=",
+    "ALPHAGENOME=",
+    "MMSPLICE=",
+    "HAL_FILE=",
+    "OLD_MEGA=",
+    "MMSPLICE_VCF=",
+    "OUTDIR=",
+    "DEBUG",
+    "HELP",
+])
+opts = dict(opts)
+if "--HELP" in opts:
+    print(help_)
+    sys.exit(0)
+
+
+debug = "--DEBUG" in opts
+if debug:
+    MAIN = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
+    SPLICEAI_TSV = "/ESL/ESL_MPRA/Figure_3/SpliceAI/output_MAY_v2/spliceai_junction_scores_MAY.tsv"
+    PANGOLIN_TSV = "/ESL/ESL_MPRA/Figure_3/Pangolin/output_MAY_v2/pangolin_junction_scores_MAY.tsv"
+    ALPHAGENOME = "/ESL/ESL_MPRA/Figure_3/AlphaGenome/alphagenome_16k_all_variants_MAY_2026.tsv"
+    MMSPLICE = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/mmsplice_predictions_MAY_v3.csv"
+    HAL_FILE = "/ESL/ESL_MPRA/Figure_3/HAL/outputs/hal_delta_logit_MAY_2026.csv"
+    OLD_MEGA = "/ESL/ESL_MPRA/Figure_3/model_comparison/mega_pred_file_filtered_MAY.csv"
+    MMSPLICE_VCF = "/ESL/ESL_MPRA/Figure_3/MMSplice/outputs/input_files_MAY_v3/synthetic_variants.vcf.gz"
+    OUTDIR = "/ESL/ESL_MPRA/Figure_3/model_comparison"
+else:
+    MAIN = opts["--MAIN"]
+    SPLICEAI_TSV = opts["--SPLICEAI_TSV"]
+    PANGOLIN_TSV = opts["--PANGOLIN_TSV"]
+    ALPHAGENOME = opts["--ALPHAGENOME"]
+    MMSPLICE = opts["--MMSPLICE"]
+    HAL_FILE = opts["--HAL_FILE"]
+    OLD_MEGA = opts["--OLD_MEGA"]
+    MMSPLICE_VCF = opts["--MMSPLICE_VCF"]
+    OUTDIR = opts["--OUTDIR"]
+
 OUT = os.path.join(OUTDIR, "mega_pred_file_MAY_v2_NOEDGEFILTER.csv")
 REPORT = os.path.join(OUTDIR, "mega_pred_file_MAY_v2_report.json")
-
 CELLS = ["HeLa", "K562", "MCF7", "HMC3", "HEK"]
 DELTA_COLS = ["%s_delta_logit_pooled" % c for c in CELLS]
 WTPSI_COLS = ["%s_wt_pooled_psi_raw" % c for c in CELLS]

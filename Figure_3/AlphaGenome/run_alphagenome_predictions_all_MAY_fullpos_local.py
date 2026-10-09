@@ -71,10 +71,10 @@ ACCEPTOR_IDX = 1
 # === LOAD MODEL ===
 print(f"{datetime.datetime.now()}: Loading AlphaGenome model...")
 _SRC = os.environ.get('MODEL_SOURCE', 'kaggle').lower()
-if _SRC == 'huggingface':
-    model = dna_model.create_from_huggingface('all_folds')
-else:
-    model = dna_model.create_from_kaggle('all_folds')
+# if _SRC == 'huggingface':
+    # model = dna_model.create_from_huggingface('all_folds')
+# else:
+    # model = dna_model.create_from_kaggle('all_folds')
 
 
 # === HELPERS ===
@@ -134,6 +134,7 @@ if os.environ.get('RUN_ALL', '0') != '1':
 vars_df = df[df['snp'] != 'none'].copy()
 print(f"  All variants (single + double): {len(vars_df):,}")
 
+breakpoint()
 # Get ref sequences for exon coordinate lookup
 ref_seqs = (
     df[df['snp'] == 'none'][['event_id', 'intron1', 'exon', 'intron2']]
