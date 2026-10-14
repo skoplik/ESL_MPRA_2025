@@ -1,3 +1,7 @@
+# Figure_6 B-E updated 2026-10-14: now point at figure6_elements_MAY_full/, produced by
+# Figure_6/Effect_size/03_figure_elements.py on the full May data. The previous
+# targets (effect_size_sep2026/, fig6_*_panels.pdf) came from August 2025 effect
+# sizes and fig6_*_panels.pdf had no generator in the repo at all.
 # MANIFEST - MAIN figures only. The Figure_S* entries were removed 20260918:
 # they duplicated MANIFEST_SI.txt with stale paths (April MMSplice plots and the
 # renamed outputs_nature dir). MANIFEST_SI.txt is authoritative for all SI figures.
@@ -36,10 +40,10 @@ Figure_5 F: Variant PSI COMPASS/edit-corrected/PE (no exported plot found) -> NO
 Figure_5 G: dPSI MPRA vs PE (no exported plot found) -> NOT FOUND
 Figure_5 H: dlogit MPRA vs PE (no exported plot found) -> NOT FOUND
 Figure_6 A: Data processing workflow (schematic) -> SCHEMATIC-no-plot
-Figure_6 B: Motif effect size example w/ equation (schematic) -> SCHEMATIC-no-plot
-Figure_6 C: Concordance filtering of motif effect sizes HEK293 (best-guess: exon mean+SEM per cluster) -> Figure_6/outputs/effect_size_sep2026/plots/effects_concordance_colored/exon_mean_sem_per_cluster_HEK_min3families.pdf
-Figure_6 D: Concordant RBP motifs exonic (ESE/ESS examples) -> Figure_6/outputs/effect_size_sep2026/plots/figure6_panels/fig6_exon_panels.pdf
-Figure_6 E: Concordant RBP motifs intronic (ISE/ISS examples) -> Figure_6/outputs/effect_size_sep2026/plots/figure6_panels/fig6_intron1_panels.pdf | Figure_6/outputs/effect_size_sep2026/plots/figure6_panels/fig6_intron2_panels.pdf
+Figure_6 B: Motif effect size example, cluster_023 x BIN1 exon 16 (schematic surrounds the plot) -> Figure_6/outputs/figure6_elements_MAY_full/fig6B_BIN1_cluster023_strip.pdf
+Figure_6 C: Concordance filtering of motif effect sizes HEK293 -> Figure_6/outputs/figure6_elements_MAY_full/exon_mean_sem_per_cluster_HEK_min3families.pdf
+Figure_6 D: Concordant RBP motifs exonic (ESE/ESS examples) -> Figure_6/outputs/figure6_elements_MAY_full/fig6D_exon_panel.pdf
+Figure_6 E: Concordant RBP motifs intronic (ISE/ISS examples) -> Figure_6/outputs/figure6_elements_MAY_full/fig6E_intron1_panel.pdf
 Figure_7 A: Heatmap cell-type-specific inclusion (top20/cell) -> Figure_7/outputs/mingap/top20_gap_high_per_cell_filtered.pdf
 Figure_7 B: Swarm MEF2C exon 8 -> Figure_7/outputs/regenerated_panels/MEF2C_exon_8_psi.pdf
 Figure_7 C: Recurrent variants MEF2C exon 8 -> Figure_7/outputs/regenerated_panels/recurrent_CG/MEF2C_exon_8_chr5_88730255_T.pdf | Figure_7/outputs/regenerated_panels/recurrent_CG/MEF2C_exon_8_chr5_88730327_A.pdf
