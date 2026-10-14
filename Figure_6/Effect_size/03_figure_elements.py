@@ -208,8 +208,15 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
             color = cmap(norm(mean_val))
             ax_bar.barh(j, mean_val, xerr=sem_val, height=bar_height, color=color, capsize=2, edgecolor='black', linewidth=0.5)
             label_offset = 0.1 + sem_val
-            ax_bar.text(max(mean_val, 0.0) + label_offset, j, exon,
-                        fontsize=_fs(12), va='center', ha='left')
+            # Label sits on the far side of the zero axis from its bar, so it
+            # never overlaps the bar itself: positive bars run right and are
+            # labelled to the left of zero, negative bars run left and are
+            # labelled to the right.
+            if mean_val >= 0:
+                _lx, _lha = -0.1, 'right'
+            else:
+                _lx, _lha = 0.1, 'left'
+            ax_bar.text(_lx, j, exon, fontsize=_fs(12), va='center', ha=_lha)
             heatmap_rows.append(values)
 
         ax_bar.set_xlim(true_vmin - 0.5, true_vmax + 0.5)
