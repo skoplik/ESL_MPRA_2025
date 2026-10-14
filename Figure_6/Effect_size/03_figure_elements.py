@@ -153,7 +153,7 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
              max(3.0, sum(row_heights) * ROW_IN + PAGE_MARGIN)
     fig = plt.figure(figsize=(PAGE_W, _fig_h))
     _top = 1.0 - 0.75 / _fig_h          # room for title + column headers
-    _bot = 0.95 / _fig_h                 # x label + horizontal colourbar
+    _bot = 1.15 / _fig_h                 # x label + horizontal colourbar + its ticks
     outer_gs = GridSpec(n, 1, height_ratios=row_heights, figure=fig,
                         top=_top, bottom=_bot, left=0.085, right=0.90)
 
@@ -208,8 +208,8 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
             color = cmap(norm(mean_val))
             ax_bar.barh(j, mean_val, xerr=sem_val, height=bar_height, color=color, capsize=2, edgecolor='black', linewidth=0.5)
             label_offset = 0.1 + sem_val
-            ax_bar.text(mean_val + (label_offset if mean_val >= 0 else -label_offset), j, exon,
-                        fontsize=_fs(12), va='center', ha='left' if mean_val >= 0 else 'right')
+            ax_bar.text(max(mean_val, 0.0) + label_offset, j, exon,
+                        fontsize=_fs(12), va='center', ha='left')
             heatmap_rows.append(values)
 
         ax_bar.set_xlim(true_vmin - 0.5, true_vmax + 0.5)
@@ -295,7 +295,7 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
     fig.text(0.09, _top + 0.14 / _fig_h, "Motif Logo", fontsize=_fs(14), ha='center')
     fig.text(0.30, _top + 0.14 / _fig_h, "RBP Motifs in Cluster", fontsize=_fs(14), ha='center')
     fig.text(0.63, _top + 0.14 / _fig_h, "Effect Size (Mean ± SEM per Exon)", fontsize=_fs(14), ha='center')
-    fig.text(0.875, _top + 0.14 / _fig_h, "Per-Cell Effects", fontsize=_fs(14), ha='center')
+    _hdr_percell = None   # placed after the heatmaps are positioned, below
 
     plt.subplots_adjust(left=0.05, right=0.92, top=0.96, bottom=0.05, wspace=0.3, hspace=0.4)
 
@@ -317,9 +317,18 @@ def plot_table_bar(df, pwm_dict, output_file, title, event_effects_by_motif, ori
         _axh.set_position([_x0, _bb.y0, _w, _bb.height])
         _axb.set_position([_bb.x0, _bb.y0,
                            max(0.05, _x0 - LABEL_GAP - _bb.x0), _bb.height])
+        _hdr_percell = _x0 + _w / 2.0       # centre of the heatmap column
     mpl.rcParams['pdf.fonttype'] = 42   # TrueType
     mpl.rcParams['ps.fonttype'] = 42
     mpl.rcParams['svg.fonttype'] = 'none' 
+    if _hdr_percell is not None:
+        fig.text(_hdr_percell, _top + 0.14 / _fig_h, "Per-Cell Effects",
+                 fontsize=_fs(14), ha='center')
+
+    # The colourbar was 0.10 in tall and sat 0.12 in off the bottom edge, so on a
+    # full page its tick labels ran off. Give it real height and clearance.
+    cbar_ax.set_position([0.38, 0.42 / _fig_h, 0.26, 0.16 / _fig_h])
+
     plt.savefig(output_file, dpi=150,
                 bbox_inches=None if page_height is not None else 'tight')
     plt.close()
