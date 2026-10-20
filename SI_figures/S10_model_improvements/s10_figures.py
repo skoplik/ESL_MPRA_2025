@@ -2056,6 +2056,7 @@ if __name__ == "__main__":
     plt.savefig(f"{heatmap_file}.tif", dpi=300)
 
 
+    # Dot plot version
     starts = [i for i in range(-11, 12)]
     sizes = [i/20 for i in range(1, 21)]
     fig, ax = plt.subplots(1)
@@ -2134,8 +2135,208 @@ if __name__ == "__main__":
     plt.savefig(f"{dotplot_file}.png", dpi=300)
 
 
+    
+    # Rectangle version
+    sizes = [i/20 for i in range(1, 21)]
+    matrix = {}
+    MIN_CUTOFF = all_samples[true_col].min()
+    MAX_CUTOFF = all_samples[true_col].max()
+
+    for i, s in enumerate(sizes):
+        center = 0
+        r = 0
+        last = False
+        while r + s < 11:
+            l = center - s
+            r = center + s
+            outcomes, total = mse_two_threshold_predictions(l, r, errf=mae)
+            rt = outcomes.loc["Retrained MMSplice", "Total correct"] / total
+            bl = outcomes.loc["Baseline MMSplice", "Total correct"] / total
+
+            if center != 0:
+                outcomes_n, total_n = mse_two_threshold_predictions(-r, -l, errf=mae)
+                rt_n = outcomes_n.loc["Retrained MMSplice", "Total correct"] / total_n
+                bl_n = outcomes_n.loc["Baseline MMSplice", "Total correct"] / total_n
+                matrix[(-center, -r, -l, s)] = rt_n - bl_n
+                
+            matrix[(center, l, r, s)] = rt - bl
+            center += s * 2
+            if last:
+                break
+
+    fig, ax = plt.subplots(1)
+    cmap = colormaps.get_cmap("RdBu")
+    # v = np.nanmax(np.abs(matrix))
+    norm = mcolors.TwoSlopeNorm(vmin=-1.1, vcenter=0, vmax=1.1)
+    for center, l, r, size in matrix:
+        box_x = l
+        box_width = np.abs(r - l)
+        box_y = (size / 0.05) * 2
+        box_height = 1.0
+        # circ = patches.Circle(
+        #     (box_x, box_y),
+        #     size,
+        #     facecolor=cmap(norm(matrix[(center, size)])),
+        #     linewidth=0.5 * size,
+        #     edgecolor="purple",
+        #     alpha=0.7)
+        face_color=cmap(norm(matrix[(center, l, r, size)]))
+        circ = patches.Rectangle(
+            (box_x, box_y - 0.5),
+            box_width,
+            box_height,
+            facecolor=face_color,
+            linewidth=0.5,
+            edgecolor=(0.7, 0.0, 0.8, size),
+        ) 
+        ax.add_patch(circ)
+
+    ax.set_xlabel("Measured ∆logit(PSI) window center")
+    ax.set_xlim(-12, 12)
+    ax.set_ylim(1, 45)
+    ax.set_ylabel("Measured ∆logit(PSI) window size\n(window = center ± 2×size)")
+    ticks = ax.get_yticks()
+
+    ticks = [(j + 1) * 2 for j in range(20)]
+    tick_labels = [str((i / 40 )) for i in ticks]
+    ax.set_yticks(ticks)
+    ax.set_yticklabels(tick_labels)
+    ax.set_title(
+        "MMSplice MAE difference after retraining,\n"
+        "across measured Δlogit(PSI) windows of varying size"
+    )
+
+    circ = patches.Circle(
+        (9, 43),
+        max(size, 0.2),
+        facecolor="tab:green",
+        linewidth=0.5,
+        edgecolor="purple",
+        alpha=0.7
+    )
+    # ax.add_patch(circ)
+    # ax.text(-7.6, 42.5, "Measured ∆logit(PSI) between 8.0 and 10.0 →", fontsize=8)
+
+    ax.text(-11, 42, "|", fontsize=8)
+    ax.text(-10, 42, "|", fontsize=8)
+    ax.text(-11, 43.3, "____", fontsize=7)
+    ax.text(-10.5, 43.3, "|", fontsize=6)
+    ax.text(-10.5, 44.5, "____", fontsize=7)
+    ax.text(-9, 43.5, "1.0 Δlogit(PSI)", fontsize=7)
+
+    sm = cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label("Model ∆MAE (retrained - baseline)\n(Negative favors retrained)")
+    recplot_file = os.path.join(
+        output_dir,
+        "heatmap_all_bins",
+        "delta_mae_per_dlogit_windows_recplot"
+    )
+    plt.savefig(f"{recplot_file}.pdf")
+    plt.savefig(f"{recplot_file}.tif", dpi=300)
+    plt.savefig(f"{recplot_file}.png", dpi=300)
 
 
+
+    # Rectangle version
+    sizes = [i/20 for i in range(1, 21)]
+    matrix = {}
+    MIN_CUTOFF = all_samples[true_col].min()
+    MAX_CUTOFF = all_samples[true_col].max()
+
+    for i, s in enumerate(sizes):
+        center = 0
+        r = 0
+        last = False
+        while r + s < 11:
+            l = center - s
+            r = center + s
+            outcomes, total = mse_two_threshold_predictions(l, r, errf=mse)
+            rt = outcomes.loc["Retrained MMSplice", "Total correct"] / total
+            bl = outcomes.loc["Baseline MMSplice", "Total correct"] / total
+
+            if center != 0:
+                outcomes_n, total_n = mse_two_threshold_predictions(-r, -l, errf=mse)
+                rt_n = outcomes_n.loc["Retrained MMSplice", "Total correct"] / total_n
+                bl_n = outcomes_n.loc["Baseline MMSplice", "Total correct"] / total_n
+                matrix[(-center, -r, -l, s)] = rt_n - bl_n
+                
+            matrix[(center, l, r, s)] = rt - bl
+            center += s * 2
+            if last:
+                break
+
+    fig, ax = plt.subplots(1)
+    cmap = colormaps.get_cmap("RdBu")
+    # v = np.nanmax(np.abs(matrix))
+    norm = mcolors.TwoSlopeNorm(vmin=-1.1, vcenter=0, vmax=1.1)
+    for center, l, r, size in matrix:
+        box_x = l
+        box_width = np.abs(r - l)
+        box_y = (size / 0.05) * 2
+        box_height = 1.0
+        face_color=cmap(norm(matrix[(center, l, r, size)]))
+        circ = patches.Rectangle(
+            (box_x, box_y - 0.5),
+            box_width,
+            box_height,
+            facecolor=face_color,
+            linewidth=0.5,
+            edgecolor=(0.7, 0.0, 0.8, size),
+        ) 
+        ax.add_patch(circ)
+
+    ax.set_xlabel("Measured ∆logit(PSI) window center")
+    ax.set_xlim(-12, 12)
+    ax.set_ylim(1, 45)
+    ax.set_ylabel("Measured ∆logit(PSI) window size\n(window = center ± 2×size)")
+    ticks = ax.get_yticks()
+
+    ticks = [(j + 1) * 2 for j in range(20)]
+    tick_labels = [str((i / 40 )) for i in ticks]
+    ax.set_yticks(ticks)
+    ax.set_yticklabels(tick_labels)
+    ax.set_title(
+        "MMSplice MAE difference after retraining,\n"
+        "across measured Δlogit(PSI) windows of varying size"
+    )
+
+    circ = patches.Circle(
+        (9, 43),
+        max(size, 0.2),
+        facecolor="tab:green",
+        linewidth=0.5,
+        edgecolor="purple",
+        alpha=0.7
+    )
+    # ax.add_patch(circ)
+    # ax.text(-7.6, 42.5, "Measured ∆logit(PSI) between 8.0 and 10.0 →", fontsize=8)
+
+    ax.text(-11, 42, "|", fontsize=8)
+    ax.text(-10, 42, "|", fontsize=8)
+    ax.text(-11, 43.3, "____", fontsize=7)
+    ax.text(-10.5, 43.3, "|", fontsize=6)
+    ax.text(-10.5, 44.5, "____", fontsize=7)
+    ax.text(-9, 43.5, "1.0 Δlogit(PSI)", fontsize=7)
+
+    sm = cm.ScalarMappable(cmap=cmap, norm=norm)
+    sm.set_array([])
+
+    cbar = plt.colorbar(sm, ax=ax)
+    cbar.set_label("Model ∆MAE (retrained - baseline)\n(Negative favors retrained)")
+    recplot_file = os.path.join(
+        output_dir,
+        "heatmap_all_bins",
+        "delta_mse_per_dlogit_windows_recplot"
+    )
+    plt.savefig(f"{recplot_file}.pdf")
+    plt.savefig(f"{recplot_file}.tif", dpi=300)
+    plt.savefig(f"{recplot_file}.png", dpi=300)
+
+
+    # Stacked barplots
     improved_test = pd.read_csv(
         os.path.join(
             mse_improvements_dir,
