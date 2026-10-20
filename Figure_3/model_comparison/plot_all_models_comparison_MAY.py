@@ -384,7 +384,7 @@ for filter_ in mega_filtered:
 
 ax.set_ylim(0, 1)
 ax.set_ylabel("Pearson r", fontsize=12)
-ax.set_title("Splicing Model Performance\n(avg Δlogit(PSI) across cell lines)", fontsize=11)
+ax.set_title("Splicing Model Performance\ncompared to measured ∆logit(PSI)", fontsize=11)
 ax.set_xticks(x)
 ax.set_xticklabels(bar_labels, fontsize=10, rotation=45, ha="right")
 ax.axhline(0, color="black", linewidth=0.5)

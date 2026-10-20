@@ -8,6 +8,7 @@ import pandas as pd
 from matplotlib import colormaps
 from matplotlib import cm
 import matplotlib.patches as patches
+from collections import defaultdict
 import logging
 logging.basicConfig(
     level=logging.INFO,
@@ -54,18 +55,6 @@ def nan_add_x(ax, matrix):
             fontweight="bold",
         )
     return
-
-
-def ref_turn_black(ax, matrix, ref_locs):
-    plot_data = matrix.copy()
-    for i, j in ref_locs:
-        plot_data[i, j] = np.nan
-    black_mask = np.zeros(matrix.shape)
-    black_mask[:] = np.nan
-    for i, j in ref_locs:
-        black_mask[i, j] = 1
-    black_cmap = plt.matplotlib.colors.ListedColormap(["black"])
-    ax.imshow(black_mask, cmap=black_cmap)
 
 
 def get_nts(df):
@@ -513,7 +502,17 @@ def darken_color(color, amount=0.7):
     return tuple(max(0, min(1, channel * amount)) for channel in c)
 
 
-def plot_data(fig, ax, matrix, cmap, wt_positions, splice_junctions=None, vmin=-6, vmax=6, clinvar_labels=None):
+def plot_nssm(
+        fig,
+        ax,
+        matrix,
+        cmap,
+        wt_positions,
+        splice_junctions=None,
+        vmin=-6,
+        vmax=6,
+        clinvar_labels=None
+    ):
     matrix = np.asarray(matrix, dtype='float64')
     masked = np.ma.masked_invalid(matrix)
     norm = plt.Normalize(vmin=vmin, vmax=vmax)
@@ -598,7 +597,13 @@ def plot_data(fig, ax, matrix, cmap, wt_positions, splice_junctions=None, vmin=-
 
 
     # Dummy image for colorbar
-    dummy = ax.imshow(np.array([[vmin, vmax]]), cmap=cmap, visible=False, aspect='auto', extent=[0, 0, 0, 0])
+    dummy = ax.imshow(
+        np.array([[vmin, vmax]]),
+        cmap=cmap,
+        visible=False,
+        aspect='auto',
+        extent=[0, 0, 0, 0]
+    )
     return dummy
 
 
@@ -623,7 +628,7 @@ def setup_axes(ax, title, splice_junctions=None):
     return
 
 
-def calc_r_with_nan(x, y, model=None, stat="pearson"):
+def calc_r_with_nan(x, y, stat="pearson", model=None):
     """
     since we are using the MMSplice data, 
     there shouldnt be any NaNs. However,
@@ -828,6 +833,225 @@ def read_df(path):
     return
 
 
+def stacked_barplot(
+        improved,
+        threshold,
+        scale="dlogit",
+        splits="Test",
+        save=True,
+        plot_dirs=None,
+        plot_name=None,
+        y_scale="linear",
+        err_func="MSE",
+        split_legend=False,
+    ):
+
+
+    if plot_dirs is None and save:
+        raise ValueError("plot_dirs not provided but save is True")
+
+    sorted_indx = {}
+    improved_ = {}
+    for split in improved:
+        df = improved[split]
+        keys = [
+            i for i in df
+            if "corrected" in i
+            and str(threshold) in i
+            and "%" not in i
+        ]
+        df = df[keys + ["gene_exon"]]
+        matrix = df.set_index("gene_exon").to_numpy()
+        sum_rows = np.sum(matrix, axis=1)
+        indexes = np.argsort(sum_rows)
+        sorted_indx[split] = indexes
+        improved_[split] = df
+
+    fig, ax = plt.subplots(figsize=(3.3, 2.3), constrained_layout=True)
+    bottom = [0] * len(splits)
+    N = 0
+    for i in improved_:
+        N = max(N, len(improved_[i]))
+    bars_df = defaultdict(list)
+
+    for i in range(N):
+        for split in splits:
+            indexes = sorted_indx[split]
+            back_index = len(indexes) - 1 - i
+            if back_index < 0:
+                bars_df[split + "_n"].append(0)
+                bars_df[split + "_exon"].append("")
+                continue
+            indx = indexes[len(indexes) - 1 - i]
+            row = improved_[split].iloc[indx]
+            exon = row["gene_exon"]
+            value = row[f"corrected_threshold_{threshold}"]
+            bars_df[split + "_n"].append(value)
+            if False:
+                bars_df[split + "_exon"].append("other")
+            else:
+                bars_df[split + "_exon"].append(exon)
+
+    color_key = [
+        "tab:blue",
+        "tab:orange",
+        "tab:red",
+        "tab:green",
+        "tab:brown",
+        "tab:purple",
+        "tab:pink",
+        "tab:cyan",
+        "tab:olive",
+        "blue",
+        "tab:gray",
+    ]
+    try:
+        bars_df = pd.DataFrame(bars_df)
+    except ValueError:
+        return bars_df
+
+
+    textures_ref = ['', '\\\\\\', '***', '||', '']
+    textures = {}
+    for i in range(len(splits)):
+        textures[splits[i]] = textures_ref[min(i, len(textures_ref) - 1)]
+
+    split_legend_handle = defaultdict(list)
+    split_legend_label = defaultdict(list)
+    legend_handles = []
+    legend_labels = []
+    gray_values = []
+    for i, row in bars_df.iterrows():
+        if 10 < i < len(bars_df) - 1:
+            gray_values = bars_df[[s + "_n" for s in splits]].iloc[i]
+            values += gray_values
+            continue
+        elif i < 10: 
+            values = bars_df[[s + "_n" for s in splits]].iloc[i]
+            exons = bars_df[[s + "_exon" for s in splits]].iloc[i]
+        elif i == 10:
+            values = bars_df[[s + "_n" for s in splits]].iloc[i]
+            continue
+        elif i == len(bars_df) - 1:
+            exons = {s + "_exon" : f"Other ({s})" for s in splits} 
+        
+        colors = ["white"] * len(splits)
+        colors[0] = color_key[min(i, len(color_key) - 1)]
+        lw = [1] * len(splits)
+        lw[0] = 0
+
+        bars = ax.bar(
+            splits,
+            values,
+            bottom=bottom,
+            label="",
+            color=colors,
+            linewidth=lw,
+        )
+        for j, s in enumerate(splits):
+            # rgba_color = bars[j].get_facecolor()
+            # rgba_darker = [i * 0.6 for i in rgba_color]
+            # bars[j].set_edgecolor(mcolors.to_hex(rgba_darker))
+            if j > 0:
+                bars[j].set_edgecolor(color_key[min(i, len(color_key) - 1)])
+            else:
+                bars[j].set_edgecolor("black")
+            bars[j].set_hatch(textures[s])
+            
+            split_legend_handle[s].append(bars[j])
+            split_legend_label[s].append(exons[s + "_exon"])
+            legend_handles.append(bars[j])
+            legend_labels.append(exons[s + "_exon"])
+        bottom = [b + v for b, v in zip(bottom, values)]
+
+    # for j, s in enumerate(splits):
+    #     split_legend_handle[s].append(bars[j])
+    #     split_legend_label[s].append(f"Other ({s})")
+
+    scale_title = scale
+    scale_title = scale.replace("d", "Δ")
+    scale_title = scale_title.replace("logit", "logit(PSI)")
+    scale_title = scale_title.replace("psi", "PSI")
+
+    ax.set_xlabel("Split", fontsize=6)
+    ax.set_ylabel(f"Number of variants with\nlower {err_func} in retrained MMSplice", fontsize=6)
+    ax.tick_params(axis='both', labelsize=7)
+    # if y_scale == "log":
+    #     def power_of_ten(x, pos):
+    #         return f"$10^{{{int(x)}}}$"
+    #     ax.yaxis.set_major_formatter(ticker.FuncFormatter(power_of_ten))
+    fig.suptitle(
+        f"MMSplice retrained variants with lower {err_func}\nthan "
+        f"baseline MMSplice per exon family,\n"
+        f"measured |{scale_title}| > {threshold}", fontsize=8,
+        # y=0.98,
+        # x=0.72/2,
+    )
+    if y_scale == "log":
+        plt.yscale("log")
+
+    if not split_legend:
+        ax.legend(
+            legend_handles,
+            legend_labels,
+            title=f"Exon Family",
+            loc="best",
+            bbox_to_anchor=(1.02, 1.0),
+            fontsize=2,
+            title_fontsize=4,
+        )
+    else:
+        y = 1.0
+        legends = []
+        n = 0
+        for s in split_legend_handle:
+            if n == len(split_legend_handle) - 1:
+                final = s
+                break
+            legend = ax.legend(
+                split_legend_handle[s],
+                split_legend_label[s],
+                title=f"{s.title()} exon family",
+                bbox_to_anchor=(1.02, y),
+                fontsize=3,
+                title_fontsize=4,
+            )
+            y -= 0.55
+            legends.append(legend)
+            ax.add_artist(legends[-1])
+            n += 1
+
+        ax.legend(
+            split_legend_handle[final],
+            split_legend_label[final],
+            title=f"{final.title()} exon family",
+            bbox_to_anchor=(1.02, y),
+            fontsize=3,
+            title_fontsize=4,
+        )
+        
+    if plot_name is None:
+        plot_name = f"top_exons_mmsplice_{threshold}_{scale}"
+    # plt.tight_layout(rect=[0, 0, 0.72, 1])
+    # plt.tight_layout()
+    if not save:
+        return split_legend_handle
+    for plot_dir in plot_dirs:
+        plot_path = os.path.join(
+            plot_dir,
+            plot_name
+        )
+        plt.savefig(plot_path + ".pdf", bbox_inches="tight", dpi=300)
+        print("Saved:", plot_path + ".pdf")
+        plt.savefig(plot_path + ".tif", bbox_inches="tight", dpi=300)
+        print("Saved:", plot_path + ".tif")
+        plt.savefig(plot_path + ".png", bbox_inches="tight", dpi=300)
+        print("Saved:", plot_path + ".png")
+    plt.show()
+    plt.close()
+    return
+
+
 help_="""
 Make NSSMs, binned dlogit analyses
 and tables.
@@ -835,7 +1059,8 @@ and tables.
 inputs = [
     "output_dir=",
     "all_predictions_path=",
-    "clinvar_path=",
+    "mse_improvements_dir=",
+    "clinvar_annotations=",
     "nssm_exons=",
     "min_family_size=",
     "nssm_vmin=",
@@ -864,6 +1089,18 @@ if __name__ == "__main__":
             "/storage/yu/Projects/P000--ESL_continuation/"
             "Data/supertable_ClinVar_matched_in_supertable.tsv"
         )
+        mse_improvements_dir = os.path.join(
+            "/storage",
+            "yu",
+            "Projects",
+            "P000--ESL_continuation",
+            "GitHub",
+            "P000--Exon_Skipping_Library",
+            "models",
+            "mmsplice_revised",
+            "mmsplice139",
+            "improved_mse_mae_exons",
+        )
         exons = "SCN5A exon 24,SHOX2 exon 2"
         min_family_size = 20
         vmin = -6
@@ -872,10 +1109,12 @@ if __name__ == "__main__":
         output_dir = opts["--output_dir"]
         all_samples_path = opts["--all_predictions_path"]
         clinvar_annotations_path = opts["--clinvar_annotations"]
+        mse_improvements_dir = opts["--mse_improvements_dir"]
         exons = opts.get("--nssm_exons", "ALL")
         min_family_size = read_integer(opts.get("--min_family_size", "20"), 20)
-        vmin = read_integer(opts.get("nssm_vmin", "-6"), -6)
-        vmax = read_integer(opts.get("nssm_vmax", "6"), 6)
+        vmin = read_integer(opts.get("--nssm_vmin", "-6"), -6)
+        vmax = read_integer(opts.get("--nssm_vmax", "6"), 6)
+        print(opts, flush=True)
         
     all_samples = read_df(all_samples_path)
     clinvar_annotations = read_df(clinvar_annotations_path)
@@ -888,6 +1127,7 @@ if __name__ == "__main__":
         "density_mse_mae_binned",
         "heatmap_all_bins",
         "metrics_positional_info",
+        "stacked_barplots",
     ]
 
     os.makedirs(output_dir, exist_ok=True)
@@ -898,11 +1138,14 @@ if __name__ == "__main__":
     shox2 = single_vars[single_vars["gene_exon"] == "SHOX2 exon 2"]
    
     if exons and exons != "ALL":
+        exons = exons.replace("_", " ")
         exons = exons.split(",") 
     else:
         exons = list(set(single_vars["gene_exon"].tolist()))
     
 
+    if debug:
+        breakpoint()
     # make NSSM plot for all exon queries
     for i, e in enumerate(exons):
         nts_true = np.ones((4, 161)) * np.nan
@@ -941,13 +1184,13 @@ if __name__ == "__main__":
             np.abs(df['Baseline_MMSplice_Predicted_Delta_Logit']
             - df['True_Delta_Logit'])
         )
-        mse_baseline = str(round(mse_baseline, 4))
-        mae_baseline = str(round(mae_baseline, 4))
+        mse_baseline = str(round(mse_baseline, 3))
+        mae_baseline = str(round(mae_baseline, 3))
         rBL = calc_r_with_nan(
             df['Baseline_MMSplice_Predicted_Delta_Logit'],
             df['True_Delta_Logit']
         )
-        rBL = str(round(rBL[0], 4))
+        rBL = str(round(rBL[0], 3))
         mse_retrained = np.mean(
             (
                 df['Retrained_MMSplice_Predicted_Delta_Logit']
@@ -961,9 +1204,9 @@ if __name__ == "__main__":
             df['Retrained_MMSplice_Predicted_Delta_Logit'],
             df['True_Delta_Logit']
         )
-        rRT = str(round(rRT[0], 4))
-        mse_retrained = str(round(mse_retrained, 4))
-        mae_retrained = str(round(mae_retrained, 4))
+        rRT = str(round(rRT[0], 3))
+        mse_retrained = str(round(mse_retrained, 3))
+        mae_retrained = str(round(mae_retrained, 3))
 
         clinvar_df = clinvar_annotations[clinvar_annotations["gene"].apply(lambda x : x in e)].copy()
         clinvar_labels = get_all_annotations(clinvar_df)
@@ -973,7 +1216,7 @@ if __name__ == "__main__":
         cmap = plt.colormaps.get_cmap('RdBu').copy()
         cmap.set_bad(color='white')
 
-        true = plot_data(
+        true = plot_nssm(
             fig,
             ax[0],
             nts_true,
@@ -984,7 +1227,7 @@ if __name__ == "__main__":
             vmax=vmax,
             clinvar_labels=clinvar_labels
         )
-        baseline = plot_data(
+        baseline = plot_nssm(
             fig,
             ax[1],
             nts_baseline,
@@ -995,7 +1238,7 @@ if __name__ == "__main__":
             vmax=vmax,
             clinvar_labels=clinvar_labels
         )
-        retrained = plot_data(
+        retrained = plot_nssm(
             fig,
             ax[2],
             nts_retrained,
@@ -1007,8 +1250,16 @@ if __name__ == "__main__":
             clinvar_labels=clinvar_labels
         )
         setup_axes(ax[0], f"{e} COMPASS Measurements", splice_junctions)
-        setup_axes(ax[1], f"{e} MMSplice Baseline MAE = {mae_baseline} MSE = {mse_baseline}, r = {rBL}", splice_junctions)
-        setup_axes(ax[2], f"{e} MMSplice Retrained MAE = {mae_retrained} MSE = {mse_retrained}, r = {rRT}", splice_junctions)
+        setup_axes(ax[1],
+            f"{e} MMSplice Baseline MAE = {mae_baseline}, "
+            f"MSE = {mse_baseline}, r = {rBL}",
+            splice_junctions
+        )
+        setup_axes(ax[2],
+            f"{e} MMSplice Retrained MAE = {mae_retrained}, "
+            f"MSE = {mse_retrained}, r = {rRT}",
+            splice_junctions
+        )
         fig.subplots_adjust(right=0.85)
         add_colorbar(fig, true, [0.87, 0.25, 0.01, 0.5], label="Δlogit(PSI)")
         ssm_plots_dir = os.path.join(
@@ -1872,8 +2123,6 @@ if __name__ == "__main__":
 
     cbar = plt.colorbar(sm, ax=ax)
     cbar.set_label("Model ∆MAE (retrained - baseline)\n(Negative favors retrained)")
-    plt.savefig(fig)
-
 
     dotplot_file = os.path.join(
         output_dir,
@@ -1883,6 +2132,66 @@ if __name__ == "__main__":
     plt.savefig(f"{dotplot_file}.pdf")
     plt.savefig(f"{dotplot_file}.tif", dpi=300)
     plt.savefig(f"{dotplot_file}.png", dpi=300)
+
+
+
+
+    improved_test = pd.read_csv(
+        os.path.join(
+            mse_improvements_dir,
+            "exon_specific_mse_improvements_test.tsv",
+        ),
+        sep="\t",
+    )
+
+    improved_val = pd.read_csv(
+        os.path.join(
+            mse_improvements_dir,
+            "exon_specific_mse_improvements_val.tsv",
+        ),
+        sep="\t",
+    )
+
+    improved_train = pd.read_csv(
+        os.path.join(
+            mse_improvements_dir,
+            "exon_specific_mse_improvements_train.tsv",
+        ),
+        sep="\t",
+    )
+
+
+    improved = {
+        "train": improved_train,
+        "val": improved_val,
+        "test": improved_test,
+    }
+
+    barplot_dir = os.path.join(output_dir, "stacked_barplots")
+    result = stacked_barplot(
+        improved,
+        "0.2",
+        scale="dlogit",
+        splits=["val", "test"],
+        save=True,
+        plot_name="mmsplice_mse_improved_exons_bar_02_val_test",
+        plot_dirs=[barplot_dir],
+        y_scale="linear",
+        err_func="MSE",
+        split_legend=True,
+    )
+
+    result = stacked_barplot(
+        improved,
+        "1.0",
+        scale="dlogit",
+        splits=["val", "test"],
+        save=True,
+        plot_name="mmsplice_mse_improved_exons_bar_1_val_test",
+        plot_dirs=[barplot_dir],
+        y_scale="linear",
+        err_func="MSE",
+        split_legend=True,
+    )
+
     logging.info("done")
-
-
