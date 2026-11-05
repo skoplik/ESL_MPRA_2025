@@ -222,7 +222,16 @@ def plot_family(sub, eid, gene_exon, ydict, ylabel, suffix):
     draw_panel(ax, plot_df, sub, suffix, gene_exon, eid, ylabel)
     plt.tight_layout()
     safe_name = gene_exon.replace(' ', '_').replace('/', '_')
-    out_pdf = os.path.join(output_dir, f"{safe_name}_{suffix}.pdf")
+    # A gene_exon label can span more than one locus (e.g. tandem acceptors 3 nt
+    # apart, or the CACNA1C exon 31a/31b pair ~15 kb apart). This loop runs once
+    # per event_id, so naming the file from gene_exon alone makes the second
+    # locus silently overwrite the first. Disambiguate only when needed, so
+    # single-locus families keep their existing filenames.
+    if df[df["gene_exon"] == gene_exon]["event_id"].nunique() > 1:
+        safe_eid = str(eid).replace(':', '_').replace('-', '_').replace('+', 'p')
+        out_pdf = os.path.join(output_dir, f"{safe_name}__{safe_eid}_{suffix}.pdf")
+    else:
+        out_pdf = os.path.join(output_dir, f"{safe_name}_{suffix}.pdf")
     plt.savefig(out_pdf, dpi=300)
     plt.close()
     print(f"[PLOT] {out_pdf}")
