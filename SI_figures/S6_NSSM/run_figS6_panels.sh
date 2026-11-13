@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Figure S6: regenerate the 12 NSSM panels from the May 2026 data.
+# Figure S6: measured NSSM maps of disease-relevant exons, May 2026 data.
+# (The SpliceAI comparison is Figure S7, in SI_figures/SpliceAI_NSSM.)
 # Panels  -> Figure_4/outputs/nssm_S6_MAY/{ALL,HEK,HeLa,K562,HMC3,MCF7}/
 # Needs pandas, matplotlib.
 set -euo pipefail
