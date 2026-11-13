@@ -30,10 +30,22 @@ df_wt  = df[df["snp"] == "none"].copy()
 df_wt["WILDTYPE_PSI"] = (df_wt[wt_psi_columns].mean(axis=1) * 100).clip(lower=0.01, upper=99.99)
 df_var["dPSI"] = df_var[dpsi_columns].mean(axis=1)
 
+# Pair each variant with the WT of its own junction, not just its event_id.
+# In the *_with_SI files an alternative-junction row carries the same event_id
+# as the MANE row, so up to three WTs share one event_id and only the
+# intron1/exon split tells them apart.
+JUNCTION = ["event_id", "_intron1_len", "_exon_len"]
+for d in (df_var, df_wt):
+    d["_intron1_len"] = d["intron1"].str.len()
+    d["_exon_len"] = d["exon"].str.len()
+if df_wt.duplicated(JUNCTION).any():
+    raise SystemExit("ABORT: more than one WT row for the same junction:\n%s"
+                     % df_wt[df_wt.duplicated(JUNCTION, keep=False)][["Reference"] + JUNCTION])
+
 df_merged = pd.merge(
     df_var,
-    df_wt[["event_id", "exon", "intron2", "WILDTYPE_PSI"]],
-    on="event_id",
+    df_wt[JUNCTION + ["exon", "intron2", "WILDTYPE_PSI"]],
+    on=JUNCTION,
     how="inner"
 )
 
@@ -51,6 +63,9 @@ df_filtered["NT_DIFFS"]  = [count_differences(w, v) for w, v in zip(df_filtered[
 df_filtered["SNP_COUNT"] = df_filtered["snp"].str.split(";").str.len()
 df_valid = df_filtered[df_filtered["NT_DIFFS"] == df_filtered["SNP_COUNT"]].copy()
 df_valid["VARIANT_NAME"] = "Seq_" + df_valid["Reference"].astype(str)
+if df_valid["VARIANT_NAME"].duplicated().any():
+    raise SystemExit("ABORT: %d variants appear more than once in the HAL input"
+                     % df_valid["VARIANT_NAME"].duplicated().sum())
 
 hal_df = pd.DataFrame({
     "VARIANT_NAME": df_valid["VARIANT_NAME"],
