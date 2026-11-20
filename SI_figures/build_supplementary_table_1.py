@@ -25,6 +25,17 @@ OUT_DIR = "/ESL/ESL_MPRA/SI_figures/supp_tables"
 CELLS = ["HEK", "HeLa", "K562", "MCF7", "HMC3"]
 MIN_VARIANTS = 300
 
+# gene_exon labels that are wrong or ambiguous in the source data, fixed by exon
+# coordinates (event_id). Numbering follows the MANE Select transcript
+# (GENCODE v38). CACNA1C: the source labels two different loci "exon 31".
+#   chr12:2648475-2648507 (33 nt) is MANE exon 31.
+#   chr12:2633629-2633712 (84 nt) is not in MANE; it is the mutually exclusive
+#   partner of MANE exon 30 (chr12:2634297-2634380), so "exon 30 (alt.)".
+LABEL_FIXES = {
+    "chr12:2633629-2633712:+": "CACNA1C exon 30 (alt.)",
+    "chr12:2648475-2648507:+": "CACNA1C exon 31",
+}
+
 
 def main():
     df = pd.read_csv(MAIN, low_memory=False)
@@ -60,7 +71,7 @@ def main():
         dl = v["avg_dlogit"].dropna()
         first = v.iloc[0]
         rows.append({
-            "gene_exon": first["gene_exon"],
+            "gene_exon": LABEL_FIXES.get(first["event_id"], first["gene_exon"]),
             "event_id_161_hg38": key,
             "event_id_exon_hg38": first["event_id"],
             "exon_start_hg38": first["exon_start_hg38"],
@@ -72,6 +83,9 @@ def main():
         })
 
     out = pd.DataFrame(rows).sort_values("gene_exon").reset_index(drop=True)
+    dup = out[out["gene_exon"].duplicated(keep=False)]
+    if len(dup):   # one label on two loci: add the locus to LABEL_FIXES
+        raise SystemExit("duplicate gene_exon labels:\n" + dup.to_string(index=False))
     os.makedirs(OUT_DIR, exist_ok=True)
     path = os.path.join(OUT_DIR, "Supplementary_Table_1.csv")
     out.to_csv(path, index=False)
