@@ -61,7 +61,11 @@ vcount.columns=["event_id","variant_count"]
 sfari_events=sfari_events.merge(vcount, on="event_id", how="left")
 sfari_events["variant_count"]=sfari_events["variant_count"].fillna(0).astype(int)
 sfari_events=sfari_events[sfari_events["variant_count"]>30].copy()
+import sys; sys.path.insert(0, "/ESL/ESL_MPRA/SI_figures")
+from exon_label_fixes import label as fix_label   # MANE labels (CACNA1C exon 30 (alt.) / 31)
+sfari_events["gene_exon"]=[fix_label(e,g) for e,g in zip(sfari_events["event_id"],sfari_events["gene_exon"])]
 sfari_events=sfari_events.sort_values("gene_exon").reset_index(drop=True)
+assert not sfari_events["gene_exon"].duplicated().any(), sfari_events[sfari_events["gene_exon"].duplicated(keep=False)]
 sfari_events["label"]=sfari_events["gene_exon"].astype(str)+", n="+sfari_events["variant_count"].astype(str)
 n_exons=len(sfari_events)
 print("Exons with >30 variants (x categories):", n_exons)
