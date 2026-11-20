@@ -20,7 +20,7 @@ Figure_S3 F: Pearson r / MSE by dlogit variant effect (strong SDVs |dlogit| > 2)
 
 Figure_S4 A: Disease-exon RT-PCR validation -> GEL
 Figure_S4 B: Gel image with PSIs -> GEL
-Figure_S4 C: MFASS vs COMPASS -> SI_figures/MFASS_overlap/outputs/reprocessed_figs/mfass_vs_compass_FIXED.pdf
+Figure_S4 C: MFASS vs COMPASS -> SI_figures/MFASS_overlap/outputs/S4C_MAY/mfass_vs_compass_MAY.pdf
 Figure_S4 D: 13-plasmid mini-library -> GEL
 Figure_S4 E: ExAC dPSI vs allele frequency -> SI_figures/Exac_AF/outputs/06_10_25_exac_af_dpsi.pdf
 Figure_S4 F: GTEx pan-tissue PSI  [RECHECKED Sep17] -> /ESL/Analysis/Native/output_GTEx_v11_WT_comparison_mincov20_MAY/Fig_WT_vs_GTEx_v11_panTissue_PSI.pdf
