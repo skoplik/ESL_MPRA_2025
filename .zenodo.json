@@ -1,0 +1,62 @@
+{
+  "upload_type": "software",
+  "title": "ESL_MPRA_2025: analysis and modeling code for COMPASS, a massively parallel assay of human splice variants",
+  "description": "Analysis and modeling code for COMPASS, a massively parallel reporter assay of 89,000 human splice variant sequences across five human cell lines. Includes the DNA-seq barcode mapping and RNA-seq PSI quantification pipeline, logit and delta-logit transformations, splicing model predictions and retraining (SpliceAI, Pangolin, AlphaGenome, MMSplice, TSplice, MTSplice, HAL), RNA-binding protein motif effect size analysis, cell type specificity analysis, and the code that generates the manuscript figures.",
+  "license": "mit",
+  "access_right": "open",
+  "creators": [
+    {
+      "name": "Koplik, Samantha E.",
+      "affiliation": "Department of Bioengineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Yu, Angela M.",
+      "affiliation": "Department of Electrical & Computer Engineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Shelby, Madelyn R.",
+      "affiliation": "Department of Bioengineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Fonseca, Gabriel C.",
+      "affiliation": "Therapeutic Innovation Center, Baylor College of Medicine, Houston, TX, USA"
+    },
+    {
+      "name": "Roco, Charles M.",
+      "affiliation": "Department of Bioengineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Zhang, Yue",
+      "affiliation": "Paul G. Allen School of Computer Science & Engineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Bogard, Nicholas",
+      "affiliation": "Department of Electrical & Computer Engineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Sabo, Alex K.",
+      "affiliation": "Department of Electrical & Computer Engineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Rosenberg, Alexander B.",
+      "affiliation": "Department of Electrical & Computer Engineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Linder, Johannes",
+      "affiliation": "Paul G. Allen School of Computer Science & Engineering, University of Washington, Seattle, WA, USA"
+    },
+    {
+      "name": "Seelig, Georg",
+      "affiliation": "Department of Electrical & Computer Engineering and Paul G. Allen School of Computer Science & Engineering, University of Washington, Seattle, WA, USA"
+    }
+  ],
+  "keywords": [
+    "alternative splicing",
+    "exon skipping",
+    "massively parallel reporter assay",
+    "MPRA",
+    "splice-disrupting variants",
+    "deep learning",
+    "cell type-specific splicing"
+  ]
+}
