@@ -30,7 +30,7 @@ Figure_4 D: NSSM section MYH11 exon 42 -> Figure_4/outputs/nssm_MAY/ALL/MYH11_ex
 Figure_4 E: NSSM section SCN5A exon 24 -> Figure_4/outputs/nssm_MAY/ALL/SCN5A_exon_24_chr3:38557231-38557284:-_ALL_delta_logit.pdf
 Figure_4 F: NSSM section LMNA exon 10 -> Figure_4/outputs/nssm_MAY/ALL/LMNA_exon_10_chr1:156137654-156137743:+_ALL_delta_logit.pdf
 Figure_4 G: ParSE-seq comparison, dPSI (r=0.9351, n=11) -> Figure_4/outputs/fig_parse_seq_fixed/parseq_dpsi.pdf
-Figure_4 H: SFARI 1S ClinVar stripplot -> SI_figures/ACMG_overlap/outputs/sfari_overlap_clinvar_stripplot.pdf
+Figure_4 H: SFARI 1S ClinVar stripplot -> SI_figures/ACMG_overlap/outputs_fixed/sfari_overlap_clinvar_stripplot.pdf
 Figure_5 A: Prime editing system + workflow (schematic) -> SCHEMATIC-no-plot
 Figure_5 B: NSSM BIN1 exon 16 in HEK293 -> Figure_4/outputs/nssm_MAY/HEK/BIN1_exon_16_chr2:127051154-127051243:-_HEK_delta_logit.pdf
 Figure_5 C: Editing efficiency variant 1 (rep1,rep2) -> Figure_5/Var4Rep1.pdf | Figure_5/Var4Rep2.pdf
