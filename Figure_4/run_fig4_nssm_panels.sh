@@ -13,3 +13,8 @@ for ge in "spint2 exon 3" "depdc5 exon 6" "snca exon 3" "brca1 exon 13" "ppt1 ex
           "bin1 exon 16" "myh11 exon 42" "scn5a exon 24" "lmna exon 10" "colq exon 5"; do
   python3 $REPO/Figure_4/make_scn5a_ssm.py --gene-exon "$ge" --outdir "$OUT"
 done
+
+# BRCA1 exon 13 (Figure 4B) has 120 single mutants, below the 150 cutoff in the
+# standard plotting script; the BRCA1 copy is identical except for a cutoff of 100.
+python3 $REPO/Figure_4/make_scn5a_ssm.py --gene-exon "brca1 exon 13" --outdir "$OUT" \
+  --script $REPO/Figure_4/ssm_single_muts_logits_BRCA1_exon13_fixed.py
