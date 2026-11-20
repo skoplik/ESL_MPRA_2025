@@ -1,15 +1,19 @@
+import matplotlib as _mpl_style  # paper style: editable vector text
+_mpl_style.rcParams['pdf.fonttype'] = 42
+_mpl_style.rcParams['ps.fonttype'] = 42
+_mpl_style.rcParams['svg.fonttype'] = 'none'
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
 # === Paths ===
-tf_list_path = "/ESL/Figures_SK/Disease_relevant_genes/TFs/TF_names_v_1.01.txt"
-variant_counts_path = "/ESL/Figures_SK/Disease_relevant_genes/all_gene_exon_variant_counts.tsv"
-allseq_file = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-clinvar_path = "/ESL/Figures_SK/redo_pop_variants/clinvar_updated_7_15_25/swarm_delta_logit.csv"
+tf_list_path = "/ESL/ESL_MPRA/SI_figures/TFs_overlap/TF_names_v_1.01.txt"
+variant_counts_path = "/ESL/ESL_MPRA/SI_figures/highly_saturated_exons/outputs/all_gene_exon_variant_counts.tsv"
+allseq_file = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
+clinvar_path = "/ESL/ESL_MPRA/Figure_4/outputs/clinvar/swarm_delta_logit.csv"
 
-output_overlap_path = "/ESL/Figures_SK/Disease_relevant_genes/TFs/tf_overlap_variant_counts.tsv"
-output_plot = "/ESL/Figures_SK/Disease_relevant_genes/TFs/tf_overlap_clinvar_stripplot.pdf"
+output_overlap_path = "/ESL/ESL_MPRA/SI_figures/TFs_overlap/outputs/tf_overlap_variant_counts.tsv"
+output_plot = "/ESL/ESL_MPRA/SI_figures/TFs_overlap/outputs/tf_overlap_clinvar_stripplot.pdf"
 
 # === ClinVar colors ===
 CLINVAR_COLORS = {

@@ -8,6 +8,12 @@ from scipy.stats import pearsonr, gaussian_kde
 from matplotlib.colors import Normalize
 from matplotlib.cm import ScalarMappable
 
+import matplotlib as mpl
+mpl.rcParams['pdf.fonttype'] = 42
+mpl.rcParams['ps.fonttype'] = 42
+mpl.rcParams['svg.fonttype'] = 'none'
+
+
 def normalize_snp_set(snp_str):
     return frozenset(s.strip() for s in snp_str.split(";") if s.strip())
 
@@ -50,7 +56,7 @@ def plot_scatter(df, xcol, ycol, label, out_prefix, xlabel, ylabel):
     plt.title(label, fontsize=14)
 
     r, _ = pearsonr(x, y)
-    plt.text(0.05, 0.95, f"r = {r:.3f}", transform=plt.gca().transAxes,
+    plt.text(0.05, 0.95, f"r = {r:.3f}\nn = {len(x):,}", transform=plt.gca().transAxes,
              ha="left", va="top", fontsize=8)
     print(f"[{label}] Pearson r = {r:.3f} (N={len(x)})")
 
@@ -173,6 +179,7 @@ def process_delta_logit_file(csv_path, out_prefix="6_16_2025/snv_double_from_del
 
 if __name__ == "__main__":
     import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--csv", required=True, help="CSV file with *_delta_logit_pooled and snp info")
     parser.add_argument("--out", default="6_16_2025/snv_double_from_delta", help="Prefix for outputs")

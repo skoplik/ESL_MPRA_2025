@@ -1,0 +1,124 @@
+
+### Script to Retrain TSplice and MTSplice models on COMPASS ###
+INPUTS:
+--mtsplice_model_number
+    model number to load if testing loaded weights 
+--mmsplice_model_number
+    retrained MMSplice model number for combining with MTSplice
+--load_data
+    If True, will load splits from mtsplice_data_dir and
+    tsplice_data_dir 
+--load_ascot_data
+    If True, will load ascot data from ascot_data_dir and
+    add it to the tsplice data (not MTSplice since it doesn't
+    predict variant effects) 
+--ascot_data_dir
+    Data containing ASCOT dataset used to train the original TSplice
+    model. It should already be separated into train, val, test
+    in the same way as the original paper. 
+--tsplice_data_dir
+    Tsplice cell type delta logit data (cell - mean cell)
+    and one hot encoded sequences already split into train/val/test
+--mtsplice_data_dir 
+    MTsplice variant delta logit data 
+    by cell (variant cell - reference cell)
+    and one hot encoded sequences already split into train/val/test
+--output_models_dir
+    Where to save and load .hdf5 or .keras model weights from.
+--output_figures_dir
+    Directory denoting where to save figures to.
+--baseline_mmsplice_path
+    path containing original MMSplice cloned GitHub 
+--test_loaded_weights
+    If True, will try to load weights using mtsplice_model_number
+    and perform predictions on it.
+--tsplice_n_epochs
+    epochs to train tsplice for
+--tsplice_loss
+    either "mse" or "huber". A string containing which loss
+    function to use.
+--tsplice_learning_rate
+    float representing the tsplice learning rate,
+    if not hyperparameter tuning.
+--tsplice_batch_size
+    batch size to use for tsplice training.
+--tsplice_cell_weights
+    relative cell weights, used to prioritize predictions
+    for certain cell types
+--tsplice_early_stop
+    indicate whether to stop the tsplice hyperband at the optimal
+    val loss or not.
+--tsplice_patience
+    patience for early stopping .
+--mtsplice_n_epochs
+    epochs to train mtsplice for.
+--mtsplice_loss
+    either "mse" or "huber". A string containing which loss
+    function to use.
+--mtsplice_learning_rate
+    float representing the mtsplice learning rate,
+    if not hyperparameter tuning.
+--mtsplice_batch_size
+    batch size to use for mtsplice training.
+--mtsplice_cell_weights
+    relative cell weights, used to prioritize predictions
+    for certain cell types.
+--mtsplice_early_stop 
+    indicate whether to stop the tsplice hyperband at the optimal
+    val loss or not.
+--mtsplice_patience
+    patience for mtsplice hyperband.
+--gpu_memory
+    can lower to avoid OOM errors when predicting
+    or training MTSplice (i.e. 4 ensemble + MMSplice).
+--weight_initializer
+    experimental value to see if weight reinitialization helps .
+--hyperparameter_tune
+    If true, will perform hyperband rather than regular fit.
+--hyperband_n_epochs
+--hyperband_max_n_epochs
+--hyperband_patience
+--hyperband_retrain_n_epochs
+    After hyperband, the number of epochs to retrain
+    the best hyperparameter set for.
+--hyperband_retrain_patience
+--hyperband_lr_bounds
+    comma-separated two value input
+    denoting the minimum and maximum learning rate to 
+    optimize for with hyperband.
+--freeze_mmsplice_layers
+    If True, will freeze MMSplice layers during the 
+    full MTSplice retraining.
+--tsplice_natural_scale
+    If True, will produce predictions for the actual 
+    cell logits rather than delta logits.
+--tsplice_output_cell_scale
+    explicitly tell model to train on either
+    "logit", "dlogit", "psi" or "dpsi" scales.
+--nan_mask_strategy
+    How to handle missing values in train.
+    Default is zero-inpute.
+--output_plot_scale
+    Comma-separated input displaying which scale
+    to produce plots for (generally should de "dlogit").
+    options: "logit", "dlogit", "psi" or "dpsi".
+--merged_data_path
+    If make data, full path to where to get 
+    the merged (MMSplice) data from.
+--all_samples_data_path
+    If make data, full path to where to get 
+    the all samples (i.e. with missing refs) data from.
+--mmsplice_data_dir
+    If make data, full path to where to get 
+    mmsplice data from.
+--slurm_job_id
+    passed in automatically by the script if using sbatch.
+    Otherwise, it should be None.
+--make_data
+    Not currently implemented, should use the make_mtsplice_data_splits.sh
+    script to make the data instead.
+--debug
+    Set default values for all parameters and allow breakpoints
+    for debugging.
+--help
+    Display this message.

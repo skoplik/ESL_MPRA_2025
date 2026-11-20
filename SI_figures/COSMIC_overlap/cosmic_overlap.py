@@ -1,13 +1,17 @@
+import matplotlib as _mpl_style  # paper style: editable vector text
+_mpl_style.rcParams['pdf.fonttype'] = 42
+_mpl_style.rcParams['ps.fonttype'] = 42
+_mpl_style.rcParams['svg.fonttype'] = 'none'
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
 # === Paths ===
-input_path = "/ESL/Figures_SK/General_preprocessing/output_7_13_2025/07_18_2025_1e-2_ALL_WITH_WT.csv"
-variant_count_path = "/ESL/Figures_SK/Disease_relevant_genes/all_gene_exon_variant_counts.tsv"
-cosmic_path = "/ESL/Figures_SK/Disease_relevant_genes/COSMIC/Cosmic_CancerGeneCensus_v102_GRCh37.tsv"
-clinvar_path = "/ESL/Figures_SK/redo_pop_variants/clinvar_updated_7_15_25/swarm_delta_logit.csv"
-output_plot = "/ESL/Figures_SK/Disease_relevant_genes/COSMIC/cosmic_overlap_clinvar_stripplot.pdf"
+input_path = "/ESL/ESL_MPRA/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz"
+variant_count_path = "/ESL/ESL_MPRA/SI_figures/highly_saturated_exons/outputs/all_gene_exon_variant_counts.tsv"
+cosmic_path = "/ESL/ESL_MPRA/SI_figures/COSMIC_overlap/Cosmic_CancerGeneCensus_v102_GRCh37.tsv"
+clinvar_path = "/ESL/ESL_MPRA/Figure_4/outputs/clinvar/swarm_delta_logit.csv"
+output_plot = "/ESL/ESL_MPRA/SI_figures/COSMIC_overlap/outputs/cosmic_overlap_clinvar_stripplot.pdf"
 
 # === ClinVar colors ===
 CLINVAR_COLORS = {

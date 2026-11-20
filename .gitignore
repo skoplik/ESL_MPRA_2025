@@ -15,6 +15,9 @@ __pycache__/
 *.xlsx
 *.ipynb
 *.gz
+!Data_Pre-Processing/st_final_with_snp_and_coords_05_30_25.csv.gz
+!Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WITH_WT.csv.gz
+!Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz
 *.bam
 *.bai
 *.fastq
@@ -39,3 +42,62 @@ __pycache__/
 *.RData
 *.rds
 *.pkl
+
+# ---- added during the May 2026 reprocessing cleanup ----
+# in-place edit backups (.bak_style, .bak_path, .bak_pre_annot, ...)
+*.bak
+*.bak_*
+
+# run logs
+*.log
+
+# large regenerable model outputs (regenerate from the scripts; keep off git)
+Figure_3/MMSplice/outputs/
+SI_figures/Sig_diff_cell_lines/outputs/
+Figure_3/SpliceAI/output_MAY_v2/
+SI_figures/Pangolin/output_MAY_v2/
+Figure_3/model_comparison/mega_pred_file*.csv
+
+# per-position prediction archives
+*.npz
+fullpos_npz/
+
+# python
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# archived/superseded script dirs - keep on disk, out of the repo
+old/
+old_scripts/
+
+# archived scripts - moved out of the active tree, kept on disk
+archive_2026_09/
+
+# Shareable model prediction outputs (small; see Figure_3/model_comparison/export_model_predictions.py)
+!Figure_3/model_comparison/model_predictions_MAY_v2.csv.gz
+!Figure_3/AlphaGenome/alphagenome_16k_all_variants_MAY_2026.tsv
+
+# Local archive of superseded scripts - kept on disk, not on the branch
+_archive/
+SI_figures/GTEx_comparison/README.md
+
+# Figure bundle manifests - the map from source PDF to published panel.
+# Versioned deliberately: wrong pointers here have silently shipped wrong panels.
+!_paper_figure_bundles/MANIFEST.txt
+!_paper_figure_bundles/MANIFEST_SI.txt
+
+# Per-figure inputs. Small reference files are tracked; the large ones are
+# symlinks to their canonical location elsewhere on the instance and stay ignored.
+#   Figure_6/inputs/fimo/merged_fimo_output_clusters.tsv        -> Figures_SK/effect_size_final/...  (316M)
+#   Figure_6/inputs/supertable/final_super_table_04_21_2025...  -> Figures_SK/General_preprocessing/ (126M)
+#   Figure_1/inputs/clinvar_20240902.vcf                        -> Data/Sequences/GRCh38_hg38/       (1.2G)
+#   SI_figures/SpliceAI_NSSM/inputs/spliceai_psi_logit.tsv      -> Figures_SK/Spliceai/all/          (23M)
+!Figure_6/inputs/motif_clusters/clusters.tab
+!Figure_6/inputs/motif_clusters/Root_motifs.tf
+!Figure_4/inputs/supertable_ClinVar_matched_in_supertable.txt
+
+!Figure_4/inputs/supertable_dbSNP155_Gencode_v26_overlap_dbSNP155_matches_all_notes.txt
+!Figure_7/inputs/exclusive_psi_outliers_combined.tsv
+!SI_figures/Exac_AF/inputs/supertable_dbSNP155_Gencode_v26_overlap_dbSNP155_matches_ExAC.txt
+#   Figure_4/inputs/hgnc_complete_set.txt -> Figures_SK/Disease_relevant_genes/ (16M, symlink)
