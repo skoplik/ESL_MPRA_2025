@@ -51,3 +51,4 @@ Figure_S9 G: HPA expression SRSF3/SRSF9/HNRNPH2 -> EXTERNAL
 
 Data_S1: Hotspot exon dlogit(PSI) distributions with ClinVar SNVs (SI_figures/hotspot_exons/plot_hotspots_MAY.py) -> SI_figures/hotspot_exons/outputs/hotspot_overlap_clinvar_stripplot_MAY.pdf
 # Figure 3, S3, S10, S11 (ML model figures) are maintained separately and not audited here.
+Data_S1 (saturated): Highly saturated exons (>=300 variants) dlogit(PSI) with ClinVar (SI_figures/highly_saturated_exons/plot_saturated_exons_MAY.py) -> SI_figures/highly_saturated_exons/outputs/saturated_exons_clinvar_stripplot_MAY.pdf

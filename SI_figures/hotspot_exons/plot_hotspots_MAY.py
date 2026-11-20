@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 REPO = "/ESL/ESL_MPRA"
 sys.path.insert(0, f"{REPO}/SI_figures")
-from exon_label_fixes import label as fix_label
+from exon_label_fixes import label as fix_label, primary_loci
 
 MAIN = f"{REPO}/Data_Pre-Processing/Post-process_STAR_PSIs/output/1e-2_ALL_WTS_VARS_NO_DELTAS.csv.gz"
 HOTSPOTS = f"{REPO}/SI_figures/hotspot_exons/inputs/mapped_hg38_hotspot_annotated.tsv"
@@ -48,11 +48,12 @@ PLOT_ORDER = ["Pathogenic", "Likely_pathogenic", "Conflicting",
 # --- load ---
 dl_cols = [c + "_delta_logit_pooled" for c in CELLS]
 df = pd.read_csv(MAIN, low_memory=False,
-                 usecols=["Reference", "event_id", "gene_exon", "seq_type",
+                 usecols=["Reference", "event_id", "event_id_161", "gene_exon", "seq_type",
                           "exon_start_hg38", "exon_end_hg38"] + dl_cols)
 df[dl_cols] = df[dl_cols].apply(pd.to_numeric, errors="coerce")
 df["avg_delta_logit"] = df[dl_cols].mean(axis=1, skipna=True)
 variants = df[df["seq_type"].ne("none") & df["avg_delta_logit"].notna()].copy()
+variants = variants[variants["event_id"].isin(primary_loci(variants))]   # one locus per construct
 
 # --- hotspot overlap, per locus, from May exon coordinates ---
 hs = pd.read_csv(HOTSPOTS, sep="\t").drop_duplicates(["chrom", "start", "end", "gene_name", "exon_number"])

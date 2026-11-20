@@ -27,7 +27,7 @@ MIN_VARIANTS = 300
 
 import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from exon_label_fixes import LABEL_FIXES   # shared with the hotspot figure
+from exon_label_fixes import LABEL_FIXES, primary_loci   # shared with the SI figures
 
 
 def main():
@@ -47,6 +47,12 @@ def main():
     # carried separately so both appear in the table as the caption asks
     KEY = "event_id_161"
 
+    # one exon locus per construct (see exon_label_fixes.primary_loci)
+    keep = primary_loci(df[~is_ref & measured])
+    df = df[df["event_id"].isin(keep)]
+    is_ref = df["seq_type"].eq("none")
+    measured = df[psi_cols].notna().any(axis=1)
+    assert (df.groupby(KEY)["event_id"].nunique() == 1).all()
     variants = df[~is_ref & measured]
     n_by_exon = variants.groupby(KEY).size()
     keep = n_by_exon[n_by_exon >= MIN_VARIANTS].index

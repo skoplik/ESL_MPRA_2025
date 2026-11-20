@@ -13,5 +13,18 @@ LABEL_FIXES = {
 }
 
 
+def primary_loci(variants):
+    """event_ids to keep when one library construct (event_id_161) was quantified
+    against more than one version of its exon (alternative splice sites a few nt
+    apart; 32 constructs in the May data, e.g. ADAM15 exon 20, PIGH exon 3).
+    The loci share most of their sequences, so counting all of them double-counts.
+    Keep, per construct, the locus with the most measured variants (ties: lowest
+    event_id). `variants` = measured, non-reference rows with event_id and event_id_161.
+    """
+    n = variants.groupby(["event_id_161", "event_id"]).size().reset_index(name="n")
+    n = n.sort_values(["event_id_161", "n", "event_id"], ascending=[True, False, True])
+    return set(n.drop_duplicates("event_id_161")["event_id"])
+
+
 def label(event_id, gene_exon):
     return LABEL_FIXES.get(event_id, gene_exon)
