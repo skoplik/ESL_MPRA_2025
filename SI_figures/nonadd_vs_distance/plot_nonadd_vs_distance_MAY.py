@@ -3,7 +3,7 @@ Analyses whether the distance between two SNVs in a double variant predicts
 the probability of non-additive effects on splicing (Δlogit PSI).
 
 Input: full_results TSV from analyze_dnv_snv.py
-Output: P(non-additive) vs inter-variant distance plot
+Output: Fraction of non-additive pairs vs inter-variant distance plot
 """
 
 import pandas as pd
@@ -78,7 +78,7 @@ print(f"Spearman ρ = {r_s:.3f} (p={p_s:.2e})")
 fig, axes = plt.subplots(1, 2, figsize=(11, 4.5))
 fig.subplots_adjust(wspace=0.35)
 
-# --- Panel A: P(non-additive) per distance bin ---
+# --- Panel A: Fraction of non-additive pairs per distance bin ---
 ax = axes[0]
 ax.bar(
     range(len(binned)),
@@ -94,7 +94,7 @@ ax.set_xticklabels(
     fontsize=8
 )
 ax.set_xlabel("Distance between SNVs (nt)", fontsize=10)
-ax.set_ylabel("P(non-additive)", fontsize=10)
+ax.set_ylabel("Fraction of non-additive pairs", fontsize=10)
 ax.set_title("Non-additivity vs. inter-variant distance", fontsize=10)
 ax.text(
     0.97, 0.03,
