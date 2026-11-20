@@ -18,7 +18,7 @@ Figure_2 A: Variant PSI by reference-PSI quantiles -> Figure_2/outputs/plots/sta
 Figure_2 B: dPSI by reference-PSI quantiles -> Figure_2/outputs/plots/start2end_deltapsi_300dpi_clipped_e-2.pdf
 Figure_2 C: dlogit(PSI) by reference-PSI quantiles -> Figure_2/outputs/plots/start2end_deltalogit_300dpi_clipped_e-2.pdf
 Figure_2 D: dlogit by SNV position rel. SA/SD + SA/SD zoom insets -> Figure_2/outputs/plots/dpsi_by_pos_avg_delta_logit_pos_plot_plasma.pdf | Figure_2/outputs/plots/dpsi_by_pos_zoom_SA.pdf | Figure_2/outputs/plots/dpsi_by_pos_zoom_SD.pdf
-Figure_2 E: Additive effects of SNVs vs double variant (annotated) -> Figure_2/outputs/plots/dnv_snv_annotated_scatter_additive.pdf
+Figure_2 E: Additive effects of SNVs vs double variant (annotated) -> Figure_2/outputs/plots/dnv_snv_scatter_additive.pdf
 Figure_3 A: Model inference workflow (schematic) -> SCHEMATIC-no-plot
 Figure_3 B: Bar plot Pearson r for 5 baseline models -> Figure_3/plots_MAY_v2/merged_output/bar_inference_model_comparison.pdf
 Figure_3 C: Scatter baseline vs retrained MMSplice (testset+aggregate) -> Figure_3/plots_MAY_v2/merged_output/scatter_mmsplice_baseline_vs_retrained.pdf
