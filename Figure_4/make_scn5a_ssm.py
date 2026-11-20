@@ -19,7 +19,7 @@ from matplotlib.legend import Legend
 
 # The plotting script predates matplotlib 3.9, which renamed Legend.legendHandles
 # to .legend_handles. Restore the old name so the script runs unmodified.
-if not hasattr(Legend, "legendHandles"):
+if tuple(int(x) for x in matplotlib.__version__.split(".")[:2]) >= (3, 9):
     Legend.legendHandles = property(lambda self: self.legend_handles)
 
 SCRIPT     = "/ESL/ESL_MPRA/Figure_4/ssm_single_muts_logits_06_04_2025_with_clinvar_patched.py"

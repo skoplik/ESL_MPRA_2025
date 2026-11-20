@@ -29,10 +29,10 @@ Figure_S5 A: ROC for SDV classification -> SI_figures/SDV_sensitivity/outputs/fi
 Figure_S5 B: Empirical FDR vs |dlogit| -> SI_figures/SDV_sensitivity/outputs/figA_fdr_curve.pdf
 Figure_S5 C: Replicate noise vs SDV threshold -> SI_figures/SDV_sensitivity/outputs/figB_violin.pdf
 Figure_S5 D: Replicate concordance per cell line -> SI_figures/SDV_sensitivity/outputs/figB_scatter_per_cellline.pdf
-Figure_S5 E-F: Non-additivity vs inter-variant distance -> Figure_2/outputs/distance_analysis/nonadd_vs_distance.pdf
+Figure_S5 E-F: Non-additivity vs inter-variant distance -> Figure_2/outputs/distance_analysis_MAY/nonadd_vs_distance.pdf
 
-Figure_S6 A: NSSM maps, disease-relevant exons (12, letter-size assembly) -> SI_figures/SpliceAI_NSSM/assembled/figS6_nssm_maps_fitted.pdf
-Figure_S6 B: Full NSSMs, non-ACMG (BEST1 e8 shown) -> Figure_4/outputs/ssm_heatmap_sep2026/ALL/BEST1_exon_8_chr11:61959498-61959578:+_ALL_delta_logit.pdf
+Figure_S6 A: NSSM maps, disease-relevant exons (12, letter-size assembly) -> SI_figures/SpliceAI_NSSM/assembled/figS6_nssm_maps_MAY.pdf | SI_figures/SpliceAI_NSSM/assembled/figS6_legend_clinvar.pdf | SI_figures/SpliceAI_NSSM/assembled/figS6_colorbar.pdf
+Figure_S6 B: Full NSSMs, non-ACMG (BEST1 e8 shown) -> included in S6 A page (Figure_4/outputs/nssm_S6_MAY/ALL)
 
 Figure_S7 A-B: SpliceAI predictions vs NSSM (9 exons, one assembled file) -> SI_figures/SpliceAI_NSSM/assembled/all_splice_ai_ssms_REPROCESSED.pdf
 
@@ -45,6 +45,9 @@ Figure_S9 A: Heatmap cell-type-specific inclusion -> Figure_7/outputs/mingap/all
 Figure_S9 B: Heatmap cell-type-specific skipping -> Figure_7/outputs/mingap/all_gap_low_filtered_annotated.pdf
 Figure_S9 C: COLQ exon 5 PSI across cell lines  [NEW Sep17] -> Figure_7/outputs/regenerated_panels/COLQ_exon_5_psi.pdf
 Figure_S9 D: Representative sequence / motif selection -> SCHEMATIC
-Figure_S9 E: NSSM COLQ exon 5 -> Figure_4/outputs/ssm_heatmap_sep2026/ALL/COLQ_exon_5_chr3:15478977-15479003:-_ALL_delta_logit.pdf
+Figure_S9 E: NSSM COLQ exon 5 -> Figure_4/outputs/nssm_MAY/ALL/COLQ_exon_5_chr3:15478977-15479003:-_ALL_delta_logit.pdf
 Figure_S9 F: RT-PCR gels, COLQ motif disruption -> GEL
 Figure_S9 G: HPA expression SRSF3/SRSF9/HNRNPH2 -> EXTERNAL
+
+Data_S1: Hotspot exon dlogit(PSI) distributions with ClinVar SNVs (SI_figures/hotspot_exons/plot_hotspots_MAY.py) -> SI_figures/hotspot_exons/outputs/hotspot_overlap_clinvar_stripplot_MAY.pdf
+# Figure 3, S3, S10, S11 (ML model figures) are maintained separately and not audited here.
