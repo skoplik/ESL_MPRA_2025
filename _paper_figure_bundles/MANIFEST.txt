@@ -40,7 +40,7 @@ Figure_5 F: Variant PSI COMPASS/edit-corrected/PE (no exported plot found) -> NO
 Figure_5 G: dPSI MPRA vs PE (no exported plot found) -> NOT FOUND
 Figure_5 H: dlogit MPRA vs PE (no exported plot found) -> NOT FOUND
 Figure_6 A: Data processing workflow (schematic) -> SCHEMATIC-no-plot
-Figure_6 B: Motif effect size example, cluster_023 x BIN1 exon 16 (schematic surrounds the plot) -> Figure_6/outputs/figure6_elements_MAY_full/fig6B_BIN1_cluster023_strip.pdf
+Figure_6 B: Motif effect size example, cluster_023 x BIN1 exon 16 (schematic surrounds the plot) -> Figure_6/outputs/effect_size_MAY_full/plots/stripplots_exon/strip_cluster_023_chr2:127051154-127051243:-_allcells.pdf   (Figure_6/Effect_size/run_effect_sizes_MAY.sh)
 Figure_6 C: Concordance filtering of motif effect sizes HEK293 -> Figure_6/outputs/figure6_elements_MAY_full/exon_mean_sem_per_cluster_HEK_min3families.pdf
 Figure_6 D: Concordant RBP motifs exonic (ESE/ESS examples) -> Figure_6/outputs/figure6_elements_MAY_full/fig6D_exon_panel.pdf
 Figure_6 E: Concordant RBP motifs intronic (ISE/ISS examples) -> Figure_6/outputs/figure6_elements_MAY_full/fig6E_intron1_panel.pdf

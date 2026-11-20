@@ -34,7 +34,7 @@ Figure_S5 E-F: Non-additivity vs inter-variant distance -> Figure_2/outputs/dist
 Figure_S6 A: NSSM maps, disease-relevant exons (12, letter-size assembly) -> SI_figures/SpliceAI_NSSM/assembled/figS6_nssm_maps_MAY.pdf | SI_figures/SpliceAI_NSSM/assembled/figS6_legend_clinvar.pdf | SI_figures/SpliceAI_NSSM/assembled/figS6_colorbar.pdf
 Figure_S6 B: Full NSSMs, non-ACMG (BEST1 e8 shown) -> included in S6 A page (Figure_4/outputs/nssm_S6_MAY/ALL)
 
-Figure_S7 A-B: SpliceAI predictions vs NSSM (9 exons, one assembled file) -> SI_figures/SpliceAI_NSSM/assembled/all_splice_ai_ssms_REPROCESSED.pdf
+Figure_S7 A-B: SpliceAI predictions vs NSSM (9 exons, one assembled file) -> SI_figures/SpliceAI_NSSM/assembled/all_splice_ai_ssms_REPROCESSED.pdf   [model figure: not audited]
 
 Figure_S8 A: Exonic motif effect sizes -> Figure_6/outputs/effect_size_sep2026/plots/table_plots_all_cells/filtered_scatter_exon_exon_individual_vs_average_plot.pdf
 Figure_S8 B: Intronic motif effect sizes -> Figure_6/outputs/effect_size_sep2026/plots/table_plots_all_cells/filtered_scatter_intron1_intron1_individual_vs_average_plot.pdf
