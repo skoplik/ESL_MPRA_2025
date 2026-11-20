@@ -36,11 +36,10 @@ Figure_S6 B: Full NSSMs, non-ACMG (BEST1 e8 shown) -> included in S6 A page (Fig
 
 Figure_S7 A-B: SpliceAI predictions vs NSSM (9 exons, one assembled file) -> SI_figures/SpliceAI_NSSM/assembled/all_splice_ai_ssms_REPROCESSED.pdf   [model figure: not audited]
 
-Figure_S8 A: Exonic motif effect sizes -> Figure_6/outputs/figure6_elements_MAY_full/filtered_scatter_exon_exon_individual_vs_average_plot.pdf
-Figure_S8 B: Intronic motif effect sizes -> Figure_6/outputs/figure6_elements_MAY_full/filtered_scatter_intron1_intron1_individual_vs_average_plot.pdf
-Figure_S8 C: Concordance filtering HEK293 -> Figure_6/outputs/concordance_MAY_full/HEK_intron1.pdf | Figure_6/outputs/concordance_MAY_full/HEK_exon.pdf
-Figure_S8 D: Mean effect per cluster (exon / intron) -> Figure_6/outputs/figure6_elements_MAY_full/exon_mean_sem_per_cluster_HEK_min3families.pdf | Figure_6/outputs/figure6_elements_MAY_full/intron1_mean_sem_per_cluster_HEK_min3families.pdf
-# S8 panel order still rotated vs legend (legend: A concordance, B exonic, C intronic) - pending decision. Scripts: 03_figure_elements.py (A/B), 02_concordance_scores.py (C), plot_effects_color_by_concordance_6_04.py (D).
+Figure_S8 A: Concordance filtering HEK293 (intron 1 left, exon right) [02_concordance_scores.py] -> Figure_6/outputs/concordance_MAY_full/HEK_intron1.pdf | Figure_6/outputs/concordance_MAY_full/HEK_exon.pdf
+Figure_S8 B: Intronic motif effect sizes, per-cell vs all-cell mean [03_figure_elements.py] -> Figure_6/outputs/figure6_elements_MAY_full/filtered_scatter_intron1_intron1_individual_vs_average_plot.pdf
+Figure_S8 C: Exonic motif effect sizes, per-cell vs all-cell mean [03_figure_elements.py] -> Figure_6/outputs/figure6_elements_MAY_full/filtered_scatter_exon_exon_individual_vs_average_plot.pdf
+Figure_S8 D: Mingap threshold sensitivity sweep [Figure_7/run_mingap_anova.py] -> Figure_7/outputs/mingap/mingap_sensitivity_sweep.pdf
 
 Figure_S9 A: Heatmap cell-type-specific inclusion -> Figure_7/outputs/mingap/all_gap_high_filtered_annotated.pdf
 Figure_S9 B: Heatmap cell-type-specific skipping -> Figure_7/outputs/mingap/all_gap_low_filtered_annotated.pdf
