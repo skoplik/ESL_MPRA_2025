@@ -25,16 +25,9 @@ OUT_DIR = "/ESL/ESL_MPRA/SI_figures/supp_tables"
 CELLS = ["HEK", "HeLa", "K562", "MCF7", "HMC3"]
 MIN_VARIANTS = 300
 
-# gene_exon labels that are wrong or ambiguous in the source data, fixed by exon
-# coordinates (event_id). Numbering follows the MANE Select transcript
-# (GENCODE v38). CACNA1C: the source labels two different loci "exon 31".
-#   chr12:2648475-2648507 (33 nt) is MANE exon 31.
-#   chr12:2633629-2633712 (84 nt) is not in MANE; it is the mutually exclusive
-#   partner of MANE exon 30 (chr12:2634297-2634380), so "exon 30 (alt.)".
-LABEL_FIXES = {
-    "chr12:2633629-2633712:+": "CACNA1C exon 30 (alt.)",
-    "chr12:2648475-2648507:+": "CACNA1C exon 31",
-}
+import sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from exon_label_fixes import LABEL_FIXES   # shared with the hotspot figure
 
 
 def main():
