@@ -515,6 +515,10 @@ print("\n[Figure 4] Top 20 exons by cryptic fraction (WT)...")
 cf_cols = [f"{cl}_cryptic_fraction" for cl in CELL_LINES
            if f"{cl}_cryptic_fraction" in seq_df.columns]
 wt_df = seq_df[seq_df["seq_type"] == "none"].copy()
+# Restrict to exons in the final dataset (present in the May PSI table); the cryptic
+# counts come straight from STAR and also include constructs that failed PSI filters
+# (e.g. PRKCZ exon 3), which have no PSI and no coordinates in the final data.
+wt_df = wt_df[wt_df["event_id"].isin(set(wt_psi_event["event_id"]))]
 wt_df["avg_cryptic"] = wt_df[cf_cols].mean(axis=1)
 
 # One row per WT exon (event_id)
